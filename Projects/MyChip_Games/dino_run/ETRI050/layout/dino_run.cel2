@@ -1,3 +1,32 @@
-padgroup Input_Clk permute
+padgroup Input_clk  permute
 twpin_clk       nonfixed
 restrict side T
+
+padgroup Input_reset  permute
+twpin_reset     nonfixed
+restrict side T
+
+padgroup Input_game_new  permute
+twpin_game_new  nonfixed
+restrict side T
+
+padgroup Input_btn_up  permute
+twpin_jump      nonfixed
+restrict side T
+
+padgroup Output_game_over permute
+twpin_game_over nonfixed
+restrict side B
+
+padgroup Output_pixel permute
+twpin_pixel     nonfixed
+restrict side B
+
+padgroup Output_p_tick permute
+twpin_p_tick    nonfixed
+restrict side B
+
+padgroup Output_v_sync permute
+twpin_v_sync    nonfixed
+restrict side B
+

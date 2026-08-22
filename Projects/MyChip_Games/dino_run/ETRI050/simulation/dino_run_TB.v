@@ -13,7 +13,6 @@ module dino_run_TB;
     // from SystemC TB to DUT's input ports
     reg         clk;
     reg         reset;
-    reg [7:0]   option;
     reg         jump;
     reg         game_new;
     // from DUT's output ports to SystemC TB
@@ -28,7 +27,6 @@ module dino_run_TB;
         .v_sync(v_sync),
         .pixel(pixel),
         .p_tick(p_tick),
-        .option(option),
         .jump(jump),
         .game_new(game_new),
         .game_over(game_over));
@@ -61,7 +59,6 @@ module dino_run_TB;
             // from SystemC TB to DUT's input ports
             clk,
             reset,
-            option,
             jump,
             game_new,
             // from DUT's output ports to SystemC TB

@@ -238,6 +238,8 @@ void handlerGame_Complete()
 
   bUpdateBuffer = false;
   cnt_p_tick = 0;
+  nFrame = 0;
+  nTry = 0;
 }
 
 void Render()

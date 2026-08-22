@@ -23,7 +23,6 @@ typedef struct tag_Output
 {
     unsigned long   clk;
     unsigned long   reset;
-    unsigned long   option;
     unsigned long   jump;
     unsigned long   game_new;
     unsigned long   end_of_sim;

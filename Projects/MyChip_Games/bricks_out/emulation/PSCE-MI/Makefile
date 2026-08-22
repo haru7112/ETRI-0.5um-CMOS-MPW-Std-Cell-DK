@@ -16,6 +16,7 @@ else ifeq ($(MI), PI_PICO)
 else ifeq ($(MI), PI_PICO_V3)
 	export FQBN=rp2040:rp2040:rpipico
 	CPP_EXTRA="-DPI_PICO_V3 -DUART_BPS=115200 -DOLED_DISPLAY -DCYCLONE_IV"
+#	CPP_EXTRA="-DPI_PICO_V3 -DUART_BPS=115200 -DOLED_DISPLAY -DHAVE_LCD2004_DEBUG -DCYCLONE_IV"
 else ifeq ($(MI), Disp)
 	export FQBN=rp2040:rp2040:waveshare_rp2040_zero
 else

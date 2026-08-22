@@ -18,7 +18,6 @@ SC_MODULE(sc_dino_run_TB)
     // from SystemC TB to DUT's input ports
     sc_clock                clk;
     sc_signal<bool>         reset;
-    sc_signal<sc_uint<8> >  option;
     sc_signal<bool>         jump;
     sc_signal<bool>         game_new;
     // from DUT's output ports to SystemC TB
@@ -49,7 +48,6 @@ SC_MODULE(sc_dino_run_TB)
         u_sc_glcd128x64_TLM->pixel(pixel);
         u_sc_glcd128x64_TLM->p_tick(p_tick);
         u_sc_glcd128x64_TLM->jump(jump);
-        u_sc_glcd128x64_TLM->option(option);
         u_sc_glcd128x64_TLM->game_new(game_new);
         u_sc_glcd128x64_TLM->game_over(game_over);
 
@@ -60,7 +58,6 @@ SC_MODULE(sc_dino_run_TB)
         fp->set_time_unit(100, SC_PS);  // resolution (trace) ps
         sc_trace(fp, clk,       "clk");
         sc_trace(fp, reset,     "reset");
-        sc_trace(fp, option,    "option");
         sc_trace(fp, jump,      "jump");
         sc_trace(fp, v_sync,    "v_sync");
         sc_trace(fp, pixel,     "pixel");

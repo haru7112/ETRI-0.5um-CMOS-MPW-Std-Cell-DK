@@ -22,21 +22,6 @@ U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 #define SCREEN_W_BYTE (SCREEN_WIDTH/8)  // 16
 unsigned char TableBMP[SCREEN_W_BYTE*SCREEN_HEIGHT];
 
-#define PIN_RESET     7
-#define PIN_PIXEL     27
-#define PIN_V_SYNC    26
-#define PIN_GAME_OVER 15
-#define PIN_P_TICK    14
-
-#define PIN_OPTION7   0
-#define PIN_OPTION6   1
-#define PIN_OPTION5   2
-#define PIN_OPTION4   3
-#define PIN_OPTION3   6
-#define PIN_OPTION2   9
-#define PIN_OPTION1   10
-#define PIN_OPTION0   11
-
 #define DRAW_BITMAP() { \
     u8g2.firstPage();  \
     do { \
@@ -50,12 +35,18 @@ unsigned char TableBMP[SCREEN_W_BYTE*SCREEN_HEIGHT];
 RP2040_PWM* PWM_Instance; //creates pwm instance
 float frequency = 600000; //  Freq
 float dutyCycle = 50;     //  Duty in %
-#ifdef PWM_PI_PICO
 #define PIN_CLK_OUT   28  //  PWM out pin for Pi Pico
-#else
-#define PIN_CLK_OUT   29  //  PWM out pin for RP2040-Zero Board
-#endif
 //------------------------------------------------
+#define PIN_RESET         6
+#define PIN_V_SYNC        7
+#define PIN_PIXEL         8
+#define PIN_P_TICK        9
+#define PIN_JUMP          10
+#define PIN_GAME_NEW      12
+#define PIN_GAME_OVER     13
+//------------------------------------------------
+#define PIN_SW_R          3 // Jump
+#define PIN_SW_M          2
 
 void u8g2_prepare(void)
 {
@@ -73,30 +64,30 @@ int Score = 0;
 void setup(void)
 {
   // Pin Mode setup --------------------------------------
+  pinMode(PIN_SW_R, INPUT);
+  pinMode(PIN_SW_M, INPUT);
+
+  pinMode(PIN_RESET, OUTPUT);
+  pinMode(PIN_JUMP, OUTPUT);
+  pinMode(PIN_GAME_NEW, OUTPUT);
+
+  pinMode(PIN_V_SYNC, INPUT_PULLDOWN);
+  pinMode(PIN_PIXEL, INPUT_PULLDOWN);
+  pinMode(PIN_P_TICK, INPUT_PULLDOWN);
+  pinMode(PIN_GAME_OVER, INPUT_PULLDOWN);
+
+  // Initial value -----------------------------------------
+  digitalWrite(PIN_RESET, HIGH);  // Reset
+  digitalWrite(PIN_JUMP, HIGH);
+  digitalWrite(PIN_GAME_NEW, HIGH);
+
+
   pinMode(PIN_RESET, OUTPUT);
 
   pinMode(PIN_P_TICK, INPUT_PULLDOWN);
   pinMode(PIN_V_SYNC, INPUT_PULLDOWN);
   pinMode(PIN_PIXEL, INPUT_PULLDOWN);
   pinMode(PIN_GAME_OVER, INPUT_PULLDOWN);
-
-  pinMode(PIN_OPTION7, OUTPUT);
-  pinMode(PIN_OPTION6, OUTPUT);
-  pinMode(PIN_OPTION5, OUTPUT);
-  pinMode(PIN_OPTION4, OUTPUT);
-  pinMode(PIN_OPTION3, OUTPUT);
-  pinMode(PIN_OPTION2, OUTPUT);
-  pinMode(PIN_OPTION1, OUTPUT);
-  pinMode(PIN_OPTION0, OUTPUT);
-
-  digitalWrite(PIN_OPTION7, 0);
-  digitalWrite(PIN_OPTION6, 0);
-  digitalWrite(PIN_OPTION5, 0);
-  digitalWrite(PIN_OPTION4, 0);
-  digitalWrite(PIN_OPTION3, 0);
-  digitalWrite(PIN_OPTION2, 0);
-  digitalWrite(PIN_OPTION1, 0);
-  digitalWrite(PIN_OPTION0, 0);
 
   // Initial value -----------------------------------------
   digitalWrite(PIN_RESET, HIGH);  // Reset
@@ -150,12 +141,36 @@ void loop1()
   }
 }
 
+#define DEBOUNCE_DELAY  20
+
 void loop(void)
 {
   PWM_Instance->setPWM(PIN_CLK_OUT, frequency, dutyCycle);
 
   while(true)
-  {}
+  {
+    if (!digitalRead(PIN_SW_R))
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_JUMP, LOW);
+    }
+    else
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_JUMP, HIGH);
+    }
+
+    if (!digitalRead(PIN_SW_M))
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_GAME_NEW, LOW);
+    }
+    else
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_GAME_NEW, HIGH);
+    }
+  }
 }
 
 // Interrupt Handlers -----------------------------------------------------
@@ -198,31 +213,9 @@ void handlerGame_Over()
   digitalWrite(PIN_RESET, LOW);
 }
 
-void Render()
+void handlerV_SYNC()
 {
   bUpdateBuffer = true;
   cnt_p_tick = 0;
-}
-
-void WriteOption(uint8_t option)
-{
-  digitalWrite(PIN_OPTION7, option & 0x80);
-  digitalWrite(PIN_OPTION6, option & 0x40);
-  digitalWrite(PIN_OPTION5, option & 0x20);
-  digitalWrite(PIN_OPTION4, option & 0x10);
-  digitalWrite(PIN_OPTION3, option & 0x08);
-  digitalWrite(PIN_OPTION2, option & 0x04);
-  digitalWrite(PIN_OPTION1, option & 0x02);
-  digitalWrite(PIN_OPTION0, option & 0x01);
-}
-
-void handlerV_SYNC()
-{
-  Render();
-
-  if (Score < 500)
-    WriteOption(0x00);
-  else if (!(Score % 64))
-      WriteOption(rand()%256);
 }
 

@@ -16,7 +16,6 @@ SC_MODULE(sc_glcd128x64_TLM)
     sc_in<bool>             p_tick;
     sc_out<bool>            jump;
 
-    sc_out<sc_uint<8> >     option;
     sc_in<bool>             game_over;
     sc_out<bool>            game_new;
     

@@ -3,14 +3,13 @@
 // Purpose:
 //
 
-module dino_run(clk, reset, v_sync, pixel, p_tick, option, jump, game_over, game_new);
+module dino_run(clk, reset, v_sync, pixel, p_tick, jump, game_over, game_new);
 input           clk;
 input           reset;
 output          v_sync;
 output          pixel;
 output          p_tick;
 input           jump;
-input [7:0]     option;
 input           game_new;
 output          game_over;
 
@@ -43,7 +42,7 @@ output          game_over;
         .pixel(pixel_dino),
         .jump(jump));
 
-    wire pixel_cactus;
+    wire pixel_cactus, en_delay;
     cactus u_cactus(
         .clk(clk),
         .reset(reset),
@@ -52,7 +51,16 @@ output          game_over;
         .y_pos(y_pos),
         .v_sync(v_sync),
         .pixel(pixel_cactus),
-        .delay(option));
+        .en_delay(en_delay),
+        .delay(delay));
+
+    // LFSR Pseudo RNG for Cactus Delay ---------------------------------
+    wire [11:0]  delay;
+    lfsr_12bit u_lfsr_12bit(
+        .clk(clk),
+        .rst(reset),
+        .enable(en_delay),
+        .lfsr_out(delay));
 
     wire pixel_cloud;
     cloud u_cloud(
@@ -66,7 +74,7 @@ output          game_over;
         .en_alt(en_alt),
         .pixel(pixel_cloud));
 
-    // LFSR Pseudo RNG ---------------------------------------------
+    // LFSR Pseudo RNG for Cloud Alt. -----------------------------------
     wire [3:0] alt;
     wire       en_alt;
     lfsr_4bit u_lfsr_4bit(

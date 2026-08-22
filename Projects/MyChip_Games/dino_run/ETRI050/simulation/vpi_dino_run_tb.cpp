@@ -46,7 +46,6 @@ void drive_hdl(void *Out_vector)
     p->end_of_sim   = u_sc_dino_run_TB->sc_Stopped.read();
     p->clk          = u_sc_dino_run_TB->clk.read();
     p->reset        = u_sc_dino_run_TB->reset.read();
-    p->option       = u_sc_dino_run_TB->option.read();
     p->jump         = u_sc_dino_run_TB->jump.read();
     p->game_new     = u_sc_dino_run_TB->game_new.read();
 }

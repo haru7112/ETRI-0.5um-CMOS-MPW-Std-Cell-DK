@@ -113,12 +113,6 @@ void sc_glcd128x64_TLM::V_Sync_Thread(void)
         cnt_p_tick = 0;
 
         fprintf(stderr, "Frame[%ld]\r", nFrame++);
-
-        if (nFrame<500L)
-            option.write(0x00);
-        else
-            option.write(rand()%256);
-            //option.write((rand()%2|rand()%5<<2|(rand()%8)<<5));
     }
 }
 

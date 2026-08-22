@@ -1,9 +1,10 @@
 # Synthesis script for yosys created by qflow
 read_liberty -lib -ignore_miss_dir -setattr blackbox /usr/local/share/qflow/tech/etri050/etri05_stdcells.lib
-read_verilog  /home/mychip/ETRI050_DesignKit/devel/Projects/MyChip_Games/dino_run/ETRI050/source/dino_run.v
+read_verilog  /home/mychip/MyChip_Work/MyChip_Games/dino_run/ETRI050/source/dino_run.v
 read_verilog  health.v
 read_verilog  lfsr_4bit.v
 read_verilog  cloud.v
+read_verilog  lfsr_12bit.v
 read_verilog  cactus.v
 read_verilog  dino.v
 read_verilog  ctrl.v

@@ -10,7 +10,11 @@
 #include <verilated_vcd_sc.h>
 #endif
 
+#ifdef EMULATED_CO_SIM
+#include "Edino_run.h"
+#else
 #include "Vdino_run.h"
+#endif
 #include "sc_glcd128x64_TLM.h"
 
 SC_MODULE(sc_dino_run_TB)
@@ -22,13 +26,16 @@ SC_MODULE(sc_dino_run_TB)
 
     sc_signal<bool>         p_tick;
 
-    sc_signal<sc_uint<8> >  option;
     sc_signal<bool>         jump;
 
     sc_signal<bool>         game_over;
     sc_signal<bool>         game_new;
 
+#ifdef EMULATED_CO_SIM
+    Edino_run*              u_dino_run;
+#else
     Vdino_run*              u_dino_run;
+#endif
     sc_glcd128x64_TLM*      u_sc_glcd128x64_TLM;
 
 #ifdef  VCD_TRACE_TEST_TB
@@ -47,13 +54,16 @@ SC_MODULE(sc_dino_run_TB)
         sensitive << clk;
 
         // Instantiate DUT --------------------------------
+#ifdef EMULATED_CO_SIM
+        u_dino_run = new Edino_run("u_dino_run");
+#else
         u_dino_run = new Vdino_run("u_dino_run");
+#endif
         u_dino_run->clk(clk);
         u_dino_run->reset(reset);
         u_dino_run->v_sync(v_sync);
         u_dino_run->pixel(pixel);
         u_dino_run->p_tick(p_tick);
-        u_dino_run->option(option);
         u_dino_run->jump(jump);
         u_dino_run->game_over(game_over);
         u_dino_run->game_new(game_new);
@@ -64,7 +74,6 @@ SC_MODULE(sc_dino_run_TB)
         u_sc_glcd128x64_TLM->pixel(pixel);
         u_sc_glcd128x64_TLM->p_tick(p_tick);
         u_sc_glcd128x64_TLM->jump(jump);
-        u_sc_glcd128x64_TLM->option(option);
         u_sc_glcd128x64_TLM->game_over(game_over);
         u_sc_glcd128x64_TLM->game_new(game_new);
 
@@ -78,7 +87,6 @@ SC_MODULE(sc_dino_run_TB)
         sc_trace(fp, pixel, "pixel");
         sc_trace(fp, p_tick,"p_tick");
         sc_trace(fp, jump,  "jump");
-        sc_trace(fp, option, "option");
         sc_trace(fp, game_over, "game_over");
         sc_trace(fp, game_new, "game_new");
 #endif

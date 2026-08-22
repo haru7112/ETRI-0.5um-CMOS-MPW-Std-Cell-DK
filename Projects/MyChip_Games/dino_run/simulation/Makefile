@@ -7,7 +7,7 @@ export LD_LIBRARY_PATH	:=$(LD_LIBRARY_PATH):$(SYSTEMC_LIBDIR)
 export CXX				= clang++
 
 #---------------------------------------------------------------
-TOP_MODULE = dino_run
+#TOP_MODULE = dino_run
 
 # SystemC testbench Reuse --------------------------------------
 SC_SRCS =  \
@@ -26,6 +26,7 @@ lint: VERILOG_SRCS =  \
 	$(RTL_PATH)/cactus.v \
 	$(RTL_PATH)/cloud.v \
 	$(RTL_PATH)/lfsr_4bit.v \
+	$(RTL_PATH)/lfsr_12bit.v \
 	$(RTL_PATH)/health.v \
 	$(RTL_PATH)/ctrl.v \
 	$(RTL_PATH)/$(TOP_MODULE).v
@@ -34,6 +35,9 @@ build: VERILOG_SRCS =  \
 	$(RTL_PATH)/dino.v \
 	$(RTL_PATH)/cactus.v \
 	$(RTL_PATH)/cloud.v \
+	$(RTL_PATH)/lfsr_4bit.v \
+	$(RTL_PATH)/lfsr_12bit.v \
+	$(RTL_PATH)/health.v \
 	$(RTL_PATH)/ctrl.v \
 	$(RTL_PATH)/$(TOP_MODULE).v
 
@@ -41,6 +45,9 @@ run: VERILOG_SRCS =  \
 	$(RTL_PATH)/dino.v \
 	$(RTL_PATH)/cactus.v \
 	$(RTL_PATH)/cloud.v \
+	$(RTL_PATH)/lfsr_4bit.v \
+	$(RTL_PATH)/lfsr_12bit.v \
+	$(RTL_PATH)/health.v \
 	$(RTL_PATH)/ctrl.v \
 	$(RTL_PATH)/$(TOP_MODULE).v
 

@@ -34,6 +34,7 @@ if {$make_assignments} {
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../dino_run/dino.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../dino_run/cloud.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../dino_run/lfsr_4bit.v
+	set_global_assignment -name SYSTEMVERILOG_FILE ../../dino_run/lfsr_12bit.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../dino_run/health.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../dino_run/ctrl.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../dino_run/cactus.v
@@ -55,21 +56,13 @@ if {$make_assignments} {
 	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
     set_location_assignment PIN_135 -to clk
-    set_location_assignment PIN_132 -to reset
-    set_location_assignment PIN_111 -to v_sync
-    set_location_assignment PIN_136 -to pixel
-    set_location_assignment PIN_121 -to p_tick
-    set_location_assignment PIN_120 -to game_over
-    set_location_assignment PIN_98  -to jump
-    set_location_assignment PIN_77 -to game_new
-    set_location_assignment PIN_142 -to option[7]
-    set_location_assignment PIN_141 -to option[6]
-    set_location_assignment PIN_138 -to option[5]
-    set_location_assignment PIN_137 -to option[4]
-    set_location_assignment PIN_133 -to option[3]
-    set_location_assignment PIN_128 -to option[2]
-    set_location_assignment PIN_127 -to option[1]
-    set_location_assignment PIN_126 -to option[0]
+    set_location_assignment PIN_133 -to reset
+    set_location_assignment PIN_132 -to v_sync
+    set_location_assignment PIN_129 -to pixel
+    set_location_assignment PIN_128 -to p_tick
+    set_location_assignment PIN_127 -to jump
+    set_location_assignment PIN_125 -to game_new
+    set_location_assignment PIN_124 -to game_over
 
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to reset
@@ -79,14 +72,6 @@ if {$make_assignments} {
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to jump
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to game_new
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to game_over
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[7]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[6]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[5]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[4]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[3]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[2]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[1]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[0]
 
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 

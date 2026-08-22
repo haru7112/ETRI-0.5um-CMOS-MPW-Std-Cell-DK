@@ -4,18 +4,20 @@
 //
 `include "dino_run.vh"
 
-module cactus(clk, reset, x_pos, y_pos, delay, v_sync, pixel, game_init);
-input       clk;
-input       reset;
-input       game_init;
-input [6:0] x_pos;
-input [5:0] y_pos;
-input       v_sync;
-input [7:0] delay;
-output      pixel;
+module cactus(clk, reset, x_pos, y_pos, en_delay, delay, v_sync, pixel, game_init);
+input           clk;
+input           reset;
+input           game_init;
+input [6:0]     x_pos;
+input [5:0]     y_pos;
+input           v_sync;
+input [11:0]    delay;
+output          en_delay;
+output          pixel;
 
     // Update Cactus position -----------------------------------------
     reg [6:0] x_cactus[3];
+    reg       en_delay;
     reg [2:0] cactus_delay2;
     reg [2:0] cactus_delay1;
     reg [1:0] cactus_delay0;
@@ -23,6 +25,7 @@ output      pixel;
     begin
         if (reset)
         begin
+            en_delay <= 0;
             cactus_delay0 <= 0;
             cactus_delay1 <= 0;
             cactus_delay2 <= 0;
@@ -34,6 +37,7 @@ output      pixel;
         begin
             if (game_init)
             begin
+                en_delay <= 0;
                 cactus_delay0 <= 0;
                 cactus_delay1 <= 0;
                 cactus_delay2 <= 0;
@@ -69,12 +73,19 @@ output      pixel;
                 if (x_cactus[2]==7'b1111111)
                 begin
                     cactus_delay2 <= delay[7:5];
+                    en_delay <= 1;
                     x_cactus[2] <= 0;
                 end
                 else if (cactus_delay2)
+                begin
+                    en_delay <= 0;
                     cactus_delay2 <= cactus_delay2 - 1;
+                end
                 else
+                begin
+                    en_delay <= 0;
                     x_cactus[2] <= x_cactus[2] + 1;
+                end
             end
         end
     end

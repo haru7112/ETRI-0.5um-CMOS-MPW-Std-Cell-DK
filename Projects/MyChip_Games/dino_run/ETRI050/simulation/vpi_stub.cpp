@@ -22,7 +22,6 @@ typedef struct dino_run
     // from SystemC TB to DUT's input ports
     vpiHandle   clk;
     vpiHandle   reset;
-    vpiHandle   option;
     vpiHandle   jump;
     vpiHandle   game_new;
     // from DUT's output ports to SystemC TB
@@ -61,7 +60,6 @@ int sc_dino_run_tb_tf(char *user_data)
     // from SystemC TB to DUT's input ports
     ip->clk         = vpi_scan(args);
     ip->reset       = vpi_scan(args);
-    ip->option      = vpi_scan(args);
     ip->jump        = vpi_scan(args);
     ip->game_new    = vpi_scan(args);
     // from DUT's output ports to SystemC TB
@@ -136,9 +134,6 @@ int sc_sync_callback(p_cb_data cb_data)
 
     value_s.value.integer = outvector.reset;
     vpi_put_value(ip->reset, &value_s, &delay, vpiTransportDelay);
-
-    value_s.value.integer = outvector.option;
-    vpi_put_value(ip->option, &value_s, &delay, vpiTransportDelay);
 
     value_s.value.integer = outvector.jump;
     vpi_put_value(ip->jump, &value_s, &delay, vpiTransportDelay);

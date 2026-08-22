@@ -5,6 +5,11 @@
 // Standard Emulator ------------------------------------------------
 #include "PSCE_Config.h"
 
+#ifdef HAVE_LCD2004_DEBUG
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 20, 4);  // I2C address 0x27, 20 column and 4 rows
+#endif
+
 // Co-Emulation interface -------------------------------------------
 // Followings are DUT specific defs
 #define DELAY_MICROS    1
@@ -36,6 +41,14 @@ void setup()
   psce.init();  // BPS=115200
 
   //attachInterrupt(digitalPinToInterrupt(PIN_IO_REQ), handlerIO_Req, RISING);
+
+#ifdef HAVE_LCD2004_DEBUG
+  lcd.init();       // initialize the lcd
+  lcd.backlight();
+
+  lcd.setCursor(0, 0);          // move cursor the first row
+  lcd.print("LCD 20x4 Debug");  // print message at the first row
+#endif
 }
 
 void loop()
@@ -75,7 +88,13 @@ void handlerIO_Req(void)
 // Interrupt Handlers -----------------------------------------------------
 void handlerP_TICK()
 {
-  //psce.disp_print(0,0,(char*)"handler P_Tick");
+#ifdef HAVE_LCD2004_DEBUG
+  static int nP_TICK = 0;
+  char szBuff[32];
+  sprintf(szBuff, "P_TICK:%d", nP_TICK++);
+  lcd.setCursor(0, 1);
+  lcd.print(szBuff);
+#endif
 
   int xPos = cnt_p_tick%SCREEN_WIDTH;
   int yPos = cnt_p_tick/SCREEN_WIDTH;
@@ -125,7 +144,6 @@ void Render()
 
 void handlerV_SYNC()
 {
-  //psce.disp_print(0, 12,(char*)"handler V_Sync");
   Render();
 }
 

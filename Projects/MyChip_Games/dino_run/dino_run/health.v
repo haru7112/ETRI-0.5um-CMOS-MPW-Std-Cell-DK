@@ -61,6 +61,6 @@ output      game_over;
 
     assign game_over = (nHealth==0)? 1:0;
 
-    assign pixel = (((y_pos==0) && (x_pos<nHealth))? 1 : 0) | pixel_dino | pixel_cloud | pixel_cactus;
+    assign pixel = (((y_pos==0) && (x_pos<nHealth))? 1 : 0) | (pixel_dino ^ pixel_cactus ^ pixel_cloud);
 endmodule
 
