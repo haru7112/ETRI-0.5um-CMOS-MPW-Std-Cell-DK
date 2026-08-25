@@ -14,7 +14,6 @@ void sc_glcd128x64_TLM::Button_Thread(void)
     dn.write(true);
     lt.write(true);
     rt.write(true);
-    option.write(rand()%50);
     game_new.write(1);
 
     while(!quit)
@@ -43,7 +42,6 @@ void sc_glcd128x64_TLM::Button_Thread(void)
                         rt.write(false);
                         break;
                     case SDLK_RETURN:
-                        option.write(rand()%50);
                         game_new.write(0);
                         break;
                     case SDLK_r:
@@ -71,7 +69,6 @@ void sc_glcd128x64_TLM::Button_Thread(void)
                         rt.write(true);
                         break;
                     case SDLK_RETURN:
-                        option.write(rand()%50);
                         game_new.write(1);
                     default:
                         break;

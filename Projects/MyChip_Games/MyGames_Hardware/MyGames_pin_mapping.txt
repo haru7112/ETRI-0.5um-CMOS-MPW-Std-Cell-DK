@@ -1,4 +1,4 @@
-Project: "Bricks Out"
+Project: "My Games"
 
 Application Board Setup
 
@@ -14,13 +14,15 @@ btn_left        10          127
 btn_right       11          126
 game_new        12          125
 game_over       13          124
-game_complete   14          121
+game_complete   26          111
 
 5-Way SW        GPIO#
 -----------     -----------
 PIN_SW_F        0
 PIN_SW_B        1
-PIN_SW_M        2
+PIN_SW_L        2
+PIN_SW_R        3
+PIN_SW_M        27
 
 Emulation Board Setup
 

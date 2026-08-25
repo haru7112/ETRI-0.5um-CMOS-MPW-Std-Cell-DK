@@ -61,7 +61,7 @@ if {$make_assignments} {
     set_location_assignment PIN_126 -to btn_right
     set_location_assignment PIN_125 -to game_new
     set_location_assignment PIN_124 -to game_over
-    set_location_assignment PIN_121 -to game_complete
+    set_location_assignment PIN_111 -to game_complete
 
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to reset

@@ -6,7 +6,7 @@ export DK_PAD_LIB=$(DK_HOME)/pads_ETRI050
 export DK_TECH=$(DK_HOME)/tech
 export DK_SCRIPT=$(DK_HOME)/scripts
 
-TOP_MODULE = pong_vh
+#TOP_MODULE = pong_vh
 
 SCRIPTS_PATH = ~/ETRI050_DesignKit/scripts
 PAD_PATH =  ~/ETRI050_DesignKit/pads_ETRI
@@ -16,10 +16,10 @@ CHIP_NAME = $(TOP_MODULE)
 
 PAD_X = 97.5
 PAD_Y = 97.5
-PIN_ROUTE_X =
-PIN_ROUTE_Y =
-CORE_X =
-CORE_Y =
+PIN_ROUTE_X = 196
+PIN_ROUTE_Y = 194.5
+CORE_X = 520
+CORE_Y = 538
 
 all:
 	@echo
@@ -42,7 +42,7 @@ all:
 copy_pad_frame: $(CHIP_NAME)_Top.mag
 
 $(CHIP_NAME)_Top.mag:
-	cp $(PAD_PATH)/MPW_PAD_28Pin_IO.mag ./$(CHIP_NAME)_Top.mag
+	cp $(PAD_PATH)/MPW_PAD_28Pin_IO_Games.mag ./$(CHIP_NAME)_Top.mag
 
 copy_core:  $(CHIP_NAME)_Core.mag
 

@@ -4,7 +4,7 @@
 //
 `include "pong_vh.vh"
 
-module ball(clk, reset, x_pos, y_pos, paddle_h, paddle_v, v_sync, pixel, option, load_option, game_over);
+module ball(clk, reset, x_pos, y_pos, paddle_h, paddle_v, v_sync, pixel, x_init, y_init, load_option, game_over);
 input       clk;
 input       reset;
 input [6:0] x_pos;
@@ -12,7 +12,8 @@ input [5:0] y_pos;
 input [6:0] paddle_h;
 input [5:0] paddle_v;
 input       v_sync;
-input [5:0] option;
+input [6:0] x_init;
+input [5:0] y_init;
 input       load_option;
 output      pixel;
 output      game_over;
@@ -31,8 +32,8 @@ output      game_over;
         begin
             if (load_option)
             begin
-                x_ball <= 0;
-                y_ball <= option;
+                x_ball <= x_init;
+                y_ball <= y_init;
             end
             if (v_sync)
             begin

@@ -1,0 +1,16 @@
+Fitter Status : Successful - Tue Aug 25 13:01:46 2026
+Quartus Prime Version : 25.1std.0 Build 1129 10/21/2025 SC Standard Edition
+Revision Name : pong_vh
+Top-level Entity Name : pong_vh
+Family : Cyclone IV E
+Device : EP4CE6E22C8
+Timing Models : Final
+Total logic elements : 224 / 6,272 ( 4 % )
+    Total combinational functions : 219 / 6,272 ( 3 % )
+    Dedicated logic registers : 65 / 6,272 ( 1 % )
+Total registers : 65
+Total pins : 11 / 92 ( 12 % )
+Total virtual pins : 0
+Total memory bits : 0 / 276,480 ( 0 % )
+Embedded Multiplier 9-bit elements : 0 / 30 ( 0 % )
+Total PLLs : 0 / 2 ( 0 % )

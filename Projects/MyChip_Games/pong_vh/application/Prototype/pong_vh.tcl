@@ -32,6 +32,8 @@ if {$make_assignments} {
 	set_global_assignment -name LAST_QUARTUS_VERSION "24.1std.0 Standard Edition"
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../pong_vh/pong_vh.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../pong_vh/ball.v
+	set_global_assignment -name SYSTEMVERILOG_FILE ../../pong_vh/lfsr_6bit.v
+	set_global_assignment -name SYSTEMVERILOG_FILE ../../pong_vh/lfsr_7bit.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../pong_vh/ctrl.v
 	set_global_assignment -name SYSTEMVERILOG_FILE ../../pong_vh/paddle.v
 	set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
@@ -52,44 +54,28 @@ if {$make_assignments} {
 	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
     set_location_assignment PIN_135 -to clk
-    set_location_assignment PIN_132 -to reset
-    set_location_assignment PIN_111 -to v_sync
-    set_location_assignment PIN_136 -to pixel
-    set_location_assignment PIN_121 -to p_tick
-    set_location_assignment PIN_120 -to game_over
-    set_location_assignment PIN_98  -to btn_up
-    set_location_assignment PIN_99  -to btn_down
-    set_location_assignment PIN_86  -to btn_left
-    set_location_assignment PIN_85  -to btn_right
-    set_location_assignment PIN_77  -to game_new
-    set_location_assignment PIN_142 -to option[7]
-    set_location_assignment PIN_141 -to option[6]
-    set_location_assignment PIN_138 -to option[5]
-    set_location_assignment PIN_137 -to option[4]
-    set_location_assignment PIN_133 -to option[3]
-    set_location_assignment PIN_128 -to option[2]
-    set_location_assignment PIN_127 -to option[1]
-    set_location_assignment PIN_126 -to option[0]
+    set_location_assignment PIN_133 -to reset
+    set_location_assignment PIN_132 -to v_sync
+    set_location_assignment PIN_129 -to pixel
+    set_location_assignment PIN_128 -to p_tick
+    set_location_assignment PIN_127  -to btn_left
+    set_location_assignment PIN_126 -to btn_right
+    set_location_assignment PIN_121 -to btn_up
+    set_location_assignment PIN_120 -to btn_down
+    set_location_assignment PIN_125 -to game_new
+    set_location_assignment PIN_124 -to game_over
 
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to reset
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to v_sync
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to pixel
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to p_tick
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to btn_up
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to btn_down
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to btn_left
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to btn_right
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to btn_up
+	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to btn_down
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to game_new
 	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to game_over
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[7]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[6]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[5]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[4]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[3]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[2]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[1]
-	set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to option[0]
 
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 

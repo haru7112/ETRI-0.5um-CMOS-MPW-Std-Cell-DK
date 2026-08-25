@@ -1,7 +1,9 @@
 # Synthesis script for yosys created by qflow
 read_liberty -lib -ignore_miss_dir -setattr blackbox /usr/local/share/qflow/tech/etri050/etri05_stdcells.lib
-read_verilog  /home/mychip/ETRI050_DesignKit/devel/Projects/MyChip_Games/pong_vh/ETRI050/source/pong_vh.v
+read_verilog  /home/mychip/MyChip_Work/Projects/MyChip_Games/pong_vh/ETRI050/source/pong_vh.v
 read_verilog  paddle.v
+read_verilog  lfsr_7bit.v
+read_verilog  lfsr_6bit.v
 read_verilog  ball.v
 read_verilog  ctrl.v
 

@@ -1,0 +1,14 @@
+Analysis & Synthesis Status : Successful - Tue Aug 25 13:01:43 2026
+Quartus Prime Version : 25.1std.0 Build 1129 10/21/2025 SC Standard Edition
+Revision Name : pong_vh
+Top-level Entity Name : pong_vh
+Family : Cyclone IV E
+Total logic elements : 228
+    Total combinational functions : 219
+    Dedicated logic registers : 65
+Total registers : 65
+Total pins : 11
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0

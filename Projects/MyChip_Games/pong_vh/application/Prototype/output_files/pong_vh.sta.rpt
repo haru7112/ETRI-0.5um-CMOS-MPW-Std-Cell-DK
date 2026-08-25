@@ -1,0 +1,1208 @@
+Timing Analyzer report for pong_vh
+Tue Aug 25 13:01:48 2026
+Quartus Prime Version 25.1std.0 Build 1129 10/21/2025 SC Standard Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Timing Analyzer Summary
+  3. Parallel Compilation
+  4. Clocks
+  5. Slow 1200mV 85C Model Fmax Summary
+  6. Timing Closure Recommendations
+  7. Slow 1200mV 85C Model Setup Summary
+  8. Slow 1200mV 85C Model Hold Summary
+  9. Slow 1200mV 85C Model Recovery Summary
+ 10. Slow 1200mV 85C Model Removal Summary
+ 11. Slow 1200mV 85C Model Minimum Pulse Width Summary
+ 12. Slow 1200mV 85C Model Setup: 'clk'
+ 13. Slow 1200mV 85C Model Hold: 'clk'
+ 14. Slow 1200mV 85C Model Metastability Summary
+ 15. Slow 1200mV 0C Model Fmax Summary
+ 16. Slow 1200mV 0C Model Setup Summary
+ 17. Slow 1200mV 0C Model Hold Summary
+ 18. Slow 1200mV 0C Model Recovery Summary
+ 19. Slow 1200mV 0C Model Removal Summary
+ 20. Slow 1200mV 0C Model Minimum Pulse Width Summary
+ 21. Slow 1200mV 0C Model Setup: 'clk'
+ 22. Slow 1200mV 0C Model Hold: 'clk'
+ 23. Slow 1200mV 0C Model Metastability Summary
+ 24. Fast 1200mV 0C Model Setup Summary
+ 25. Fast 1200mV 0C Model Hold Summary
+ 26. Fast 1200mV 0C Model Recovery Summary
+ 27. Fast 1200mV 0C Model Removal Summary
+ 28. Fast 1200mV 0C Model Minimum Pulse Width Summary
+ 29. Fast 1200mV 0C Model Setup: 'clk'
+ 30. Fast 1200mV 0C Model Hold: 'clk'
+ 31. Fast 1200mV 0C Model Metastability Summary
+ 32. Multicorner Timing Analysis Summary
+ 33. Board Trace Model Assignments
+ 34. Input Transition Times
+ 35. Signal Integrity Metrics (Slow 1200mv 0c Model)
+ 36. Signal Integrity Metrics (Slow 1200mv 85c Model)
+ 37. Signal Integrity Metrics (Fast 1200mv 0c Model)
+ 38. Setup Transfers
+ 39. Hold Transfers
+ 40. Report TCCS
+ 41. Report RSKM
+ 42. Unconstrained Paths Summary
+ 43. Clock Status Summary
+ 44. Unconstrained Input Ports
+ 45. Unconstrained Output Ports
+ 46. Unconstrained Input Ports
+ 47. Unconstrained Output Ports
+ 48. Timing Analyzer Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+
+
+
++-------------------------------------------------------------------------------------+
+; Timing Analyzer Summary                                                             ;
++-----------------------+-------------------------------------------------------------+
+; Quartus Prime Version ; Version 25.1std.0 Build 1129 10/21/2025 SC Standard Edition ;
+; Timing Analyzer       ; Legacy Timing Analyzer                                      ;
+; Revision Name         ; pong_vh                                                     ;
+; Device Family         ; Cyclone IV E                                                ;
+; Device Name           ; EP4CE6E22C8                                                 ;
+; Timing Models         ; Final                                                       ;
+; Delay Model           ; Combined                                                    ;
+; Rise/Fall Delays      ; Enabled                                                     ;
++-----------------------+-------------------------------------------------------------+
+
+
++------------------------------------------+
+; Parallel Compilation                     ;
++----------------------------+-------------+
+; Processors                 ; Number      ;
++----------------------------+-------------+
+; Number detected on machine ; 28          ;
+; Maximum allowed            ; 16          ;
+;                            ;             ;
+; Average used               ; 1.13        ;
+; Maximum used               ; 16          ;
+;                            ;             ;
+; Usage by Processor         ; % Time Used ;
+;     Processor 1            ; 100.0%      ;
+;     Processor 2            ;   2.9%      ;
+;     Processor 3            ;   2.8%      ;
+;     Processor 4            ;   2.7%      ;
+;     Processors 5-16        ;   0.4%      ;
++----------------------------+-------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Clocks                                                                                                                                                                          ;
++------------+------+--------+------------+-------+-------+------------+-----------+-------------+-------+--------+-----------+------------+----------+--------+--------+---------+
+; Clock Name ; Type ; Period ; Frequency  ; Rise  ; Fall  ; Duty Cycle ; Divide by ; Multiply by ; Phase ; Offset ; Edge List ; Edge Shift ; Inverted ; Master ; Source ; Targets ;
++------------+------+--------+------------+-------+-------+------------+-----------+-------------+-------+--------+-----------+------------+----------+--------+--------+---------+
+; clk        ; Base ; 1.000  ; 1000.0 MHz ; 0.000 ; 0.500 ;            ;           ;             ;       ;        ;           ;            ;          ;        ;        ; { clk } ;
++------------+------+--------+------------+-------+-------+------------+-----------+-------------+-------+--------+-----------+------------+----------+--------+--------+---------+
+
+
++--------------------------------------------------+
+; Slow 1200mV 85C Model Fmax Summary               ;
++------------+-----------------+------------+------+
+; Fmax       ; Restricted Fmax ; Clock Name ; Note ;
++------------+-----------------+------------+------+
+; 247.83 MHz ; 247.83 MHz      ; clk        ;      ;
++------------+-----------------+------------+------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
+
+
+----------------------------------
+; Timing Closure Recommendations ;
+----------------------------------
+HTML report is unavailable in plain text report export.
+
+
++-------------------------------------+
+; Slow 1200mV 85C Model Setup Summary ;
++-------+--------+--------------------+
+; Clock ; Slack  ; End Point TNS      ;
++-------+--------+--------------------+
+; clk   ; -3.035 ; -133.273           ;
++-------+--------+--------------------+
+
+
++------------------------------------+
+; Slow 1200mV 85C Model Hold Summary ;
++-------+-------+--------------------+
+; Clock ; Slack ; End Point TNS      ;
++-------+-------+--------------------+
+; clk   ; 0.485 ; 0.000              ;
++-------+-------+--------------------+
+
+
+------------------------------------------
+; Slow 1200mV 85C Model Recovery Summary ;
+------------------------------------------
+No paths to report.
+
+
+-----------------------------------------
+; Slow 1200mV 85C Model Removal Summary ;
+-----------------------------------------
+No paths to report.
+
+
++---------------------------------------------------+
+; Slow 1200mV 85C Model Minimum Pulse Width Summary ;
++-------+--------+----------------------------------+
+; Clock ; Slack  ; End Point TNS                    ;
++-------+--------+----------------------------------+
+; clk   ; -3.000 ; -99.655                          ;
++-------+--------+----------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Setup: 'clk'                                                                                                       ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+; Slack  ; From Node                   ; To Node                     ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+; -3.035 ; paddle:u_paddle|paddle_v[3] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.040     ; 4.016      ;
+; -3.033 ; paddle:u_paddle|paddle_v[4] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.040     ; 4.014      ;
+; -2.883 ; ball:u_ball|x_ball[1]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.073     ; 3.831      ;
+; -2.755 ; ball:u_ball|x_ball[3]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.073     ; 3.703      ;
+; -2.751 ; paddle:u_paddle|paddle_v[2] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.040     ; 3.732      ;
+; -2.738 ; paddle:u_paddle|paddle_h[2] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.174      ; 3.933      ;
+; -2.737 ; ball:u_ball|x_ball[2]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.073     ; 3.685      ;
+; -2.699 ; paddle:u_paddle|paddle_h[3] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.174      ; 3.894      ;
+; -2.697 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.615      ;
+; -2.697 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.615      ;
+; -2.697 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.615      ;
+; -2.697 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.615      ;
+; -2.697 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.615      ;
+; -2.697 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.615      ;
+; -2.692 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.664      ;
+; -2.689 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.607      ;
+; -2.689 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.607      ;
+; -2.689 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.607      ;
+; -2.689 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.607      ;
+; -2.689 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.607      ;
+; -2.689 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.607      ;
+; -2.678 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.848      ;
+; -2.678 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.848      ;
+; -2.678 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.848      ;
+; -2.671 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.637      ;
+; -2.671 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.637      ;
+; -2.669 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.839      ;
+; -2.669 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.839      ;
+; -2.669 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.839      ;
+; -2.661 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.627      ;
+; -2.661 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.627      ;
+; -2.661 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.627      ;
+; -2.661 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.627      ;
+; -2.657 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.623      ;
+; -2.657 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.623      ;
+; -2.657 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.623      ;
+; -2.657 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.623      ;
+; -2.657 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.623      ;
+; -2.655 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.627      ;
+; -2.653 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.625      ;
+; -2.653 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.571      ;
+; -2.653 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.571      ;
+; -2.653 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.571      ;
+; -2.653 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.571      ;
+; -2.653 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.571      ;
+; -2.653 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.103     ; 3.571      ;
+; -2.651 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.623      ;
+; -2.648 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.794      ;
+; -2.648 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.794      ;
+; -2.648 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.794      ;
+; -2.647 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.613      ;
+; -2.642 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.608      ;
+; -2.640 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.786      ;
+; -2.640 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.786      ;
+; -2.640 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.786      ;
+; -2.639 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.809      ;
+; -2.639 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.809      ;
+; -2.639 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.809      ;
+; -2.633 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.599      ;
+; -2.622 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.588      ;
+; -2.620 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.586      ;
+; -2.620 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.586      ;
+; -2.620 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.586      ;
+; -2.617 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.583      ;
+; -2.614 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.586      ;
+; -2.607 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.573      ;
+; -2.607 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[1] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.573      ;
+; -2.607 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.573      ;
+; -2.604 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.750      ;
+; -2.604 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.750      ;
+; -2.604 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.125      ; 3.750      ;
+; -2.601 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[2] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.573      ;
+; -2.601 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.567      ;
+; -2.601 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[1] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.567      ;
+; -2.601 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[2] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.567      ;
+; -2.601 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.567      ;
+; -2.601 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.567      ;
+; -2.600 ; ball:u_ball|x_ball[5]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.073     ; 3.548      ;
+; -2.596 ; ball:u_ball|x_ball[0]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.073     ; 3.544      ;
+; -2.595 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.567      ;
+; -2.592 ; paddle:u_paddle|paddle_v[0] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.040     ; 3.573      ;
+; -2.588 ; ball:u_ball|x_ball[3]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.068     ; 3.541      ;
+; -2.587 ; ball:u_ball|x_ball[4]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.073     ; 3.535      ;
+; -2.552 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.518      ;
+; -2.528 ; ball:u_ball|x_ball[1]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.068     ; 3.481      ;
+; -2.525 ; ball:u_ball|x_ball[0]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.068     ; 3.478      ;
+; -2.525 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.491      ;
+; -2.522 ; paddle:u_paddle|paddle_h[4] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.174      ; 3.717      ;
+; -2.514 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|v_sync          ; clk          ; clk         ; 1.000        ; 0.046      ; 3.581      ;
+; -2.514 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|State.sV_Sync   ; clk          ; clk         ; 1.000        ; 0.046      ; 3.581      ;
+; -2.513 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.479      ;
+; -2.510 ; ball:u_ball|y_ball[0]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; 0.194      ; 3.725      ;
+; -2.508 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.474      ;
+; -2.502 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.468      ;
+; -2.502 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.468      ;
+; -2.498 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.464      ;
+; -2.496 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.055     ; 3.462      ;
+; -2.484 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|v_sync          ; clk          ; clk         ; 1.000        ; 0.046      ; 3.551      ;
+; -2.484 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|State.sV_Sync   ; clk          ; clk         ; 1.000        ; 0.046      ; 3.551      ;
+; -2.468 ; ctrl:u_ctrl|y_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.149      ; 3.638      ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Hold: 'clk'                                                                                                                   ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+; Slack ; From Node                         ; To Node                           ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+; 0.485 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|State.sLoad           ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ctrl:u_ctrl|load_option           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ball:u_ball|sign_y                ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ball:u_ball|sign_x                ; ball:u_ball|sign_x                ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ball:u_ball|game_over             ; ball:u_ball|game_over             ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ctrl:u_ctrl|cnt_v_sync[1]         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|State.sV_Sync         ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|State.sGame           ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.485 ; ctrl:u_ctrl|v_sync                ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.049      ; 0.746      ;
+; 0.497 ; ctrl:u_ctrl|cnt_v_sync[0]         ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.049      ; 0.758      ;
+; 0.538 ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.808      ;
+; 0.540 ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; lfsr_6bit:u_lfsr_6bit|rand_out[5] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.810      ;
+; 0.541 ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.811      ;
+; 0.544 ; ctrl:u_ctrl|cnt_v_sync[0]         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.054      ; 0.810      ;
+; 0.550 ; lfsr_7bit:u_lfsr_7bit|rand_out[4] ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.820      ;
+; 0.559 ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; lfsr_7bit:u_lfsr_7bit|rand_out[6] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.829      ;
+; 0.572 ; ctrl:u_ctrl|y_pos[5]              ; ctrl:u_ctrl|y_pos[5]              ; clk          ; clk         ; 0.000        ; 0.049      ; 0.833      ;
+; 0.573 ; ball:u_ball|x_ball[6]             ; ball:u_ball|x_ball[6]             ; clk          ; clk         ; 0.000        ; 0.049      ; 0.834      ;
+; 0.577 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[2]         ; clk          ; clk         ; 0.000        ; 0.230      ; 1.019      ;
+; 0.627 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.230      ; 1.069      ;
+; 0.656 ; lfsr_6bit:u_lfsr_6bit|rand_out[5] ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.926      ;
+; 0.662 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.230      ; 1.104      ;
+; 0.666 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.230      ; 1.108      ;
+; 0.690 ; lfsr_7bit:u_lfsr_7bit|rand_out[3] ; lfsr_7bit:u_lfsr_7bit|rand_out[4] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.960      ;
+; 0.700 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.057      ; 0.969      ;
+; 0.717 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[2]         ; clk          ; clk         ; 0.000        ; 0.230      ; 1.159      ;
+; 0.718 ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; lfsr_7bit:u_lfsr_7bit|rand_out[1] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.988      ;
+; 0.722 ; lfsr_6bit:u_lfsr_6bit|rand_out[1] ; lfsr_6bit:u_lfsr_6bit|rand_out[2] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.992      ;
+; 0.726 ; lfsr_7bit:u_lfsr_7bit|rand_out[1] ; lfsr_7bit:u_lfsr_7bit|rand_out[2] ; clk          ; clk         ; 0.000        ; 0.058      ; 0.996      ;
+; 0.747 ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; lfsr_6bit:u_lfsr_6bit|rand_out[1] ; clk          ; clk         ; 0.000        ; 0.058      ; 1.017      ;
+; 0.765 ; paddle:u_paddle|paddle_v[5]       ; paddle:u_paddle|paddle_v[5]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.026      ;
+; 0.789 ; lfsr_7bit:u_lfsr_7bit|rand_out[6] ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.058      ; 1.059      ;
+; 0.796 ; ctrl:u_ctrl|x_pos[5]              ; ctrl:u_ctrl|x_pos[5]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.057      ;
+; 0.803 ; ctrl:u_ctrl|x_pos[4]              ; ctrl:u_ctrl|x_pos[4]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.064      ;
+; 0.804 ; ctrl:u_ctrl|x_pos[1]              ; ctrl:u_ctrl|x_pos[1]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.065      ;
+; 0.804 ; ctrl:u_ctrl|x_pos[3]              ; ctrl:u_ctrl|x_pos[3]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.065      ;
+; 0.805 ; ball:u_ball|x_ball[1]             ; ball:u_ball|x_ball[1]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.066      ;
+; 0.805 ; ctrl:u_ctrl|y_pos[4]              ; ctrl:u_ctrl|y_pos[4]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.066      ;
+; 0.805 ; ctrl:u_ctrl|x_pos[2]              ; ctrl:u_ctrl|x_pos[2]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.066      ;
+; 0.807 ; ball:u_ball|x_ball[5]             ; ball:u_ball|x_ball[5]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.068      ;
+; 0.808 ; ball:u_ball|y_ball[5]             ; ball:u_ball|y_ball[5]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.069      ;
+; 0.809 ; ctrl:u_ctrl|y_pos[3]              ; ctrl:u_ctrl|y_pos[3]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.070      ;
+; 0.812 ; ctrl:u_ctrl|x_pos[6]              ; ctrl:u_ctrl|x_pos[6]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.073      ;
+; 0.813 ; paddle:u_paddle|paddle_v[4]       ; paddle:u_paddle|paddle_v[4]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.074      ;
+; 0.813 ; ball:u_ball|x_ball[4]             ; ball:u_ball|x_ball[4]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.074      ;
+; 0.816 ; ctrl:u_ctrl|y_pos[1]              ; ctrl:u_ctrl|y_pos[1]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.077      ;
+; 0.817 ; ctrl:u_ctrl|State.sPixel          ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.057      ; 1.086      ;
+; 0.819 ; ball:u_ball|y_ball[2]             ; ball:u_ball|y_ball[2]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.080      ;
+; 0.820 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[0]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.081      ;
+; 0.820 ; paddle:u_paddle|paddle_h[5]       ; paddle:u_paddle|paddle_h[5]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.081      ;
+; 0.820 ; ctrl:u_ctrl|y_pos[2]              ; ctrl:u_ctrl|y_pos[2]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.081      ;
+; 0.826 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[1]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.087      ;
+; 0.827 ; paddle:u_paddle|paddle_v[1]       ; paddle:u_paddle|paddle_v[1]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.088      ;
+; 0.829 ; paddle:u_paddle|paddle_h[6]       ; paddle:u_paddle|paddle_h[6]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.090      ;
+; 0.829 ; ctrl:u_ctrl|x_pos[0]              ; ctrl:u_ctrl|x_pos[0]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.090      ;
+; 0.836 ; paddle:u_paddle|paddle_h[3]       ; paddle:u_paddle|paddle_h[3]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.097      ;
+; 0.842 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.057      ; 1.111      ;
+; 0.859 ; ball:u_ball|y_ball[0]             ; ball:u_ball|y_ball[0]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.120      ;
+; 0.865 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.057      ; 1.134      ;
+; 0.865 ; ctrl:u_ctrl|y_pos[0]              ; ctrl:u_ctrl|y_pos[0]              ; clk          ; clk         ; 0.000        ; 0.049      ; 1.126      ;
+; 0.871 ; lfsr_7bit:u_lfsr_7bit|rand_out[2] ; lfsr_7bit:u_lfsr_7bit|rand_out[3] ; clk          ; clk         ; 0.000        ; 0.058      ; 1.141      ;
+; 0.892 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.230      ; 1.334      ;
+; 0.893 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|State.sLoad           ; clk          ; clk         ; 0.000        ; 0.057      ; 1.162      ;
+; 0.910 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|p_tick                ; clk          ; clk         ; 0.000        ; 0.057      ; 1.179      ;
+; 0.910 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.057      ; 1.179      ;
+; 0.911 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; 0.057      ; 1.180      ;
+; 0.924 ; lfsr_6bit:u_lfsr_6bit|rand_out[2] ; lfsr_6bit:u_lfsr_6bit|rand_out[3] ; clk          ; clk         ; 0.000        ; 0.058      ; 1.194      ;
+; 0.973 ; ball:u_ball|y_ball[5]             ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.400      ; 1.585      ;
+; 0.989 ; ctrl:u_ctrl|cnt_v_sync[2]         ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; -0.019     ; 1.182      ;
+; 1.016 ; paddle:u_paddle|paddle_h[2]       ; paddle:u_paddle|paddle_h[2]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.277      ;
+; 1.019 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.057      ; 1.288      ;
+; 1.022 ; ball:u_ball|x_ball[2]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.283      ;
+; 1.023 ; paddle:u_paddle|paddle_h[4]       ; paddle:u_paddle|paddle_h[4]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.284      ;
+; 1.024 ; ball:u_ball|x_ball[3]             ; ball:u_ball|x_ball[3]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.285      ;
+; 1.033 ; ball:u_ball|y_ball[4]             ; ball:u_ball|y_ball[4]             ; clk          ; clk         ; 0.000        ; 0.049      ; 1.294      ;
+; 1.033 ; ball:u_ball|game_over             ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.148      ; 1.393      ;
+; 1.043 ; ball:u_ball|game_over             ; ctrl:u_ctrl|State.sGame           ; clk          ; clk         ; 0.000        ; 0.148      ; 1.403      ;
+; 1.044 ; paddle:u_paddle|paddle_v[3]       ; paddle:u_paddle|paddle_v[3]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.305      ;
+; 1.047 ; paddle:u_paddle|paddle_v[0]       ; paddle:u_paddle|paddle_v[0]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.308      ;
+; 1.130 ; ctrl:u_ctrl|cnt_v_sync[1]         ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; -0.019     ; 1.323      ;
+; 1.135 ; paddle:u_paddle|paddle_h[6]       ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.387      ; 1.734      ;
+; 1.147 ; lfsr_6bit:u_lfsr_6bit|rand_out[3] ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; clk          ; clk         ; 0.000        ; 0.058      ; 1.417      ;
+; 1.153 ; ball:u_ball|x_ball[1]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.053      ; 1.418      ;
+; 1.153 ; ctrl:u_ctrl|y_pos[4]              ; ctrl:u_ctrl|y_pos[5]              ; clk          ; clk         ; 0.000        ; 0.053      ; 1.418      ;
+; 1.153 ; ctrl:u_ctrl|x_pos[4]              ; ctrl:u_ctrl|x_pos[5]              ; clk          ; clk         ; 0.000        ; 0.052      ; 1.417      ;
+; 1.154 ; ctrl:u_ctrl|x_pos[2]              ; ctrl:u_ctrl|x_pos[3]              ; clk          ; clk         ; 0.000        ; 0.052      ; 1.418      ;
+; 1.155 ; ball:u_ball|x_ball[5]             ; ball:u_ball|x_ball[6]             ; clk          ; clk         ; 0.000        ; 0.053      ; 1.420      ;
+; 1.155 ; ctrl:u_ctrl|x_pos[0]              ; ctrl:u_ctrl|x_pos[1]              ; clk          ; clk         ; 0.000        ; 0.052      ; 1.419      ;
+; 1.156 ; ctrl:u_ctrl|x_pos[5]              ; ctrl:u_ctrl|x_pos[6]              ; clk          ; clk         ; 0.000        ; 0.052      ; 1.420      ;
+; 1.158 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[2]       ; clk          ; clk         ; 0.000        ; 0.055      ; 1.425      ;
+; 1.160 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[1]             ; clk          ; clk         ; 0.000        ; 0.053      ; 1.425      ;
+; 1.164 ; ctrl:u_ctrl|x_pos[1]              ; ctrl:u_ctrl|x_pos[2]              ; clk          ; clk         ; 0.000        ; 0.052      ; 1.428      ;
+; 1.164 ; ctrl:u_ctrl|x_pos[3]              ; ctrl:u_ctrl|x_pos[4]              ; clk          ; clk         ; 0.000        ; 0.052      ; 1.428      ;
+; 1.167 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[3]       ; clk          ; clk         ; 0.000        ; 0.055      ; 1.434      ;
+; 1.168 ; paddle:u_paddle|paddle_v[4]       ; paddle:u_paddle|paddle_v[5]       ; clk          ; clk         ; 0.000        ; 0.055      ; 1.435      ;
+; 1.168 ; ctrl:u_ctrl|y_pos[2]              ; ctrl:u_ctrl|y_pos[3]              ; clk          ; clk         ; 0.000        ; 0.053      ; 1.433      ;
+; 1.168 ; ctrl:u_ctrl|y_pos[3]              ; ctrl:u_ctrl|y_pos[4]              ; clk          ; clk         ; 0.000        ; 0.053      ; 1.433      ;
+; 1.169 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.053      ; 1.434      ;
+; 1.170 ; ball:u_ball|y_ball[2]             ; ball:u_ball|y_ball[3]             ; clk          ; clk         ; 0.000        ; 0.052      ; 1.434      ;
+; 1.172 ; ball:u_ball|x_ball[4]             ; ball:u_ball|x_ball[5]             ; clk          ; clk         ; 0.000        ; 0.053      ; 1.437      ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+
+
+-----------------------------------------------
+; Slow 1200mV 85C Model Metastability Summary ;
+-----------------------------------------------
+No synchronizer chains to report.
+
+
++-----------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Fmax Summary                                                                         ;
++------------+-----------------+------------+---------------------------------------------------------------+
+; Fmax       ; Restricted Fmax ; Clock Name ; Note                                                          ;
++------------+-----------------+------------+---------------------------------------------------------------+
+; 266.31 MHz ; 250.0 MHz       ; clk        ; limit due to minimum period restriction (max I/O toggle rate) ;
++------------+-----------------+------------+---------------------------------------------------------------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
+
+
++------------------------------------+
+; Slow 1200mV 0C Model Setup Summary ;
++-------+--------+-------------------+
+; Clock ; Slack  ; End Point TNS     ;
++-------+--------+-------------------+
+; clk   ; -2.755 ; -121.266          ;
++-------+--------+-------------------+
+
+
++-----------------------------------+
+; Slow 1200mV 0C Model Hold Summary ;
++-------+-------+-------------------+
+; Clock ; Slack ; End Point TNS     ;
++-------+-------+-------------------+
+; clk   ; 0.430 ; 0.000             ;
++-------+-------+-------------------+
+
+
+-----------------------------------------
+; Slow 1200mV 0C Model Recovery Summary ;
+-----------------------------------------
+No paths to report.
+
+
+----------------------------------------
+; Slow 1200mV 0C Model Removal Summary ;
+----------------------------------------
+No paths to report.
+
+
++--------------------------------------------------+
+; Slow 1200mV 0C Model Minimum Pulse Width Summary ;
++-------+--------+---------------------------------+
+; Clock ; Slack  ; End Point TNS                   ;
++-------+--------+---------------------------------+
+; clk   ; -3.000 ; -99.655                         ;
++-------+--------+---------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Setup: 'clk'                                                                                                        ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+; Slack  ; From Node                   ; To Node                     ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+; -2.755 ; paddle:u_paddle|paddle_v[3] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.035     ; 3.742      ;
+; -2.672 ; paddle:u_paddle|paddle_v[4] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.035     ; 3.659      ;
+; -2.501 ; ball:u_ball|x_ball[1]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.056     ; 3.467      ;
+; -2.488 ; paddle:u_paddle|paddle_v[2] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.035     ; 3.475      ;
+; -2.469 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.442      ;
+; -2.469 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.442      ;
+; -2.469 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.442      ;
+; -2.469 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.442      ;
+; -2.469 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.442      ;
+; -2.464 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.044     ; 3.442      ;
+; -2.455 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.428      ;
+; -2.455 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.428      ;
+; -2.455 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.428      ;
+; -2.455 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.428      ;
+; -2.455 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.428      ;
+; -2.450 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.044     ; 3.428      ;
+; -2.449 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.364      ;
+; -2.449 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.364      ;
+; -2.449 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.364      ;
+; -2.449 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.364      ;
+; -2.449 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.364      ;
+; -2.449 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.364      ;
+; -2.442 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.357      ;
+; -2.442 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.357      ;
+; -2.442 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.357      ;
+; -2.442 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.357      ;
+; -2.442 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.357      ;
+; -2.442 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.357      ;
+; -2.417 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.332      ;
+; -2.417 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.332      ;
+; -2.417 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.332      ;
+; -2.417 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.332      ;
+; -2.417 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.332      ;
+; -2.417 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.107     ; 3.332      ;
+; -2.416 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.389      ;
+; -2.416 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.389      ;
+; -2.416 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.389      ;
+; -2.416 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.389      ;
+; -2.416 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.389      ;
+; -2.416 ; ball:u_ball|x_ball[2]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.056     ; 3.382      ;
+; -2.416 ; ball:u_ball|x_ball[3]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.052     ; 3.386      ;
+; -2.411 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.044     ; 3.389      ;
+; -2.402 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.593      ;
+; -2.402 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.593      ;
+; -2.402 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.593      ;
+; -2.399 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.590      ;
+; -2.399 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.590      ;
+; -2.399 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.590      ;
+; -2.393 ; ball:u_ball|x_ball[3]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.056     ; 3.359      ;
+; -2.390 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.547      ;
+; -2.390 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.547      ;
+; -2.390 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.547      ;
+; -2.387 ; paddle:u_paddle|paddle_h[2] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.187      ; 3.596      ;
+; -2.383 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.540      ;
+; -2.383 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.540      ;
+; -2.383 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.540      ;
+; -2.372 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.563      ;
+; -2.372 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.563      ;
+; -2.372 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.563      ;
+; -2.358 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.515      ;
+; -2.358 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.515      ;
+; -2.358 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.135      ; 3.515      ;
+; -2.354 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.327      ;
+; -2.346 ; ball:u_ball|x_ball[1]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.052     ; 3.316      ;
+; -2.344 ; paddle:u_paddle|paddle_h[3] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.187      ; 3.553      ;
+; -2.342 ; ball:u_ball|x_ball[0]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.052     ; 3.312      ;
+; -2.341 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.044     ; 3.319      ;
+; -2.320 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.295      ;
+; -2.310 ; ball:u_ball|x_ball[0]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.056     ; 3.276      ;
+; -2.307 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.044     ; 3.285      ;
+; -2.292 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.267      ;
+; -2.289 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|v_sync          ; clk          ; clk         ; 1.000        ; 0.059      ; 3.370      ;
+; -2.288 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|State.sV_Sync   ; clk          ; clk         ; 1.000        ; 0.059      ; 3.369      ;
+; -2.287 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.262      ;
+; -2.287 ; ball:u_ball|x_ball[4]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.056     ; 3.253      ;
+; -2.274 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.249      ;
+; -2.274 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[1] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.249      ;
+; -2.274 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.249      ;
+; -2.271 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[2] ; clk          ; clk         ; 1.000        ; -0.044     ; 3.249      ;
+; -2.270 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.245      ;
+; -2.270 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[1] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.245      ;
+; -2.270 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[2] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.245      ;
+; -2.270 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.245      ;
+; -2.270 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.245      ;
+; -2.267 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.240      ;
+; -2.267 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.240      ;
+; -2.267 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.240      ;
+; -2.267 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.049     ; 3.240      ;
+; -2.267 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.044     ; 3.245      ;
+; -2.262 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|v_sync          ; clk          ; clk         ; 1.000        ; 0.059      ; 3.343      ;
+; -2.261 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|State.sV_Sync   ; clk          ; clk         ; 1.000        ; 0.059      ; 3.342      ;
+; -2.257 ; ball:u_ball|x_ball[5]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.056     ; 3.223      ;
+; -2.227 ; ctrl:u_ctrl|y_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.418      ;
+; -2.227 ; ctrl:u_ctrl|y_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.418      ;
+; -2.227 ; ctrl:u_ctrl|y_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.169      ; 3.418      ;
+; -2.215 ; paddle:u_paddle|paddle_v[0] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.035     ; 3.202      ;
+; -2.213 ; paddle:u_paddle|paddle_h[4] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.187      ; 3.422      ;
+; -2.194 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.169      ;
+; -2.185 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.160      ;
+; -2.184 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.047     ; 3.159      ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Hold: 'clk'                                                                                                                    ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+; Slack ; From Node                         ; To Node                           ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+; 0.430 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|State.sLoad           ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ctrl:u_ctrl|load_option           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ball:u_ball|sign_y                ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ball:u_ball|sign_x                ; ball:u_ball|sign_x                ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ball:u_ball|game_over             ; ball:u_ball|game_over             ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ctrl:u_ctrl|cnt_v_sync[1]         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|State.sV_Sync         ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|State.sGame           ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.430 ; ctrl:u_ctrl|v_sync                ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.044      ; 0.669      ;
+; 0.445 ; ctrl:u_ctrl|cnt_v_sync[0]         ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.044      ; 0.684      ;
+; 0.497 ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.742      ;
+; 0.499 ; ctrl:u_ctrl|cnt_v_sync[0]         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.051      ; 0.745      ;
+; 0.499 ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; lfsr_6bit:u_lfsr_6bit|rand_out[5] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.744      ;
+; 0.500 ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.745      ;
+; 0.514 ; lfsr_7bit:u_lfsr_7bit|rand_out[4] ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.759      ;
+; 0.522 ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; lfsr_7bit:u_lfsr_7bit|rand_out[6] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.767      ;
+; 0.525 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[2]         ; clk          ; clk         ; 0.000        ; 0.227      ; 0.947      ;
+; 0.528 ; ball:u_ball|x_ball[6]             ; ball:u_ball|x_ball[6]             ; clk          ; clk         ; 0.000        ; 0.044      ; 0.767      ;
+; 0.528 ; ctrl:u_ctrl|y_pos[5]              ; ctrl:u_ctrl|y_pos[5]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.767      ;
+; 0.540 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.227      ; 0.962      ;
+; 0.606 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.227      ; 1.028      ;
+; 0.609 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.227      ; 1.031      ;
+; 0.610 ; lfsr_6bit:u_lfsr_6bit|rand_out[5] ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.855      ;
+; 0.642 ; lfsr_7bit:u_lfsr_7bit|rand_out[3] ; lfsr_7bit:u_lfsr_7bit|rand_out[4] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.887      ;
+; 0.648 ; lfsr_7bit:u_lfsr_7bit|rand_out[1] ; lfsr_7bit:u_lfsr_7bit|rand_out[2] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.893      ;
+; 0.657 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.052      ; 0.904      ;
+; 0.657 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[2]         ; clk          ; clk         ; 0.000        ; 0.227      ; 1.079      ;
+; 0.669 ; lfsr_6bit:u_lfsr_6bit|rand_out[1] ; lfsr_6bit:u_lfsr_6bit|rand_out[2] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.914      ;
+; 0.674 ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; lfsr_7bit:u_lfsr_7bit|rand_out[1] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.919      ;
+; 0.684 ; paddle:u_paddle|paddle_v[5]       ; paddle:u_paddle|paddle_v[5]       ; clk          ; clk         ; 0.000        ; 0.044      ; 0.923      ;
+; 0.690 ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; lfsr_6bit:u_lfsr_6bit|rand_out[1] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.935      ;
+; 0.733 ; lfsr_7bit:u_lfsr_7bit|rand_out[6] ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.050      ; 0.978      ;
+; 0.738 ; ctrl:u_ctrl|x_pos[5]              ; ctrl:u_ctrl|x_pos[5]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.977      ;
+; 0.744 ; ctrl:u_ctrl|x_pos[3]              ; ctrl:u_ctrl|x_pos[3]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.983      ;
+; 0.745 ; ctrl:u_ctrl|x_pos[4]              ; ctrl:u_ctrl|x_pos[4]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.984      ;
+; 0.746 ; ctrl:u_ctrl|x_pos[1]              ; ctrl:u_ctrl|x_pos[1]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.985      ;
+; 0.748 ; ball:u_ball|x_ball[5]             ; ball:u_ball|x_ball[5]             ; clk          ; clk         ; 0.000        ; 0.044      ; 0.987      ;
+; 0.748 ; ball:u_ball|x_ball[1]             ; ball:u_ball|x_ball[1]             ; clk          ; clk         ; 0.000        ; 0.044      ; 0.987      ;
+; 0.748 ; ctrl:u_ctrl|y_pos[4]              ; ctrl:u_ctrl|y_pos[4]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.987      ;
+; 0.748 ; ctrl:u_ctrl|x_pos[2]              ; ctrl:u_ctrl|x_pos[2]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.987      ;
+; 0.749 ; ctrl:u_ctrl|y_pos[3]              ; ctrl:u_ctrl|y_pos[3]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.988      ;
+; 0.751 ; ball:u_ball|y_ball[5]             ; ball:u_ball|y_ball[5]             ; clk          ; clk         ; 0.000        ; 0.044      ; 0.990      ;
+; 0.753 ; ctrl:u_ctrl|x_pos[6]              ; ctrl:u_ctrl|x_pos[6]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.992      ;
+; 0.754 ; ball:u_ball|x_ball[4]             ; ball:u_ball|x_ball[4]             ; clk          ; clk         ; 0.000        ; 0.044      ; 0.993      ;
+; 0.755 ; paddle:u_paddle|paddle_v[4]       ; paddle:u_paddle|paddle_v[4]       ; clk          ; clk         ; 0.000        ; 0.044      ; 0.994      ;
+; 0.759 ; paddle:u_paddle|paddle_h[5]       ; paddle:u_paddle|paddle_h[5]       ; clk          ; clk         ; 0.000        ; 0.044      ; 0.998      ;
+; 0.759 ; ball:u_ball|y_ball[2]             ; ball:u_ball|y_ball[2]             ; clk          ; clk         ; 0.000        ; 0.044      ; 0.998      ;
+; 0.759 ; ctrl:u_ctrl|y_pos[1]              ; ctrl:u_ctrl|y_pos[1]              ; clk          ; clk         ; 0.000        ; 0.044      ; 0.998      ;
+; 0.762 ; ctrl:u_ctrl|y_pos[2]              ; ctrl:u_ctrl|y_pos[2]              ; clk          ; clk         ; 0.000        ; 0.044      ; 1.001      ;
+; 0.762 ; ctrl:u_ctrl|State.sPixel          ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.052      ; 1.009      ;
+; 0.765 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[0]             ; clk          ; clk         ; 0.000        ; 0.044      ; 1.004      ;
+; 0.768 ; paddle:u_paddle|paddle_v[1]       ; paddle:u_paddle|paddle_v[1]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.007      ;
+; 0.768 ; paddle:u_paddle|paddle_h[6]       ; paddle:u_paddle|paddle_h[6]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.007      ;
+; 0.770 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[1]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.009      ;
+; 0.773 ; ctrl:u_ctrl|x_pos[0]              ; ctrl:u_ctrl|x_pos[0]              ; clk          ; clk         ; 0.000        ; 0.044      ; 1.012      ;
+; 0.775 ; paddle:u_paddle|paddle_h[3]       ; paddle:u_paddle|paddle_h[3]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.014      ;
+; 0.778 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.227      ; 1.200      ;
+; 0.784 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.052      ; 1.031      ;
+; 0.802 ; ball:u_ball|y_ball[0]             ; ball:u_ball|y_ball[0]             ; clk          ; clk         ; 0.000        ; 0.044      ; 1.041      ;
+; 0.805 ; ctrl:u_ctrl|y_pos[0]              ; ctrl:u_ctrl|y_pos[0]              ; clk          ; clk         ; 0.000        ; 0.044      ; 1.044      ;
+; 0.810 ; lfsr_7bit:u_lfsr_7bit|rand_out[2] ; lfsr_7bit:u_lfsr_7bit|rand_out[3] ; clk          ; clk         ; 0.000        ; 0.050      ; 1.055      ;
+; 0.812 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.052      ; 1.059      ;
+; 0.828 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|State.sLoad           ; clk          ; clk         ; 0.000        ; 0.052      ; 1.075      ;
+; 0.829 ; ball:u_ball|y_ball[5]             ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.392      ; 1.416      ;
+; 0.845 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|p_tick                ; clk          ; clk         ; 0.000        ; 0.052      ; 1.092      ;
+; 0.851 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.052      ; 1.098      ;
+; 0.852 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; 0.052      ; 1.099      ;
+; 0.856 ; lfsr_6bit:u_lfsr_6bit|rand_out[2] ; lfsr_6bit:u_lfsr_6bit|rand_out[3] ; clk          ; clk         ; 0.000        ; 0.050      ; 1.101      ;
+; 0.907 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.052      ; 1.154      ;
+; 0.913 ; ball:u_ball|x_ball[2]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.044      ; 1.152      ;
+; 0.916 ; ctrl:u_ctrl|cnt_v_sync[2]         ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; -0.032     ; 1.079      ;
+; 0.921 ; paddle:u_paddle|paddle_h[2]       ; paddle:u_paddle|paddle_h[2]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.160      ;
+; 0.932 ; ball:u_ball|game_over             ; ctrl:u_ctrl|State.sGame           ; clk          ; clk         ; 0.000        ; 0.143      ; 1.270      ;
+; 0.932 ; ball:u_ball|game_over             ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.143      ; 1.270      ;
+; 0.934 ; paddle:u_paddle|paddle_h[4]       ; paddle:u_paddle|paddle_h[4]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.173      ;
+; 0.936 ; ball:u_ball|x_ball[3]             ; ball:u_ball|x_ball[3]             ; clk          ; clk         ; 0.000        ; 0.044      ; 1.175      ;
+; 0.945 ; ball:u_ball|y_ball[4]             ; ball:u_ball|y_ball[4]             ; clk          ; clk         ; 0.000        ; 0.044      ; 1.184      ;
+; 0.947 ; paddle:u_paddle|paddle_v[3]       ; paddle:u_paddle|paddle_v[3]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.186      ;
+; 0.949 ; paddle:u_paddle|paddle_v[0]       ; paddle:u_paddle|paddle_v[0]       ; clk          ; clk         ; 0.000        ; 0.044      ; 1.188      ;
+; 0.994 ; paddle:u_paddle|paddle_h[6]       ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.382      ; 1.571      ;
+; 1.037 ; lfsr_6bit:u_lfsr_6bit|rand_out[3] ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; clk          ; clk         ; 0.000        ; 0.050      ; 1.282      ;
+; 1.047 ; ctrl:u_ctrl|cnt_v_sync[1]         ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; -0.032     ; 1.210      ;
+; 1.055 ; ctrl:u_ctrl|x_pos[5]              ; ctrl:u_ctrl|x_pos[6]              ; clk          ; clk         ; 0.000        ; 0.047      ; 1.297      ;
+; 1.060 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[1]             ; clk          ; clk         ; 0.000        ; 0.047      ; 1.302      ;
+; 1.062 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[2]       ; clk          ; clk         ; 0.000        ; 0.047      ; 1.304      ;
+; 1.062 ; ctrl:u_ctrl|x_pos[4]              ; ctrl:u_ctrl|x_pos[5]              ; clk          ; clk         ; 0.000        ; 0.047      ; 1.304      ;
+; 1.063 ; ctrl:u_ctrl|x_pos[3]              ; ctrl:u_ctrl|x_pos[4]              ; clk          ; clk         ; 0.000        ; 0.047      ; 1.305      ;
+; 1.065 ; ctrl:u_ctrl|y_pos[4]              ; ctrl:u_ctrl|y_pos[5]              ; clk          ; clk         ; 0.000        ; 0.048      ; 1.308      ;
+; 1.065 ; ctrl:u_ctrl|x_pos[1]              ; ctrl:u_ctrl|x_pos[2]              ; clk          ; clk         ; 0.000        ; 0.047      ; 1.307      ;
+; 1.066 ; ball:u_ball|x_ball[5]             ; ball:u_ball|x_ball[6]             ; clk          ; clk         ; 0.000        ; 0.047      ; 1.308      ;
+; 1.066 ; ball:u_ball|x_ball[1]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.047      ; 1.308      ;
+; 1.066 ; ctrl:u_ctrl|y_pos[3]              ; ctrl:u_ctrl|y_pos[4]              ; clk          ; clk         ; 0.000        ; 0.048      ; 1.309      ;
+; 1.066 ; ctrl:u_ctrl|x_pos[2]              ; ctrl:u_ctrl|x_pos[3]              ; clk          ; clk         ; 0.000        ; 0.047      ; 1.308      ;
+; 1.067 ; ctrl:u_ctrl|x_pos[0]              ; ctrl:u_ctrl|x_pos[1]              ; clk          ; clk         ; 0.000        ; 0.047      ; 1.309      ;
+; 1.069 ; paddle:u_paddle|paddle_v[4]       ; paddle:u_paddle|paddle_v[5]       ; clk          ; clk         ; 0.000        ; 0.049      ; 1.313      ;
+; 1.073 ; ball:u_ball|x_ball[4]             ; ball:u_ball|x_ball[5]             ; clk          ; clk         ; 0.000        ; 0.047      ; 1.315      ;
+; 1.075 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.047      ; 1.317      ;
+; 1.075 ; paddle:u_paddle|paddle_h[5]       ; paddle:u_paddle|paddle_h[6]       ; clk          ; clk         ; 0.000        ; 0.047      ; 1.317      ;
+; 1.077 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[3]       ; clk          ; clk         ; 0.000        ; 0.047      ; 1.319      ;
+; 1.077 ; ctrl:u_ctrl|y_pos[1]              ; ctrl:u_ctrl|y_pos[2]              ; clk          ; clk         ; 0.000        ; 0.048      ; 1.320      ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+
+
+----------------------------------------------
+; Slow 1200mV 0C Model Metastability Summary ;
+----------------------------------------------
+No synchronizer chains to report.
+
+
++------------------------------------+
+; Fast 1200mV 0C Model Setup Summary ;
++-------+--------+-------------------+
+; Clock ; Slack  ; End Point TNS     ;
++-------+--------+-------------------+
+; clk   ; -0.737 ; -20.580           ;
++-------+--------+-------------------+
+
+
++-----------------------------------+
+; Fast 1200mV 0C Model Hold Summary ;
++-------+-------+-------------------+
+; Clock ; Slack ; End Point TNS     ;
++-------+-------+-------------------+
+; clk   ; 0.201 ; 0.000             ;
++-------+-------+-------------------+
+
+
+-----------------------------------------
+; Fast 1200mV 0C Model Recovery Summary ;
+-----------------------------------------
+No paths to report.
+
+
+----------------------------------------
+; Fast 1200mV 0C Model Removal Summary ;
+----------------------------------------
+No paths to report.
+
+
++--------------------------------------------------+
+; Fast 1200mV 0C Model Minimum Pulse Width Summary ;
++-------+--------+---------------------------------+
+; Clock ; Slack  ; End Point TNS                   ;
++-------+--------+---------------------------------+
+; clk   ; -3.000 ; -91.823                         ;
++-------+--------+---------------------------------+
+
+
++------------------------------------------------------------------------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Setup: 'clk'                                                                                                        ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+; Slack  ; From Node                   ; To Node                     ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+; -0.737 ; paddle:u_paddle|paddle_v[3] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.032     ; 1.712      ;
+; -0.699 ; paddle:u_paddle|paddle_v[4] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.032     ; 1.674      ;
+; -0.673 ; ball:u_ball|x_ball[1]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.041     ; 1.639      ;
+; -0.618 ; ball:u_ball|x_ball[3]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.041     ; 1.584      ;
+; -0.599 ; paddle:u_paddle|paddle_h[2] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.050      ; 1.656      ;
+; -0.589 ; paddle:u_paddle|paddle_v[2] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.032     ; 1.564      ;
+; -0.584 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.022     ; 1.569      ;
+; -0.571 ; ball:u_ball|x_ball[0]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.041     ; 1.537      ;
+; -0.570 ; ball:u_ball|x_ball[2]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.041     ; 1.536      ;
+; -0.566 ; paddle:u_paddle|paddle_v[0] ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.032     ; 1.541      ;
+; -0.563 ; paddle:u_paddle|paddle_h[3] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.050      ; 1.620      ;
+; -0.561 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.545      ;
+; -0.559 ; ball:u_ball|x_ball[0]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.039     ; 1.527      ;
+; -0.559 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.543      ;
+; -0.558 ; ball:u_ball|x_ball[1]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.039     ; 1.526      ;
+; -0.558 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.603      ;
+; -0.558 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.603      ;
+; -0.558 ; ctrl:u_ctrl|y_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.603      ;
+; -0.557 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.541      ;
+; -0.556 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.538      ;
+; -0.555 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.537      ;
+; -0.555 ; ball:u_ball|x_ball[3]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; -0.039     ; 1.523      ;
+; -0.554 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.022     ; 1.539      ;
+; -0.552 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.597      ;
+; -0.552 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.597      ;
+; -0.552 ; ctrl:u_ctrl|y_pos[1]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.597      ;
+; -0.550 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.534      ;
+; -0.550 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[1] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.534      ;
+; -0.550 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.534      ;
+; -0.549 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.531      ;
+; -0.549 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.531      ;
+; -0.549 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.531      ;
+; -0.549 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.531      ;
+; -0.549 ; paddle:u_paddle|paddle_h[2] ; paddle:u_paddle|paddle_h[2] ; clk          ; clk         ; 1.000        ; -0.022     ; 1.534      ;
+; -0.548 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.593      ;
+; -0.548 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.593      ;
+; -0.548 ; ctrl:u_ctrl|y_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.593      ;
+; -0.547 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.529      ;
+; -0.547 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.529      ;
+; -0.547 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.529      ;
+; -0.547 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.529      ;
+; -0.547 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[5] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.529      ;
+; -0.547 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.531      ;
+; -0.547 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[1] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.531      ;
+; -0.547 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[2] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.531      ;
+; -0.547 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.531      ;
+; -0.547 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.531      ;
+; -0.546 ; paddle:u_paddle|paddle_v[2] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.022     ; 1.531      ;
+; -0.546 ; paddle:u_paddle|paddle_h[3] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.022     ; 1.531      ;
+; -0.545 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[0] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.527      ;
+; -0.545 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[1] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.527      ;
+; -0.545 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.527      ;
+; -0.545 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.527      ;
+; -0.544 ; paddle:u_paddle|paddle_v[3] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.022     ; 1.529      ;
+; -0.543 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.525      ;
+; -0.542 ; paddle:u_paddle|paddle_v[4] ; paddle:u_paddle|paddle_v[4] ; clk          ; clk         ; 1.000        ; -0.022     ; 1.527      ;
+; -0.538 ; ball:u_ball|x_ball[5]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.041     ; 1.504      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.534 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.503      ;
+; -0.527 ; paddle:u_paddle|paddle_h[4] ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; 0.050      ; 1.584      ;
+; -0.524 ; ball:u_ball|y_ball[0]       ; ball:u_ball|sign_x          ; clk          ; clk         ; 1.000        ; 0.062      ; 1.593      ;
+; -0.522 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[3]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.491      ;
+; -0.522 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[0]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.491      ;
+; -0.522 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[1]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.491      ;
+; -0.522 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[2]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.491      ;
+; -0.522 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[4]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.491      ;
+; -0.522 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|y_pos[5]        ; clk          ; clk         ; 1.000        ; -0.038     ; 1.491      ;
+; -0.519 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[3] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.501      ;
+; -0.501 ; ball:u_ball|x_ball[4]       ; ball:u_ball|sign_y          ; clk          ; clk         ; 1.000        ; -0.041     ; 1.467      ;
+; -0.497 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.539      ;
+; -0.497 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.539      ;
+; -0.497 ; ctrl:u_ctrl|x_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.539      ;
+; -0.497 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.539      ;
+; -0.497 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.539      ;
+; -0.497 ; ctrl:u_ctrl|x_pos[4]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.539      ;
+; -0.491 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[4] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.475      ;
+; -0.490 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.474      ;
+; -0.490 ; ctrl:u_ctrl|v_sync          ; paddle:u_paddle|paddle_h[6] ; clk          ; clk         ; 1.000        ; -0.051     ; 1.446      ;
+; -0.487 ; paddle:u_paddle|paddle_h[5] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.471      ;
+; -0.486 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[5] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.470      ;
+; -0.485 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.527      ;
+; -0.485 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.527      ;
+; -0.485 ; ctrl:u_ctrl|x_pos[5]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.035      ; 1.527      ;
+; -0.475 ; paddle:u_paddle|paddle_v[5] ; paddle:u_paddle|paddle_v[2] ; clk          ; clk         ; 1.000        ; -0.025     ; 1.457      ;
+; -0.471 ; ctrl:u_ctrl|y_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[2]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.516      ;
+; -0.471 ; ctrl:u_ctrl|y_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[0]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.516      ;
+; -0.471 ; ctrl:u_ctrl|y_pos[2]        ; ctrl:u_ctrl|cnt_v_sync[1]   ; clk          ; clk         ; 1.000        ; 0.038      ; 1.516      ;
+; -0.463 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[3] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.447      ;
+; -0.463 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[1] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.447      ;
+; -0.463 ; paddle:u_paddle|paddle_h[4] ; paddle:u_paddle|paddle_h[2] ; clk          ; clk         ; 1.000        ; -0.023     ; 1.447      ;
++--------+-----------------------------+-----------------------------+--------------+-------------+--------------+------------+------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Hold: 'clk'                                                                                                                    ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+; Slack ; From Node                         ; To Node                           ; Launch Clock ; Latch Clock ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+; 0.201 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|State.sLoad           ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ctrl:u_ctrl|load_option           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ball:u_ball|sign_y                ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ball:u_ball|sign_x                ; ball:u_ball|sign_x                ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ball:u_ball|game_over             ; ball:u_ball|game_over             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ctrl:u_ctrl|cnt_v_sync[1]         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|State.sV_Sync         ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|State.sGame           ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.201 ; ctrl:u_ctrl|v_sync                ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.022      ; 0.307      ;
+; 0.208 ; ctrl:u_ctrl|cnt_v_sync[0]         ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.022      ; 0.314      ;
+; 0.217 ; lfsr_7bit:u_lfsr_7bit|rand_out[4] ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.326      ;
+; 0.219 ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.328      ;
+; 0.220 ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.329      ;
+; 0.222 ; lfsr_7bit:u_lfsr_7bit|rand_out[5] ; lfsr_7bit:u_lfsr_7bit|rand_out[6] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.331      ;
+; 0.223 ; ctrl:u_ctrl|cnt_v_sync[0]         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.023      ; 0.330      ;
+; 0.224 ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; lfsr_6bit:u_lfsr_6bit|rand_out[5] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.333      ;
+; 0.235 ; ball:u_ball|x_ball[6]             ; ball:u_ball|x_ball[6]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.341      ;
+; 0.235 ; ctrl:u_ctrl|y_pos[5]              ; ctrl:u_ctrl|y_pos[5]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.341      ;
+; 0.246 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[2]         ; clk          ; clk         ; 0.000        ; 0.087      ; 0.417      ;
+; 0.248 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.087      ; 0.419      ;
+; 0.269 ; lfsr_6bit:u_lfsr_6bit|rand_out[5] ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.378      ;
+; 0.275 ; lfsr_7bit:u_lfsr_7bit|rand_out[1] ; lfsr_7bit:u_lfsr_7bit|rand_out[2] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.384      ;
+; 0.276 ; lfsr_7bit:u_lfsr_7bit|rand_out[3] ; lfsr_7bit:u_lfsr_7bit|rand_out[4] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.385      ;
+; 0.277 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.087      ; 0.448      ;
+; 0.279 ; lfsr_6bit:u_lfsr_6bit|rand_out[1] ; lfsr_6bit:u_lfsr_6bit|rand_out[2] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.388      ;
+; 0.281 ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; lfsr_7bit:u_lfsr_7bit|rand_out[1] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.390      ;
+; 0.282 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[0]         ; clk          ; clk         ; 0.000        ; 0.087      ; 0.453      ;
+; 0.286 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.025      ; 0.395      ;
+; 0.289 ; lfsr_6bit:u_lfsr_6bit|rand_out[0] ; lfsr_6bit:u_lfsr_6bit|rand_out[1] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.398      ;
+; 0.296 ; paddle:u_paddle|paddle_v[5]       ; paddle:u_paddle|paddle_v[5]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.402      ;
+; 0.302 ; ctrl:u_ctrl|State.sV_Sync         ; ctrl:u_ctrl|cnt_v_sync[2]         ; clk          ; clk         ; 0.000        ; 0.087      ; 0.473      ;
+; 0.318 ; lfsr_7bit:u_lfsr_7bit|rand_out[6] ; lfsr_7bit:u_lfsr_7bit|rand_out[0] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.427      ;
+; 0.321 ; ctrl:u_ctrl|x_pos[5]              ; ctrl:u_ctrl|x_pos[5]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.427      ;
+; 0.324 ; ctrl:u_ctrl|x_pos[3]              ; ctrl:u_ctrl|x_pos[3]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.430      ;
+; 0.325 ; ball:u_ball|x_ball[5]             ; ball:u_ball|x_ball[5]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.431      ;
+; 0.325 ; ctrl:u_ctrl|x_pos[1]              ; ctrl:u_ctrl|x_pos[1]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.431      ;
+; 0.325 ; ctrl:u_ctrl|x_pos[4]              ; ctrl:u_ctrl|x_pos[4]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.431      ;
+; 0.326 ; ball:u_ball|y_ball[5]             ; ball:u_ball|y_ball[5]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.432      ;
+; 0.326 ; ball:u_ball|x_ball[1]             ; ball:u_ball|x_ball[1]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.432      ;
+; 0.326 ; ctrl:u_ctrl|y_pos[4]              ; ctrl:u_ctrl|y_pos[4]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.432      ;
+; 0.326 ; ctrl:u_ctrl|x_pos[2]              ; ctrl:u_ctrl|x_pos[2]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.432      ;
+; 0.328 ; ctrl:u_ctrl|y_pos[3]              ; ctrl:u_ctrl|y_pos[3]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.434      ;
+; 0.328 ; ctrl:u_ctrl|x_pos[6]              ; ctrl:u_ctrl|x_pos[6]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.434      ;
+; 0.328 ; ctrl:u_ctrl|State.sPixel          ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.025      ; 0.437      ;
+; 0.330 ; paddle:u_paddle|paddle_v[4]       ; paddle:u_paddle|paddle_v[4]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.436      ;
+; 0.330 ; ball:u_ball|x_ball[4]             ; ball:u_ball|x_ball[4]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.436      ;
+; 0.332 ; ball:u_ball|y_ball[2]             ; ball:u_ball|y_ball[2]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.438      ;
+; 0.332 ; ctrl:u_ctrl|y_pos[1]              ; ctrl:u_ctrl|y_pos[1]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.438      ;
+; 0.333 ; paddle:u_paddle|paddle_h[5]       ; paddle:u_paddle|paddle_h[5]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.439      ;
+; 0.334 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[0]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.440      ;
+; 0.334 ; ctrl:u_ctrl|y_pos[2]              ; ctrl:u_ctrl|y_pos[2]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.440      ;
+; 0.335 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[1]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.441      ;
+; 0.336 ; lfsr_7bit:u_lfsr_7bit|rand_out[2] ; lfsr_7bit:u_lfsr_7bit|rand_out[3] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.445      ;
+; 0.337 ; paddle:u_paddle|paddle_v[1]       ; paddle:u_paddle|paddle_v[1]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.443      ;
+; 0.337 ; paddle:u_paddle|paddle_h[6]       ; paddle:u_paddle|paddle_h[6]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.443      ;
+; 0.337 ; ctrl:u_ctrl|x_pos[0]              ; ctrl:u_ctrl|x_pos[0]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.443      ;
+; 0.342 ; paddle:u_paddle|paddle_h[3]       ; paddle:u_paddle|paddle_h[3]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.448      ;
+; 0.346 ; lfsr_6bit:u_lfsr_6bit|rand_out[2] ; lfsr_6bit:u_lfsr_6bit|rand_out[3] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.455      ;
+; 0.350 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.025      ; 0.459      ;
+; 0.353 ; ball:u_ball|y_ball[0]             ; ball:u_ball|y_ball[0]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.459      ;
+; 0.354 ; ctrl:u_ctrl|y_pos[0]              ; ctrl:u_ctrl|y_pos[0]              ; clk          ; clk         ; 0.000        ; 0.022      ; 0.460      ;
+; 0.356 ; ctrl:u_ctrl|State.sLoad           ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.025      ; 0.465      ;
+; 0.359 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|cnt_v_sync[1]         ; clk          ; clk         ; 0.000        ; 0.087      ; 0.530      ;
+; 0.360 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|State.sLoad           ; clk          ; clk         ; 0.000        ; 0.025      ; 0.469      ;
+; 0.375 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|v_sync                ; clk          ; clk         ; 0.000        ; 0.025      ; 0.484      ;
+; 0.376 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; 0.025      ; 0.485      ;
+; 0.379 ; ctrl:u_ctrl|State.sWait           ; ctrl:u_ctrl|p_tick                ; clk          ; clk         ; 0.000        ; 0.025      ; 0.488      ;
+; 0.388 ; ball:u_ball|y_ball[5]             ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.152      ; 0.624      ;
+; 0.396 ; paddle:u_paddle|paddle_h[2]       ; paddle:u_paddle|paddle_h[2]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.502      ;
+; 0.400 ; ball:u_ball|x_ball[2]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.506      ;
+; 0.401 ; paddle:u_paddle|paddle_h[4]       ; paddle:u_paddle|paddle_h[4]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.507      ;
+; 0.403 ; ball:u_ball|x_ball[3]             ; ball:u_ball|x_ball[3]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.509      ;
+; 0.404 ; ctrl:u_ctrl|State.sGame           ; ctrl:u_ctrl|load_option           ; clk          ; clk         ; 0.000        ; 0.025      ; 0.513      ;
+; 0.405 ; ctrl:u_ctrl|cnt_v_sync[2]         ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; 0.005      ; 0.494      ;
+; 0.409 ; ball:u_ball|y_ball[4]             ; ball:u_ball|y_ball[4]             ; clk          ; clk         ; 0.000        ; 0.022      ; 0.515      ;
+; 0.412 ; paddle:u_paddle|paddle_v[0]       ; paddle:u_paddle|paddle_v[0]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.518      ;
+; 0.414 ; paddle:u_paddle|paddle_v[3]       ; paddle:u_paddle|paddle_v[3]       ; clk          ; clk         ; 0.000        ; 0.022      ; 0.520      ;
+; 0.414 ; ball:u_ball|game_over             ; ctrl:u_ctrl|State.sWait           ; clk          ; clk         ; 0.000        ; 0.055      ; 0.553      ;
+; 0.419 ; ball:u_ball|game_over             ; ctrl:u_ctrl|State.sGame           ; clk          ; clk         ; 0.000        ; 0.055      ; 0.558      ;
+; 0.441 ; lfsr_6bit:u_lfsr_6bit|rand_out[3] ; lfsr_6bit:u_lfsr_6bit|rand_out[4] ; clk          ; clk         ; 0.000        ; 0.025      ; 0.550      ;
+; 0.460 ; ctrl:u_ctrl|cnt_v_sync[1]         ; ctrl:u_ctrl|State.sPixel          ; clk          ; clk         ; 0.000        ; 0.005      ; 0.549      ;
+; 0.472 ; ball:u_ball|x_ball[5]             ; ball:u_ball|x_ball[6]             ; clk          ; clk         ; 0.000        ; 0.023      ; 0.579      ;
+; 0.472 ; ctrl:u_ctrl|y_pos[4]              ; ctrl:u_ctrl|y_pos[5]              ; clk          ; clk         ; 0.000        ; 0.024      ; 0.580      ;
+; 0.472 ; ctrl:u_ctrl|x_pos[4]              ; ctrl:u_ctrl|x_pos[5]              ; clk          ; clk         ; 0.000        ; 0.023      ; 0.579      ;
+; 0.473 ; paddle:u_paddle|paddle_h[6]       ; ball:u_ball|sign_y                ; clk          ; clk         ; 0.000        ; 0.142      ; 0.699      ;
+; 0.473 ; ball:u_ball|x_ball[1]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.023      ; 0.580      ;
+; 0.473 ; ctrl:u_ctrl|x_pos[0]              ; ctrl:u_ctrl|x_pos[1]              ; clk          ; clk         ; 0.000        ; 0.023      ; 0.580      ;
+; 0.473 ; ctrl:u_ctrl|x_pos[2]              ; ctrl:u_ctrl|x_pos[3]              ; clk          ; clk         ; 0.000        ; 0.023      ; 0.580      ;
+; 0.479 ; ball:u_ball|y_ball[2]             ; ball:u_ball|y_ball[3]             ; clk          ; clk         ; 0.000        ; 0.024      ; 0.587      ;
+; 0.479 ; ctrl:u_ctrl|x_pos[5]              ; ctrl:u_ctrl|x_pos[6]              ; clk          ; clk         ; 0.000        ; 0.023      ; 0.586      ;
+; 0.480 ; ctrl:u_ctrl|y_pos[2]              ; ctrl:u_ctrl|y_pos[3]              ; clk          ; clk         ; 0.000        ; 0.024      ; 0.588      ;
+; 0.481 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[2]       ; clk          ; clk         ; 0.000        ; 0.023      ; 0.588      ;
+; 0.482 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[1]             ; clk          ; clk         ; 0.000        ; 0.023      ; 0.589      ;
+; 0.482 ; ctrl:u_ctrl|x_pos[3]              ; ctrl:u_ctrl|x_pos[4]              ; clk          ; clk         ; 0.000        ; 0.023      ; 0.589      ;
+; 0.483 ; paddle:u_paddle|paddle_v[1]       ; paddle:u_paddle|paddle_v[2]       ; clk          ; clk         ; 0.000        ; 0.025      ; 0.592      ;
+; 0.483 ; ctrl:u_ctrl|x_pos[1]              ; ctrl:u_ctrl|x_pos[2]              ; clk          ; clk         ; 0.000        ; 0.023      ; 0.590      ;
+; 0.484 ; paddle:u_paddle|paddle_h[1]       ; paddle:u_paddle|paddle_h[3]       ; clk          ; clk         ; 0.000        ; 0.023      ; 0.591      ;
+; 0.485 ; ball:u_ball|x_ball[0]             ; ball:u_ball|x_ball[2]             ; clk          ; clk         ; 0.000        ; 0.023      ; 0.592      ;
+; 0.485 ; paddle:u_paddle|paddle_v[4]       ; paddle:u_paddle|paddle_v[5]       ; clk          ; clk         ; 0.000        ; 0.025      ; 0.594      ;
+; 0.485 ; ctrl:u_ctrl|y_pos[3]              ; ctrl:u_ctrl|y_pos[4]              ; clk          ; clk         ; 0.000        ; 0.024      ; 0.593      ;
++-------+-----------------------------------+-----------------------------------+--------------+-------------+--------------+------------+------------+
+
+
+----------------------------------------------
+; Fast 1200mV 0C Model Metastability Summary ;
+----------------------------------------------
+No synchronizer chains to report.
+
+
++--------------------------------------------------------------------------------+
+; Multicorner Timing Analysis Summary                                            ;
++------------------+----------+-------+----------+---------+---------------------+
+; Clock            ; Setup    ; Hold  ; Recovery ; Removal ; Minimum Pulse Width ;
++------------------+----------+-------+----------+---------+---------------------+
+; Worst-case Slack ; -3.035   ; 0.201 ; N/A      ; N/A     ; -3.000              ;
+;  clk             ; -3.035   ; 0.201 ; N/A      ; N/A     ; -3.000              ;
+; Design-wide TNS  ; -133.273 ; 0.0   ; 0.0      ; 0.0     ; -99.655             ;
+;  clk             ; -133.273 ; 0.000 ; N/A      ; N/A     ; -99.655             ;
++------------------+----------+-------+----------+---------+---------------------+
+
+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Board Trace Model Assignments                                                                                                                                                                                                                                                                                                                                                                                    ;
++---------------+--------------+-------------------+-------------------------+-------------------------+---------------+---------------------+----------------+------------------+--------+------------------+------------------------+------------------------+--------------+---------------+-----------------+-------+---------------------+--------------------+---------------+-----------------+-------------+
+; Pin           ; I/O Standard ; Near Tline Length ; Near Tline L per Length ; Near Tline C per Length ; Near Series R ; Near Differential R ; Near Pull-up R ; Near Pull-down R ; Near C ; Far Tline Length ; Far Tline L per Length ; Far Tline C per Length ; Far Series R ; Far Pull-up R ; Far Pull-down R ; Far C ; Termination Voltage ; Far Differential R ; EBD File Name ; EBD Signal Name ; EBD Far-end ;
++---------------+--------------+-------------------+-------------------------+-------------------------+---------------+---------------------+----------------+------------------+--------+------------------+------------------------+------------------------+--------------+---------------+-----------------+-------+---------------------+--------------------+---------------+-----------------+-------------+
+; v_sync        ; 3.3-V LVCMOS ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; pixel         ; 3.3-V LVCMOS ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; p_tick        ; 3.3-V LVCMOS ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; game_over     ; 3.3-V LVCMOS ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; ~ALTERA_DCLK~ ; 2.5 V        ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; ~ALTERA_nCEO~ ; 2.5 V        ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
++---------------+--------------+-------------------+-------------------------+-------------------------+---------------+---------------------+----------------+------------------+--------+------------------+------------------------+------------------------+--------------+---------------+-----------------+-------+---------------------+--------------------+---------------+-----------------+-------------+
+
+
++----------------------------------------------------------------------------+
+; Input Transition Times                                                     ;
++-------------------------+--------------+-----------------+-----------------+
+; Pin                     ; I/O Standard ; 10-90 Rise Time ; 90-10 Fall Time ;
++-------------------------+--------------+-----------------+-----------------+
+; game_new                ; 3.3-V LVCMOS ; 2640 ps         ; 2640 ps         ;
+; clk                     ; 3.3-V LVCMOS ; 2640 ps         ; 2640 ps         ;
+; reset                   ; 3.3-V LVCMOS ; 2640 ps         ; 2640 ps         ;
+; btn_down                ; 3.3-V LVCMOS ; 2640 ps         ; 2640 ps         ;
+; btn_up                  ; 3.3-V LVCMOS ; 2640 ps         ; 2640 ps         ;
+; btn_right               ; 3.3-V LVCMOS ; 2640 ps         ; 2640 ps         ;
+; btn_left                ; 3.3-V LVCMOS ; 2640 ps         ; 2640 ps         ;
+; ~ALTERA_ASDO_DATA1~     ; 2.5 V        ; 2000 ps         ; 2000 ps         ;
+; ~ALTERA_FLASH_nCE_nCSO~ ; 2.5 V        ; 2000 ps         ; 2000 ps         ;
+; ~ALTERA_DATA0~          ; 2.5 V        ; 2000 ps         ; 2000 ps         ;
++-------------------------+--------------+-----------------+-----------------+
+
+
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Signal Integrity Metrics (Slow 1200mv 0c Model)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; Pin           ; I/O Standard ; Board Delay on Rise ; Board Delay on Fall ; Steady State Voh at FPGA Pin ; Steady State Vol at FPGA Pin ; Voh Max at FPGA Pin ; Vol Min at FPGA Pin ; Ringback Voltage on Rise at FPGA Pin ; Ringback Voltage on Fall at FPGA Pin ; 10-90 Rise Time at FPGA Pin ; 90-10 Fall Time at FPGA Pin ; Monotonic Rise at FPGA Pin ; Monotonic Fall at FPGA Pin ; Steady State Voh at Far-end ; Steady State Vol at Far-end ; Voh Max at Far-end ; Vol Min at Far-end ; Ringback Voltage on Rise at Far-end ; Ringback Voltage on Fall at Far-end ; 10-90 Rise Time at Far-end ; 90-10 Fall Time at Far-end ; Monotonic Rise at Far-end ; Monotonic Fall at Far-end ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; v_sync        ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.42e-08 V                   ; 3.09 V              ; -0.0297 V           ; 0.063 V                              ; 0.266 V                              ; 7.63e-10 s                  ; 6.85e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.42e-08 V                  ; 3.09 V             ; -0.0297 V          ; 0.063 V                             ; 0.266 V                             ; 7.63e-10 s                 ; 6.85e-10 s                 ; Yes                       ; Yes                       ;
+; pixel         ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.42e-08 V                   ; 3.09 V              ; -0.0297 V           ; 0.063 V                              ; 0.266 V                              ; 7.63e-10 s                  ; 6.85e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.42e-08 V                  ; 3.09 V             ; -0.0297 V          ; 0.063 V                             ; 0.266 V                             ; 7.63e-10 s                 ; 6.85e-10 s                 ; Yes                       ; Yes                       ;
+; p_tick        ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.42e-08 V                   ; 3.09 V              ; -0.0297 V           ; 0.063 V                              ; 0.266 V                              ; 7.63e-10 s                  ; 6.85e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.42e-08 V                  ; 3.09 V             ; -0.0297 V          ; 0.063 V                             ; 0.266 V                             ; 7.63e-10 s                 ; 6.85e-10 s                 ; Yes                       ; Yes                       ;
+; game_over     ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.42e-08 V                   ; 3.09 V              ; -0.0297 V           ; 0.063 V                              ; 0.266 V                              ; 7.63e-10 s                  ; 6.85e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.42e-08 V                  ; 3.09 V             ; -0.0297 V          ; 0.063 V                             ; 0.266 V                             ; 7.63e-10 s                 ; 6.85e-10 s                 ; Yes                       ; Yes                       ;
+; ~ALTERA_DCLK~ ; 2.5 V        ; 0 s                 ; 0 s                 ; 2.32 V                       ; 1.74e-09 V                   ; 2.37 V              ; -0.0346 V           ; 0.198 V                              ; 0.094 V                              ; 3.14e-10 s                  ; 2.92e-10 s                  ; Yes                        ; Yes                        ; 2.32 V                      ; 1.74e-09 V                  ; 2.37 V             ; -0.0346 V          ; 0.198 V                             ; 0.094 V                             ; 3.14e-10 s                 ; 2.92e-10 s                 ; Yes                       ; Yes                       ;
+; ~ALTERA_nCEO~ ; 2.5 V        ; 0 s                 ; 0 s                 ; 2.32 V                       ; 2.57e-09 V                   ; 2.37 V              ; -0.00683 V          ; 0.171 V                              ; 0.018 V                              ; 4.97e-10 s                  ; 6.66e-10 s                  ; Yes                        ; Yes                        ; 2.32 V                      ; 2.57e-09 V                  ; 2.37 V             ; -0.00683 V         ; 0.171 V                             ; 0.018 V                             ; 4.97e-10 s                 ; 6.66e-10 s                 ; Yes                       ; Yes                       ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+
+
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Signal Integrity Metrics (Slow 1200mv 85c Model)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; Pin           ; I/O Standard ; Board Delay on Rise ; Board Delay on Fall ; Steady State Voh at FPGA Pin ; Steady State Vol at FPGA Pin ; Voh Max at FPGA Pin ; Vol Min at FPGA Pin ; Ringback Voltage on Rise at FPGA Pin ; Ringback Voltage on Fall at FPGA Pin ; 10-90 Rise Time at FPGA Pin ; 90-10 Fall Time at FPGA Pin ; Monotonic Rise at FPGA Pin ; Monotonic Fall at FPGA Pin ; Steady State Voh at Far-end ; Steady State Vol at Far-end ; Voh Max at Far-end ; Vol Min at Far-end ; Ringback Voltage on Rise at Far-end ; Ringback Voltage on Fall at Far-end ; 10-90 Rise Time at Far-end ; 90-10 Fall Time at Far-end ; Monotonic Rise at Far-end ; Monotonic Fall at Far-end ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; v_sync        ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.2e-06 V                    ; 3.09 V              ; -0.0134 V           ; 0.034 V                              ; 0.132 V                              ; 9.35e-10 s                  ; 8.97e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.2e-06 V                   ; 3.09 V             ; -0.0134 V          ; 0.034 V                             ; 0.132 V                             ; 9.35e-10 s                 ; 8.97e-10 s                 ; Yes                       ; Yes                       ;
+; pixel         ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.2e-06 V                    ; 3.09 V              ; -0.0134 V           ; 0.034 V                              ; 0.132 V                              ; 9.35e-10 s                  ; 8.97e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.2e-06 V                   ; 3.09 V             ; -0.0134 V          ; 0.034 V                             ; 0.132 V                             ; 9.35e-10 s                 ; 8.97e-10 s                 ; Yes                       ; Yes                       ;
+; p_tick        ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.2e-06 V                    ; 3.09 V              ; -0.0134 V           ; 0.034 V                              ; 0.132 V                              ; 9.35e-10 s                  ; 8.97e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.2e-06 V                   ; 3.09 V             ; -0.0134 V          ; 0.034 V                             ; 0.132 V                             ; 9.35e-10 s                 ; 8.97e-10 s                 ; Yes                       ; Yes                       ;
+; game_over     ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.08 V                       ; 1.2e-06 V                    ; 3.09 V              ; -0.0134 V           ; 0.034 V                              ; 0.132 V                              ; 9.35e-10 s                  ; 8.97e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 1.2e-06 V                   ; 3.09 V             ; -0.0134 V          ; 0.034 V                             ; 0.132 V                             ; 9.35e-10 s                 ; 8.97e-10 s                 ; Yes                       ; Yes                       ;
+; ~ALTERA_DCLK~ ; 2.5 V        ; 0 s                 ; 0 s                 ; 2.32 V                       ; 1.55e-07 V                   ; 2.35 V              ; -0.00221 V          ; 0.097 V                              ; 0.005 V                              ; 4.49e-10 s                  ; 3.85e-10 s                  ; Yes                        ; Yes                        ; 2.32 V                      ; 1.55e-07 V                  ; 2.35 V             ; -0.00221 V         ; 0.097 V                             ; 0.005 V                             ; 4.49e-10 s                 ; 3.85e-10 s                 ; Yes                       ; Yes                       ;
+; ~ALTERA_nCEO~ ; 2.5 V        ; 0 s                 ; 0 s                 ; 2.32 V                       ; 2.54e-07 V                   ; 2.34 V              ; -0.00774 V          ; 0.109 V                              ; 0.026 V                              ; 6.58e-10 s                  ; 8.24e-10 s                  ; Yes                        ; Yes                        ; 2.32 V                      ; 2.54e-07 V                  ; 2.34 V             ; -0.00774 V         ; 0.109 V                             ; 0.026 V                             ; 6.58e-10 s                 ; 8.24e-10 s                 ; Yes                       ; Yes                       ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+
+
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Signal Integrity Metrics (Fast 1200mv 0c Model)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; Pin           ; I/O Standard ; Board Delay on Rise ; Board Delay on Fall ; Steady State Voh at FPGA Pin ; Steady State Vol at FPGA Pin ; Voh Max at FPGA Pin ; Vol Min at FPGA Pin ; Ringback Voltage on Rise at FPGA Pin ; Ringback Voltage on Fall at FPGA Pin ; 10-90 Rise Time at FPGA Pin ; 90-10 Fall Time at FPGA Pin ; Monotonic Rise at FPGA Pin ; Monotonic Fall at FPGA Pin ; Steady State Voh at Far-end ; Steady State Vol at Far-end ; Voh Max at Far-end ; Vol Min at Far-end ; Ringback Voltage on Rise at Far-end ; Ringback Voltage on Fall at Far-end ; 10-90 Rise Time at Far-end ; 90-10 Fall Time at Far-end ; Monotonic Rise at Far-end ; Monotonic Fall at Far-end ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; v_sync        ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.46 V                       ; 2.95e-07 V                   ; 3.52 V              ; -0.0582 V           ; 0.201 V                              ; 0.186 V                              ; 6.35e-10 s                  ; 6.31e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 2.95e-07 V                  ; 3.52 V             ; -0.0582 V          ; 0.201 V                             ; 0.186 V                             ; 6.35e-10 s                 ; 6.31e-10 s                 ; No                        ; No                        ;
+; pixel         ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.46 V                       ; 2.95e-07 V                   ; 3.52 V              ; -0.0582 V           ; 0.201 V                              ; 0.186 V                              ; 6.35e-10 s                  ; 6.31e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 2.95e-07 V                  ; 3.52 V             ; -0.0582 V          ; 0.201 V                             ; 0.186 V                             ; 6.35e-10 s                 ; 6.31e-10 s                 ; No                        ; No                        ;
+; p_tick        ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.46 V                       ; 2.95e-07 V                   ; 3.52 V              ; -0.0582 V           ; 0.201 V                              ; 0.186 V                              ; 6.35e-10 s                  ; 6.31e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 2.95e-07 V                  ; 3.52 V             ; -0.0582 V          ; 0.201 V                             ; 0.186 V                             ; 6.35e-10 s                 ; 6.31e-10 s                 ; No                        ; No                        ;
+; game_over     ; 3.3-V LVCMOS ; 0 s                 ; 0 s                 ; 3.46 V                       ; 2.95e-07 V                   ; 3.52 V              ; -0.0582 V           ; 0.201 V                              ; 0.186 V                              ; 6.35e-10 s                  ; 6.31e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 2.95e-07 V                  ; 3.52 V             ; -0.0582 V          ; 0.201 V                             ; 0.186 V                             ; 6.35e-10 s                 ; 6.31e-10 s                 ; No                        ; No                        ;
+; ~ALTERA_DCLK~ ; 2.5 V        ; 0 s                 ; 0 s                 ; 2.62 V                       ; 2.22e-08 V                   ; 2.74 V              ; -0.06 V             ; 0.158 V                              ; 0.08 V                               ; 2.68e-10 s                  ; 2.19e-10 s                  ; Yes                        ; Yes                        ; 2.62 V                      ; 2.22e-08 V                  ; 2.74 V             ; -0.06 V            ; 0.158 V                             ; 0.08 V                              ; 2.68e-10 s                 ; 2.19e-10 s                 ; Yes                       ; Yes                       ;
+; ~ALTERA_nCEO~ ; 2.5 V        ; 0 s                 ; 0 s                 ; 2.62 V                       ; 3.54e-08 V                   ; 2.7 V               ; -0.00943 V          ; 0.276 V                              ; 0.035 V                              ; 3.19e-10 s                  ; 4.99e-10 s                  ; No                         ; Yes                        ; 2.62 V                      ; 3.54e-08 V                  ; 2.7 V              ; -0.00943 V         ; 0.276 V                             ; 0.035 V                             ; 3.19e-10 s                 ; 4.99e-10 s                 ; No                        ; Yes                       ;
++---------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+
+
++-------------------------------------------------------------------+
+; Setup Transfers                                                   ;
++------------+----------+----------+----------+----------+----------+
+; From Clock ; To Clock ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
++------------+----------+----------+----------+----------+----------+
+; clk        ; clk      ; 915      ; 0        ; 0        ; 0        ;
++------------+----------+----------+----------+----------+----------+
+Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
+
+
++-------------------------------------------------------------------+
+; Hold Transfers                                                    ;
++------------+----------+----------+----------+----------+----------+
+; From Clock ; To Clock ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
++------------+----------+----------+----------+----------+----------+
+; clk        ; clk      ; 915      ; 0        ; 0        ; 0        ;
++------------+----------+----------+----------+----------+----------+
+Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
+
+
+---------------
+; Report TCCS ;
+---------------
+No dedicated SERDES Transmitter circuitry present in device or used in design
+
+
+---------------
+; Report RSKM ;
+---------------
+No non-DPA dedicated SERDES Receiver circuitry present in device or used in design
+
+
++------------------------------------------------+
+; Unconstrained Paths Summary                    ;
++---------------------------------+-------+------+
+; Property                        ; Setup ; Hold ;
++---------------------------------+-------+------+
+; Illegal Clocks                  ; 0     ; 0    ;
+; Unconstrained Clocks            ; 0     ; 0    ;
+; Unconstrained Input Ports       ; 6     ; 6    ;
+; Unconstrained Input Port Paths  ; 106   ; 106  ;
+; Unconstrained Output Ports      ; 4     ; 4    ;
+; Unconstrained Output Port Paths ; 41    ; 41   ;
++---------------------------------+-------+------+
+
+
++-------------------------------------+
+; Clock Status Summary                ;
++--------+-------+------+-------------+
+; Target ; Clock ; Type ; Status      ;
++--------+-------+------+-------------+
+; clk    ; clk   ; Base ; Constrained ;
++--------+-------+------+-------------+
+
+
++---------------------------------------------------------------------------------------------------+
+; Unconstrained Input Ports                                                                         ;
++------------+--------------------------------------------------------------------------------------+
+; Input Port ; Comment                                                                              ;
++------------+--------------------------------------------------------------------------------------+
+; btn_down   ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; btn_left   ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; btn_right  ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; btn_up     ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; game_new   ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; reset      ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
++------------+--------------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------+
+; Unconstrained Output Ports                                                                          ;
++-------------+---------------------------------------------------------------------------------------+
+; Output Port ; Comment                                                                               ;
++-------------+---------------------------------------------------------------------------------------+
+; game_over   ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; p_tick      ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; pixel       ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; v_sync      ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
++-------------+---------------------------------------------------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------+
+; Unconstrained Input Ports                                                                         ;
++------------+--------------------------------------------------------------------------------------+
+; Input Port ; Comment                                                                              ;
++------------+--------------------------------------------------------------------------------------+
+; btn_down   ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; btn_left   ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; btn_right  ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; btn_up     ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; game_new   ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; reset      ; No input delay, min/max delays, false-path exceptions, or max skew assignments found ;
++------------+--------------------------------------------------------------------------------------+
+
+
++-----------------------------------------------------------------------------------------------------+
+; Unconstrained Output Ports                                                                          ;
++-------------+---------------------------------------------------------------------------------------+
+; Output Port ; Comment                                                                               ;
++-------------+---------------------------------------------------------------------------------------+
+; game_over   ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; p_tick      ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; pixel       ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
+; v_sync      ; No output delay, min/max delays, false-path exceptions, or max skew assignments found ;
++-------------+---------------------------------------------------------------------------------------+
+
+
++--------------------------+
+; Timing Analyzer Messages ;
++--------------------------+
+Info: *******************************************************************
+Info: Running Quartus Prime Timing Analyzer
+    Info: Version 25.1std.0 Build 1129 10/21/2025 SC Standard Edition
+    Info: Processing started: Tue Aug 25 13:01:47 2026
+Info: Command: quartus_sta pong_vh -c pong_vh
+Info: qsta_default_script.tcl version: #1
+Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
+Info (20030): Parallel compilation is enabled and will use 16 of the 20 processors detected
+Info (21077): Low junction temperature is 0 degrees C
+Info (21077): High junction temperature is 85 degrees C
+Critical Warning (332012): Synopsys Design Constraints File file not found: 'pong_vh.sdc'. A Synopsys Design Constraints File is required by the Timing Analyzer to get proper timing constraints. Without it, the Compiler will not properly optimize the design.
+Info (332142): No user constrained base clocks found in the design. Calling "derive_clocks -period 1.0"
+Info (332105): Deriving Clocks
+    Info (332105): create_clock -period 1.000 -name clk clk
+Info (332143): No user constrained clock uncertainty found in the design. Calling "derive_clock_uncertainty"
+Info (332154): The derive_clock_uncertainty command did not apply clock uncertainty to any clock-to-clock transfers.
+Info: Found TIMING_ANALYZER_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS = ON
+Info: Analyzing Slow 1200mV 85C Model
+Critical Warning (332148): Timing requirements not met
+    Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the Timing Analyzer.
+Info (332146): Worst-case setup slack is -3.035
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    -3.035            -133.273 clk 
+Info (332146): Worst-case hold slack is 0.485
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.485               0.000 clk 
+Info (332140): No Recovery paths to report
+Info (332140): No Removal paths to report
+Info (332146): Worst-case minimum pulse width slack is -3.000
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    -3.000             -99.655 clk 
+Info: Analyzing Slow 1200mV 0C Model
+Info (334003): Started post-fitting delay annotation
+Info (334004): Delay annotation completed successfully
+Info (332154): The derive_clock_uncertainty command did not apply clock uncertainty to any clock-to-clock transfers.
+Critical Warning (332148): Timing requirements not met
+    Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the Timing Analyzer.
+Info (332146): Worst-case setup slack is -2.755
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    -2.755            -121.266 clk 
+Info (332146): Worst-case hold slack is 0.430
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.430               0.000 clk 
+Info (332140): No Recovery paths to report
+Info (332140): No Removal paths to report
+Info (332146): Worst-case minimum pulse width slack is -3.000
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    -3.000             -99.655 clk 
+Info: Analyzing Fast 1200mV 0C Model
+Info (332154): The derive_clock_uncertainty command did not apply clock uncertainty to any clock-to-clock transfers.
+Critical Warning (332148): Timing requirements not met
+    Info (11105): For recommendations on closing timing, run Report Timing Closure Recommendations in the Timing Analyzer.
+Info (332146): Worst-case setup slack is -0.737
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    -0.737             -20.580 clk 
+Info (332146): Worst-case hold slack is 0.201
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.201               0.000 clk 
+Info (332140): No Recovery paths to report
+Info (332140): No Removal paths to report
+Info (332146): Worst-case minimum pulse width slack is -3.000
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    -3.000             -91.823 clk 
+Info (332102): Design is not fully constrained for setup requirements
+Info (332102): Design is not fully constrained for hold requirements
+Info: Quartus Prime Timing Analyzer was successful. 0 errors, 5 warnings
+    Info: Peak virtual memory: 599 megabytes
+    Info: Processing ended: Tue Aug 25 13:01:48 2026
+    Info: Elapsed time: 00:00:01
+    Info: Total CPU time (on all processors): 00:00:01
+
+

@@ -10,7 +10,11 @@
 #include <verilated_vcd_sc.h>
 #endif
 
+#ifdef EMULATED_CO_SIM
+#include "Epong_vh.h"
+#else
 #include "Vpong_vh.h"
+#endif
 #include "sc_glcd128x64_TLM.h"
 
 SC_MODULE(sc_pong_vh_TB)
@@ -22,7 +26,6 @@ SC_MODULE(sc_pong_vh_TB)
 
     sc_signal<bool>         p_tick;
 
-    sc_signal<sc_uint<8> >  option;
     sc_signal<bool>         up;
     sc_signal<bool>         dn;
     sc_signal<bool>         lt;
@@ -31,7 +34,11 @@ SC_MODULE(sc_pong_vh_TB)
     sc_signal<bool>         game_over;
     sc_signal<bool>         game_new;
 
+#ifdef EMULATED_CO_SIM
+    Epong_vh*              u_pong_vh;
+#else
     Vpong_vh*              u_pong_vh;
+#endif
     sc_glcd128x64_TLM*      u_sc_glcd128x64_TLM;
 
 #ifdef  VCD_TRACE_TEST_TB
@@ -50,13 +57,16 @@ SC_MODULE(sc_pong_vh_TB)
         sensitive << clk;
 
         // Instantiate DUT --------------------------------
+#ifdef EMULATED_CO_SIM
+        u_pong_vh = new Epong_vh("u_pong_vh");
+#else
         u_pong_vh = new Vpong_vh("u_pong_vh");
+#endif
         u_pong_vh->clk(clk);
         u_pong_vh->reset(reset);
         u_pong_vh->v_sync(v_sync);
         u_pong_vh->pixel(pixel);
         u_pong_vh->p_tick(p_tick);
-        u_pong_vh->option(option);
         u_pong_vh->btn_up(up);
         u_pong_vh->btn_down(dn);
         u_pong_vh->btn_left(lt);
@@ -74,7 +84,6 @@ SC_MODULE(sc_pong_vh_TB)
         u_sc_glcd128x64_TLM->lt(lt);
         u_sc_glcd128x64_TLM->rt(rt);
         u_sc_glcd128x64_TLM->game_over(game_over);
-        u_sc_glcd128x64_TLM->option(option);
         u_sc_glcd128x64_TLM->game_new(game_new);
 
 #ifdef VCD_TRACE_TEST_TB
@@ -86,11 +95,11 @@ SC_MODULE(sc_pong_vh_TB)
         sc_trace(fp, v_sync,"v_sync");
         sc_trace(fp, pixel, "pixel");
         sc_trace(fp, p_tick,"p_tick");
-        sc_trace(fp, option,"option");
         sc_trace(fp, up,    "up");
         sc_trace(fp, dn,    "dn");
         sc_trace(fp, lt,    "lt");
         sc_trace(fp, rt,    "rt");
+        sc_trace(fp, game_new, "game_new");
         sc_trace(fp, game_over, "game_over");
 #endif
 

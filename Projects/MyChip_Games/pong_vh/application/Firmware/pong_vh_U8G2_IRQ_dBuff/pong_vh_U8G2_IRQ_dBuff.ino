@@ -26,20 +26,7 @@ unsigned char TableBMP_Even[SCREEN_W_BYTE*SCREEN_HEIGHT];
 unsigned char TableBMP_Odd[SCREEN_W_BYTE*SCREEN_HEIGHT];
 bool  bEven = true;
 
-#define PIN_RESET     7
-#define PIN_PIXEL     27
-#define PIN_V_SYNC    26
-#define PIN_GAME_OVER 15
-#define PIN_P_TICK    14
-
-#define PIN_OPTION7   0
-#define PIN_OPTION6   1
-#define PIN_OPTION5   2
-#define PIN_OPTION4   3
-#define PIN_OPTION3   6
-#define PIN_OPTION2   9
-#define PIN_OPTION1   10
-#define PIN_OPTION0   11
+#include "MyGames_pin_mapping.h"
 
 #define DRAW_BITMAP() { \
     u8g2.firstPage();  \
@@ -52,13 +39,8 @@ bool  bEven = true;
 #define _PWM_LOGLEVEL_    3
 #include "RP2040_PWM.h"
 RP2040_PWM* PWM_Instance; //creates pwm instance
-float frequency = 450000; //  Freq
+float frequency = 600000; //  Freq
 float dutyCycle = 50;     //  Duty in %
-#ifdef PWM_PI_PICO
-#define PIN_CLK_OUT   28  //  PWM out pin for Pi Pico
-#else
-#define PIN_CLK_OUT   29  //  PWM out pin for RP2040-Zero Board
-#endif
 //------------------------------------------------
 
 void u8g2_prepare(void)
@@ -77,33 +59,32 @@ int nFrame = 0;
 void setup(void)
 {
   // Pin Mode setup --------------------------------------
+  // 5-Way Switch Input (Pull-Up)
+  pinMode(PIN_SW_F, INPUT);
+  pinMode(PIN_SW_B, INPUT);
+  pinMode(PIN_SW_L, INPUT);
+  pinMode(PIN_SW_R, INPUT);
+  pinMode(PIN_SW_M, INPUT);
+  // IO with FPGA or MyChip
   pinMode(PIN_RESET, OUTPUT);
-
-  pinMode(PIN_P_TICK, INPUT_PULLDOWN);
-  pinMode(PIN_V_SYNC, INPUT_PULLDOWN);
-  pinMode(PIN_PIXEL, INPUT_PULLDOWN);
-  pinMode(PIN_GAME_OVER, INPUT_PULLDOWN);
-
-  pinMode(PIN_OPTION7, OUTPUT);
-  pinMode(PIN_OPTION6, OUTPUT);
-  pinMode(PIN_OPTION5, OUTPUT);
-  pinMode(PIN_OPTION4, OUTPUT);
-  pinMode(PIN_OPTION3, OUTPUT);
-  pinMode(PIN_OPTION2, OUTPUT);
-  pinMode(PIN_OPTION1, OUTPUT);
-  pinMode(PIN_OPTION0, OUTPUT);
-
-  digitalWrite(PIN_OPTION7, 1); // New Game
-  digitalWrite(PIN_OPTION6, 0);
-  digitalWrite(PIN_OPTION5, 0);
-  digitalWrite(PIN_OPTION4, 0);
-  digitalWrite(PIN_OPTION3, 0);
-  digitalWrite(PIN_OPTION2, 0);
-  digitalWrite(PIN_OPTION1, 0);
-  digitalWrite(PIN_OPTION0, 0);
+  pinMode(PIN_V_SYNC, INPUT);
+  pinMode(PIN_PIXEL, INPUT);
+  pinMode(PIN_P_TICK, INPUT);
+  pinMode(PIN_BTN_LEFT, OUTPUT);
+  pinMode(PIN_BTN_RIGHT, OUTPUT);
+  pinMode(PIN_BTN_UP, OUTPUT);
+  pinMode(PIN_BTN_DOWN, OUTPUT);
+  pinMode(PIN_GAME_NEW, OUTPUT);
+  pinMode(PIN_GAME_OVER, INPUT);
+  pinMode(PIN_GAME_COMPLETE, INPUT);
 
   // Initial value -----------------------------------------
-  digitalWrite(PIN_RESET, HIGH);  // Reset
+  digitalWrite(PIN_RESET, HIGH);      // Reset, active HIGH
+  digitalWrite(PIN_BTN_LEFT, HIGH);   // Move Left, active LOW
+  digitalWrite(PIN_BTN_RIGHT, HIGH);  // Move Right, active LOW
+  digitalWrite(PIN_BTN_UP, HIGH);     // Move Up, active LOW
+  digitalWrite(PIN_BTN_DOWN, HIGH);   // Move Down, active LOW
+  digitalWrite(PIN_GAME_NEW, HIGH);   // New Game, active LOW
 
   // OLED Driver -------------------------------------------
   u8g2.begin();
@@ -126,13 +107,13 @@ void setup(void)
   do {
     u8g2_prepare();
     u8g2.drawStr(0, 0, "MyChip-on-MyDesk");
-    u8g2.drawStr(0,12, "MyChip Games");
-    u8g2.drawStr(0,24, "pong_vh");
+    u8g2.drawStr(0,12, "MyGame-on-MyChip");
+    u8g2.drawStr(0,24, "Pong VH");
     u8g2.drawStr(0,36, ">> Press Start Button");
   } while( u8g2.nextPage() );
   
   // PWM for Clock generator----------------------------
-  PWM_Instance = new RP2040_PWM(PIN_CLK_OUT, frequency, dutyCycle);
+  PWM_Instance = new RP2040_PWM(PIN_CLK, frequency, dutyCycle);
 
   // Attach the interrupt to the pin
   attachInterrupt(digitalPinToInterrupt(PIN_P_TICK),    handlerP_TICK,    RISING);
@@ -159,12 +140,72 @@ void loop1()
   }
 }
 
+#define DEBOUNCE_DELAY 20
+
 void loop(void)
 {
-  PWM_Instance->setPWM(PIN_CLK_OUT, frequency, dutyCycle);
+  PWM_Instance->setPWM(PIN_CLK, frequency, dutyCycle);
 
   while(true)
-  {}
+  {
+    if (!digitalRead(PIN_SW_F))
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_LEFT, LOW);
+    }
+    else
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_LEFT, HIGH);
+    }
+
+    if (!digitalRead(PIN_SW_B))
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_RIGHT, LOW);
+    }
+    else
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_RIGHT, HIGH);
+    }
+
+    if (!digitalRead(PIN_SW_R))
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_UP, LOW);
+    }
+    else
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_UP, HIGH);
+    }
+
+    if (!digitalRead(PIN_SW_L))
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_DOWN, LOW);
+    }
+    else
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_BTN_DOWN, HIGH);
+    }
+
+    if (!digitalRead(PIN_SW_M))
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_GAME_NEW, LOW);
+//      if (digitalRead(PIN_GAME_COMPLETE))
+//        digitalWrite(PIN_RESET, HIGH);
+    }
+    else
+    {
+      delay(DEBOUNCE_DELAY);  // Delay 20ms
+      digitalWrite(PIN_GAME_NEW, HIGH);
+//      digitalWrite(PIN_RESET, LOW);
+    }
+  }
 }
 
 // Interrupt Handlers -----------------------------------------------------
@@ -187,18 +228,6 @@ void handlerP_TICK()
 void handlerGame_Over()
 {
   char szBuffer[32];
-  uint8_t option = rand()%50;
-
-  digitalWrite(PIN_RESET, HIGH);  // Reset
-
-  digitalWrite(PIN_OPTION7, option & 0x80);
-  digitalWrite(PIN_OPTION6, option & 0x40);
-  digitalWrite(PIN_OPTION5, option & 0x20);
-  digitalWrite(PIN_OPTION4, option & 0x10);
-  digitalWrite(PIN_OPTION3, option & 0x08);
-  digitalWrite(PIN_OPTION2, option & 0x04);
-  digitalWrite(PIN_OPTION1, option & 0x02);
-  digitalWrite(PIN_OPTION0, option & 0x01);
 
   u8g2.begin();
   u8g2.firstPage();
@@ -213,8 +242,6 @@ void handlerGame_Over()
   bUpdateBuffer = false;
   nFrame = 0;
   cnt_p_tick = 0;
-
-  digitalWrite(PIN_RESET, LOW);
 }
 
 void handlerV_SYNC()

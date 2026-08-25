@@ -1,0 +1,53 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "v_sync",
+					"strict" : false
+				},
+				{
+					"name" : "pixel",
+					"strict" : false
+				},
+				{
+					"name" : "p_tick",
+					"strict" : false
+				},
+				{
+					"name" : "game_over",
+					"strict" : false
+				},
+				{
+					"name" : "game_new",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
+					"strict" : false
+				},
+				{
+					"name" : "btn_down",
+					"strict" : false
+				},
+				{
+					"name" : "btn_up",
+					"strict" : false
+				},
+				{
+					"name" : "btn_right",
+					"strict" : false
+				},
+				{
+					"name" : "btn_left",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

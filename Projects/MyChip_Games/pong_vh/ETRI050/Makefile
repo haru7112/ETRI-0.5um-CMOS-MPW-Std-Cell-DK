@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Targetting ETRI050 node
 
-TOP_MODULE = pong_vh
+#TOP_MODULE = dino_run
 VERILOG_SRCS =	./source/$(TOP_MODULE).v
 
 all :
@@ -42,11 +42,13 @@ synthesize : ./log/synth.log
 place : ./log/place.log
 
 ./log/place.log : \
-	./log/synth.log \
-	./layout/$(TOP_MODULE).par \
 	./layout/$(TOP_MODULE).cel2 \
+	./log/synth.log \
 	project_vars.sh
 	qflow place -T etri050 $(TOP_MODULE)
+
+./layout/$(TOP_MODULE).cel2 :
+	cp /home/mychip/ETRI050_DesignKit/pads_ETRI/games.cel2 ./layout/$(TOP_MODULE).cel2
 
 # -----------------------------------------------------
 sta : ./log/sta.log

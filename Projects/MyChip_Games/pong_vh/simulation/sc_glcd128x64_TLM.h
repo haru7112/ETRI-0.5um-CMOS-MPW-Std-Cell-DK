@@ -21,7 +21,6 @@ SC_MODULE(sc_glcd128x64_TLM)
 
     sc_in<bool>            game_over;
     sc_out<bool>           game_new;
-    sc_out<sc_uint<8> >    option;
 
     void Display_Thread(void);
     void V_Sync_Thread(void);

@@ -1,0 +1,8 @@
+
+State Machine - |pong_vh|ctrl:u_ctrl|State
+Name State.sV_Sync State.sPixel State.sWait State.sLoad State.sGame 
+State.sGame 0 0 0 0 0 
+State.sLoad 0 0 0 1 1 
+State.sWait 0 0 1 0 1 
+State.sPixel 0 1 0 0 1 
+State.sV_Sync 1 0 0 0 1 

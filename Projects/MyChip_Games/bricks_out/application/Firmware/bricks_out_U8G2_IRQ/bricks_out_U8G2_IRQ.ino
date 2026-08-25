@@ -22,6 +22,8 @@ U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 #define SCREEN_W_BYTE (SCREEN_WIDTH/8)  // 16
 unsigned char TableBMP[SCREEN_W_BYTE*SCREEN_HEIGHT];
 
+#include "MyGames_pin_mapping.h"
+
 #define DRAW_BITMAP() { \
     u8g2.firstPage();  \
     do { \
@@ -35,21 +37,6 @@ unsigned char TableBMP[SCREEN_W_BYTE*SCREEN_HEIGHT];
 RP2040_PWM* PWM_Instance; //creates pwm instance
 float frequency = 500000; //  Freq
 float dutyCycle = 50;     //  Duty in %
-#define PIN_CLK_OUT   28  //  PWM out pin for Pi Pico
-//------------------------------------------------
-#define PIN_RESET         6
-#define PIN_V_SYNC        7
-#define PIN_PIXEL         8
-#define PIN_P_TICK        9
-#define PIN_BTN_LEFT      10
-#define PIN_BTN_RIGHT     11
-#define PIN_GAME_NEW      12
-#define PIN_GAME_OVER     13
-#define PIN_GAME_COMPLETE 14
-//------------------------------------------------
-#define PIN_SW_F          0
-#define PIN_SW_B          1
-#define PIN_SW_M          2
 
 void u8g2_prepare(void)
 {
@@ -112,7 +99,7 @@ void setup(void)
   } while( u8g2.nextPage() );
 
   // PWM for Clock generator----------------------------
-  PWM_Instance = new RP2040_PWM(PIN_CLK_OUT, frequency, dutyCycle);
+  PWM_Instance = new RP2040_PWM(PIN_CLK, frequency, dutyCycle);
 
   // Attach the interrupt to the pin
   attachInterrupt(digitalPinToInterrupt(PIN_P_TICK), handlerP_TICK, RISING);
@@ -144,7 +131,7 @@ void loop1()
 
 void loop(void)
 {
-  PWM_Instance->setPWM(PIN_CLK_OUT, frequency, dutyCycle);
+  PWM_Instance->setPWM(PIN_CLK, frequency, dutyCycle);
 
   while(true)
   {
