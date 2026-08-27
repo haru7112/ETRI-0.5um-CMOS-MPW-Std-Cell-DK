@@ -60,7 +60,7 @@ if {$make_assignments} {
     set_location_assignment PIN_132 -to v_sync
     set_location_assignment PIN_129 -to pixel
     set_location_assignment PIN_128 -to p_tick
-    set_location_assignment PIN_127 -to jump
+    set_location_assignment PIN_121 -to jump
     set_location_assignment PIN_125 -to game_new
     set_location_assignment PIN_124 -to game_over
 

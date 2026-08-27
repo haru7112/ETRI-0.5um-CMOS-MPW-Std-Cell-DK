@@ -29,24 +29,16 @@ unsigned char TableBMP[SCREEN_W_BYTE*SCREEN_HEIGHT];
     } while( u8g2.nextPage() ); \
   }
 
+#include "MyGames_pin_mapping.h"
+#define PIN_JUMP  PIN_BTN_UP
+
 // PWM for Clock generator -----------------------
 #define _PWM_LOGLEVEL_    3
 #include "RP2040_PWM.h"
 RP2040_PWM* PWM_Instance; //creates pwm instance
 float frequency = 600000; //  Freq
 float dutyCycle = 50;     //  Duty in %
-#define PIN_CLK_OUT   28  //  PWM out pin for Pi Pico
 //------------------------------------------------
-#define PIN_RESET         6
-#define PIN_V_SYNC        7
-#define PIN_PIXEL         8
-#define PIN_P_TICK        9
-#define PIN_JUMP          10
-#define PIN_GAME_NEW      12
-#define PIN_GAME_OVER     13
-//------------------------------------------------
-#define PIN_SW_R          3 // Jump
-#define PIN_SW_M          2
 
 void u8g2_prepare(void)
 {
@@ -114,7 +106,7 @@ void setup(void)
   } while( u8g2.nextPage() );
 
   // PWM for Clock generator----------------------------
-  PWM_Instance = new RP2040_PWM(PIN_CLK_OUT, frequency, dutyCycle);
+  PWM_Instance = new RP2040_PWM(PIN_CLK, frequency, dutyCycle);
 
   // Attach the interrupt to the pin
   attachInterrupt(digitalPinToInterrupt(PIN_P_TICK),    handlerP_TICK,    RISING);
@@ -145,7 +137,7 @@ void loop1()
 
 void loop(void)
 {
-  PWM_Instance->setPWM(PIN_CLK_OUT, frequency, dutyCycle);
+  PWM_Instance->setPWM(PIN_CLK, frequency, dutyCycle);
 
   while(true)
   {

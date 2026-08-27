@@ -86,11 +86,11 @@ void handlerIO_Req(void)
 void handlerP_TICK()
 {
 #ifdef HAVE_LCD2004_DEBUG
-  static int nP_TICK = 0;
-  char szBuff[32];
-  sprintf(szBuff, "P_TICK:%d", nP_TICK++);
-  lcd.setCursor(0, 1);
-  lcd.print(szBuff);
+//  static int nP_TICK = 0;
+//  char szBuff[32];
+//  sprintf(szBuff, "P_TICK:%d", nP_TICK++);
+//  lcd.setCursor(0, 1);
+//  lcd.print(szBuff);
 #endif
 
   int xPos = cnt_p_tick%SCREEN_WIDTH;
@@ -141,6 +141,14 @@ void loop1()
 {
   if (bUpdateBuffer)
   {
+#ifdef HAVE_LCD2004_DEBUG
+  static int nUpdateBuffer = 0;
+  char szBuff[32];
+  sprintf(szBuff, "UpdateBuffer:%d", nUpdateBuffer++);
+  lcd.setCursor(0, 1);
+  lcd.print(szBuff);
+#endif
+
     //psce.u8g2->begin();
     //psce.u8g2->clearBuffer();
     //psce.u8g2->setBitmapMode(false);  // Solid
