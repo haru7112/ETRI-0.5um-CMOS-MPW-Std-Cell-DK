@@ -13,8 +13,9 @@
 #define BTN_ATTN    4   // 1/10 attenuator(Off=High-Z, Enable=Output Low)
 #define BTN_UP      6   // Up
 #define BTN_DOWN    7   // Down
-#define BTN_SELECT  8   // Select button
-#define BTN_HOLD    9   // Hold
+#define BTN_SEL_PRE 8   // Select Prev Menu
+#define BTN_SEL_NXT 9   // Select Next Menu
+#define BTN_HOLD    10  // Hold
 
 #define PIN_PWM     5
 
@@ -76,7 +77,8 @@ float waveDuty;                // duty ratio (%)
 
 void setup() {
   pinMode(BTN_IRQ, INPUT_PULLUP);     // button pushed interrupt (int.1 IRQ)
-  pinMode(BTN_SELECT, INPUT_PULLUP);  // Select button
+  pinMode(BTN_SEL_PRE, INPUT_PULLUP);  // Select Prev. button
+  pinMode(BTN_SEL_NXT, INPUT_PULLUP);  // Select Next. button
   pinMode(BTN_UP, INPUT_PULLUP);      // Up
   pinMode(BTN_DOWN, INPUT_PULLUP);    // Down
   pinMode(BTN_HOLD, INPUT_PULLUP);    // Hold
@@ -517,7 +519,7 @@ void startScreen() {                      // Staru up screen
   oled.setCursor(30, 20);
   oled.println(F("Oscilloscope")); 
   oled.setCursor(55, 42);            
-  oled.println(F("v1.1"));                
+  oled.println(F("v1.2"));                
   oled.display();                         
   delay(1500);
   oled.clearDisplay();
@@ -686,7 +688,7 @@ void loadEEPROM() {                    // Read setting values from EEPROM (abnor
 void auxFunctions() {                       // voltage meter function
   float voltage;
   long x;
-  if (digitalRead(BTN_SELECT) == LOW) {     // if SELECT button pushed, measure battery voltage
+  if (digitalRead(BTN_SEL_PRE) == LOW) {     // if SELECT button pushed, measure battery voltage
     analogReference(DEFAULT);               // ADC full scale set to Vcc
     while (1) {                             // do forever
       x = 0;
@@ -767,24 +769,28 @@ void BtnIRQ() { // IRQ pin interrupr handler
 
   delayMicroseconds(100);
 
-  bool bSelect = digitalRead(BTN_SELECT);
+  bool bSelect_Prev = digitalRead(BTN_SEL_PRE);
+  bool bSelect_Next = digitalRead(BTN_SEL_NXT);
   bool bUp = digitalRead(BTN_UP);
   bool bDown = digitalRead(BTN_DOWN);
   bool bHold = digitalRead(BTN_HOLD);
 
-  if (bSelect && bUp && bDown && bHold) return;
+  if (bSelect_Prev && bSelect_Next && bUp && bDown && bHold) return;
 
   // if Any of 3-Button Pressed?
-  if (!bSelect || !bUp || !bDown) {
+  if (!bSelect_Prev || !bSelect_Next || !bUp || !bDown) {
     saveTimer = 5000;               // set EEPROM save timer to 5 secnd
     switchPushed = true;            // switch pushed falag ON
   }
 
-  if (!bSelect) {   // if select button pushed,
-    scopeP++;                       // forward scope position
-    if (scopeP > 2) {               // if upper limit
-      scopeP = 0;                   // move to start position
-    }
+  if (!bSelect_Prev) {
+    if (scopeP > 0) scopeP--;
+    else            scopeP = 0;
+  }
+
+  if (!bSelect_Next) {
+    if (scopeP < 2) scopeP++;
+    else            scopeP = 2;
   }
 
   if (!bUp) {  // if UP button pusshed, and
