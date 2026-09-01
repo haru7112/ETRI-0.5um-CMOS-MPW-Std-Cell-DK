@@ -217,6 +217,7 @@ module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
                     if (!init_done) begin
                         if (init_idx == 7) begin
                           init_done <= 1;
+                          state <= S_STOP;
                         end
                         else begin
                           init_idx <= init_idx + 1;

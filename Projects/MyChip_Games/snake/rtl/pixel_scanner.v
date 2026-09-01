@@ -109,6 +109,14 @@ module pixel_scanner(
     wire [4:0] cy0 = {page_y, 2'd0}; wire [4:0] cy1 = {page_y, 2'd1};
     wire [4:0] cy2 = {page_y, 2'd2}; wire [4:0] cy3 = {page_y, 2'd3};
 
+    // 이번 스캔 단계가 더하는 픽셀들. scan_byte 에 반영되기 전의 조합 논리라
+    // 마지막 세그먼트(머리)까지 포함해 pixel_byte 로 바로 넘길 수 있다.
+    wire [7:0] scan_hit = {(read_data == {cx, cy3}) ? 2'b11 : 2'b00,
+                           (read_data == {cx, cy2}) ? 2'b11 : 2'b00,
+                           (read_data == {cx, cy1}) ? 2'b11 : 2'b00,
+                           (read_data == {cx, cy0}) ? 2'b11 : 2'b00};
+    wire [7:0] scan_byte_next = scan_byte | scan_hit;
+
     always @(posedge clk_125m or negedge rst_n) begin
         if (!rst_n) begin
             last_col <= 7'h7F; last_page <= 3'h7; scanning <= 0;
@@ -130,13 +138,10 @@ module pixel_scanner(
                     if (food_pos == {cx, cy3}) scan_byte[7:6] <= 2'b11;
                 end
             end else if (scanning) begin
-                if (read_data == {cx, cy0}) scan_byte[1:0] <= 2'b11;
-                if (read_data == {cx, cy1}) scan_byte[3:2] <= 2'b11;
-                if (read_data == {cx, cy2}) scan_byte[5:4] <= 2'b11;
-                if (read_data == {cx, cy3}) scan_byte[7:6] <= 2'b11;
+                scan_byte <= scan_byte_next;
 
                 if (scan_ptr == head_ptr) begin
-                    scanning <= 0; pixel_byte <= scan_byte;
+                    scanning <= 0; pixel_byte <= scan_byte_next;
                 end else begin
                     scan_ptr <= scan_ptr + 1; read_addr <= scan_ptr + 1;
                 end

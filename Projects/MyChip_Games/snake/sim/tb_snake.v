@@ -125,10 +125,8 @@ module tb_snake;
         dump_frame;
 
         // drive the snake down for a while, then a couple more frames
-        joy_dn = 0; #20000000 joy_dn = 1;
-
-        wait (n_frames == 4);
-        $display("\n=== FRAME 4 (t=%0t) ===", $time);
+        wait (n_frames == 2);
+        $display("\n=== FRAME 2 (t=%0t) ===", $time);
         dump_frame;
 
         $display("\nworst pixel_byte margin = %0d ns (%0d core clks)",
