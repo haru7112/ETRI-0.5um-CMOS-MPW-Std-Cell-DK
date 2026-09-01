@@ -7,7 +7,7 @@
 // CDC, and nothing for STA to cut. phase advances at 4 x SCL_HZ.
 module i2c_oled_master #(
     parameter integer CLK_HZ = 25_000_000,
-    parameter integer SCL_HZ = 390_625
+    parameter integer SCL_HZ = 367_647
 ) (
     input  wire       clk,
     input  wire       rst_n,

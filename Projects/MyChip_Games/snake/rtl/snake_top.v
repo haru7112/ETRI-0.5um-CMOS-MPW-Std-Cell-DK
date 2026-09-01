@@ -7,7 +7,10 @@
 // from an MMCM and leave the default.
 module snake_top #(
     parameter integer CLK_HZ = 25_000_000,
-    parameter integer SCL_HZ = 390_625        // CLK_HZ must be a multiple of 4*SCL_HZ
+    // 4*SCL_HZ must divide CLK_HZ. 367_647 gives DIV=17 at 25 MHz and DIV=85
+    // at 125 MHz, i.e. t_LOW = t_HIGH = 1360 ns, inside the I2C fast-mode
+    // minimum of 1300 ns. DIV=16 (SCL_HZ=390_625) leaves t_LOW at 1280 ns.
+    parameter integer SCL_HZ = 367_647
 ) (
     input  wire clk,
     input  wire rst_n,
