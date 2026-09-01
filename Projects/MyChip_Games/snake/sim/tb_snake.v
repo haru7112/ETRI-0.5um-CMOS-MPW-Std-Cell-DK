@@ -4,8 +4,9 @@
 // -> i2c_oled_master timing margin.
 module tb_snake;
 
+    localparam integer CLK_HZ = 25_000_000;   // chip target
     reg clk = 0;
-    always #4 clk = ~clk;              // 125 MHz
+    always #20 clk = ~clk;             // 25 MHz
 
     reg rst_n = 0;
     reg joy_up=1, joy_dn=1, joy_lf=1, joy_rt=1, joy_ct=1;   // active low
@@ -14,8 +15,8 @@ module tb_snake;
     pullup(scl);
     pullup(sda);
 
-    snake_top dut (
-        .clk_100m(clk), .rst_n(rst_n),
+    snake_top #(.CLK_HZ(CLK_HZ)) dut (
+        .clk(clk), .rst_n(rst_n),
         .joy_up(joy_up), .joy_down(joy_dn), .joy_left(joy_lf),
         .joy_right(joy_rt), .joy_center(joy_ct),
         .i2c_scl(scl), .i2c_sda(sda));
@@ -86,8 +87,9 @@ module tb_snake;
         end
     end
     // latch point: i2c master loads pixel_byte in S_LOAD_NEXT at phase==3
-    always @(posedge dut.clk_1m6) begin
-        if (dut.u_display.state == 9 && dut.u_display.phase == 3) begin
+    always @(posedge clk) begin
+        if (dut.u_display.state == 9 && dut.u_display.phase == 3
+            && dut.u_display.phase_en && dut.u_display.pixel_valid) begin
             t_latch = $time;
             if (dut.u_scanner.scanning === 1'b1)
                 $display("[%0t] *** STALE BYTE: scan still running at latch (col=%0d page=%0d)",
@@ -130,7 +132,7 @@ module tb_snake;
         dump_frame;
 
         $display("\nworst pixel_byte margin = %0d ns (%0d core clks)",
-                 worst_margin, worst_margin/8);
+                 worst_margin, worst_margin/40);
         $finish;
     end
 

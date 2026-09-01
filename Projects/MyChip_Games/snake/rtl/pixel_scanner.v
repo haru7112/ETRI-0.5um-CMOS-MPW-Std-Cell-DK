@@ -1,5 +1,5 @@
 module pixel_scanner(
-    input  wire clk_125m,
+    input  wire clk,
     input  wire rst_n,
     input  wire [6:0] col_x,
     input  wire [2:0] page_y,
@@ -12,7 +12,11 @@ module pixel_scanner(
     input  wire [3:0] s_100, s_10, s_1,
     
     output reg  [7:0] read_addr,
-    output reg  [7:0] pixel_byte
+    output reg  [7:0] pixel_byte,
+    // High only while pixel_byte matches the col_x/page_y currently applied.
+    // Drops combinationally the instant the address changes, so the I2C
+    // master can never latch a byte belonging to the previous cell.
+    output wire       pixel_valid
 );
 
     wire is_ui = (col_x < 31);
@@ -117,20 +121,26 @@ module pixel_scanner(
                            (read_data == {cx, cy0}) ? 2'b11 : 2'b00};
     wire [7:0] scan_byte_next = scan_byte | scan_hit;
 
-    always @(posedge clk_125m or negedge rst_n) begin
+    wire addr_changed = (col_x != last_col) || (page_y != last_page);
+    reg  byte_ready;
+    assign pixel_valid = byte_ready && !addr_changed;
+
+    always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             last_col <= 7'h7F; last_page <= 3'h7; scanning <= 0;
-            pixel_byte <= 8'h00; read_addr <= 0;
+            pixel_byte <= 8'h00; read_addr <= 0; byte_ready <= 0;
+            scan_byte <= 8'h00; scan_ptr <= 8'h00;
         end else begin
-            if (col_x != last_col || page_y != last_page) begin
+            if (addr_changed) begin
                 last_col <= col_x; last_page <= page_y;
                 
                 if (is_border) begin
-                    pixel_byte <= 8'hFF; scanning <= 0;
+                    pixel_byte <= 8'hFF; scanning <= 0; byte_ready <= 1;
                 end else if (is_ui) begin
-                    pixel_byte <= timer_data; scanning <= 0;
+                    pixel_byte <= timer_data; scanning <= 0; byte_ready <= 1;
                 end else begin
-                    scanning <= 1; scan_ptr <= tail_ptr; read_addr <= tail_ptr;
+                    scanning <= 1; byte_ready <= 0;
+                    scan_ptr <= tail_ptr; read_addr <= tail_ptr;
                     scan_byte <= 8'h00;
                     if (food_pos == {cx, cy0}) scan_byte[1:0] <= 2'b11;
                     if (food_pos == {cx, cy1}) scan_byte[3:2] <= 2'b11;
@@ -141,7 +151,7 @@ module pixel_scanner(
                 scan_byte <= scan_byte_next;
 
                 if (scan_ptr == head_ptr) begin
-                    scanning <= 0; pixel_byte <= scan_byte_next;
+                    scanning <= 0; pixel_byte <= scan_byte_next; byte_ready <= 1;
                 end else begin
                     scan_ptr <= scan_ptr + 1; read_addr <= scan_ptr + 1;
                 end

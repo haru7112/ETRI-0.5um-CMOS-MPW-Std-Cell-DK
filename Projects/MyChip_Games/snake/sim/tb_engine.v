@@ -3,7 +3,8 @@
 // Drives col_x/page_y directly and renders, so game ticks can be sped up.
 module tb_engine;
 
-    reg clk = 0; always #4 clk = ~clk;      // 125 MHz
+    localparam integer CLK_HZ = 25_000_000;
+    reg clk = 0; always #20 clk = ~clk;    // 25 MHz
     reg rst_n = 0;
     reg up=0, dn=0, lf=0, rt=0, ct=0;       // active high (post-debounce)
 
@@ -15,7 +16,7 @@ module tb_engine;
     reg  [2:0] page_y = 0;
     wire [7:0] pixel_byte;
 
-    snake_engine u_engine (
+    snake_engine #(.CLK_HZ(CLK_HZ)) u_engine (
         .clk(clk), .rst_n(rst_n),
         .btn_up(up), .btn_down(dn), .btn_left(lf), .btn_right(rt), .btn_center(ct),
         .tail_ptr(tail_ptr), .head_ptr(head_ptr), .food_pos(food_pos),
@@ -23,27 +24,28 @@ module tb_engine;
         .t_sec_l(t_sec_l), .t_sec_h(t_sec_h), .t_min_l(t_min_l), .t_min_h(t_min_h),
         .s_100(s_100), .s_10(s_10), .s_1(s_1));
 
+    wire pixel_valid;
     pixel_scanner u_scanner (
-        .clk_125m(clk), .rst_n(rst_n), .col_x(col_x), .page_y(page_y),
+        .clk(clk), .rst_n(rst_n), .col_x(col_x), .page_y(page_y),
         .head_ptr(head_ptr), .tail_ptr(tail_ptr), .food_pos(food_pos),
         .read_data(read_data),
         .t_sec_l(t_sec_l), .t_sec_h(t_sec_h), .t_min_l(t_min_l), .t_min_h(t_min_h),
         .s_100(s_100), .s_10(s_10), .s_1(s_1),
-        .read_addr(read_addr), .pixel_byte(pixel_byte));
+        .read_addr(read_addr), .pixel_byte(pixel_byte), .pixel_valid(pixel_valid));
 
     reg [7:0] fb [0:7][0:127];
     integer x, y, k;
 
     task grab_frame;   // sweep every (col,page), allow 400 clks to settle
         begin
-            u_engine.tick_max = 25'h1FFFFFF;      // freeze the game while scanning
+            u_engine.tick_max = 32'hFFFF_FFFF;         // freeze the game while scanning
             for (y=0; y<8; y=y+1)
                 for (x=0; x<128; x=x+1) begin
                     @(posedge clk); page_y = y[2:0]; col_x = x[6:0];
                     for (k=0; k<400; k=k+1) @(posedge clk);
                     fb[y][x] = pixel_byte;
                 end
-            u_engine.tick_max = 25'd399;          // resume
+            u_engine.tick_max = 399;                   // resume
         end
     endtask
 
@@ -68,8 +70,8 @@ module tb_engine;
     initial begin
         #200 rst_n = 1;
         @(posedge clk);
-        u_engine.tick_max = 25'd399;          // speed up game ticks for sim
-        u_engine.cnt_1hz  = 27'd0;
+        u_engine.tick_max = 399;             // speed up game ticks for sim
+        u_engine.cnt_1hz  = 0;
 
         grab_frame; show("initial (3 segments at x=15,16,17 y=16)");
 

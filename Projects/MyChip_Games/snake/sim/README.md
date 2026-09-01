@@ -26,3 +26,14 @@ gameplay and rendering checks.
 
 Do not enable `$dumpvars` on the full design — `snake_mem` and
 `collision_map` produce a multi-GB VCD within a single frame.
+
+## tb_stress.v — maximum-length snake
+
+Forces a 201-cell body and checks that no pixel byte is ever transmitted
+while `pixel_scanner` is still scanning. At 25 MHz the master's own budget
+between `col_x` changing and the byte being latched is only 63 core clocks,
+far short of the ~203 the scan needs, so this test only passes because the
+`pixel_valid` handshake stalls `S_LOAD_NEXT`.
+
+    iverilog -g2005 -o stress.out ../rtl/*.v tb_stress.v
+    vvp stress.out

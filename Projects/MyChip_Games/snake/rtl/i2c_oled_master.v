@@ -1,12 +1,36 @@
 `timescale 1ns / 1ps
 
-module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
-    input             clk, reset;
-    input       [7:0] pixel_byte;
-    output  reg [6:0] col_x;
-    output  reg [2:0] page_y;
-    output            scl;
-    inout             sda;
+// i2c_oled_master -- SSD1315 page-addressed writer.
+//
+// Runs on the system clock with a bit-phase clock enable rather than its own
+// divided clock, so the design is a single clock domain: one clock tree, no
+// CDC, and nothing for STA to cut. phase advances at 4 x SCL_HZ.
+module i2c_oled_master #(
+    parameter integer CLK_HZ = 25_000_000,
+    parameter integer SCL_HZ = 390_625
+) (
+    input  wire       clk,
+    input  wire       rst_n,
+    input  wire [7:0] pixel_byte,
+    input  wire       pixel_valid,
+    output reg  [6:0] col_x,
+    output reg  [2:0] page_y,
+    output wire       scl,
+    inout  wire       sda
+);
+
+    // one phase_en pulse per quarter SCL period
+    localparam integer DIV = CLK_HZ / (4 * SCL_HZ);
+    localparam integer DW  = $clog2(DIV);
+
+    reg  [DW-1:0] div_cnt;
+    wire          phase_en = (div_cnt == DIV[DW-1:0] - 1'b1);
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)        div_cnt <= {DW{1'b0}};
+        else if (phase_en) div_cnt <= {DW{1'b0}};
+        else               div_cnt <= div_cnt + 1'b1;
+    end
 
     reg               scl_en, sda_en, init_done, setup_page, setup_col_l, setup_col_h;
     reg         [1:0] phase;
@@ -28,9 +52,9 @@ module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
     assign scl = scl_en ? 1'b0 : 1'bz;
     assign sda = sda_en ? 1'b0 : 1'bz;
 
-    always @(posedge clk or posedge reset) begin
-        if (reset) phase <= 0;
-        else phase <= phase + 1;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)        phase <= 0;
+        else if (phase_en) phase <= phase + 1'b1;
     end
 
     always @(*) begin
@@ -47,12 +71,12 @@ module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
         endcase
     end
 
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             scl_en <= 0;
             sda_en <= 0;
         end
-        else begin
+        else if (phase_en) begin
             case (state)
                 S_START: begin
                     case (phase)
@@ -140,8 +164,8 @@ module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
         end
     end
 
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
             state <= S_IDLE;
             init_idx <= 0;
             init_done <= 0;
@@ -150,8 +174,10 @@ module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
             setup_page <= 1;
             setup_col_l <= 1;
             setup_col_h <= 1;
+            shift_reg <= 8'h00;
+            bit_cnt <= 3'd0;
         end
-        else if (phase == 3) begin
+        else if (phase_en && phase == 3) begin
             case (state)
                 S_IDLE: begin
                   state <= S_START;
@@ -185,24 +211,24 @@ module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
                     end
                 end
                 S_ACK_CTRL: begin
+                    bit_cnt <= 7;
                     if (!init_done) begin
-                      shift_reg <= init_data;
+                      shift_reg <= init_data;   state <= S_SEND_DATA;
                     end
                     else if (setup_page) begin
-                      shift_reg <= 8'hB0 + page_y;
+                      shift_reg <= 8'hB0 + page_y; state <= S_SEND_DATA;
                     end
                     else if (setup_col_l) begin
-                      shift_reg <= 8'h00;
+                      shift_reg <= 8'h00;       state <= S_SEND_DATA;
                     end
                     else if (setup_col_h) begin
-                      shift_reg <= 8'h10;
+                      shift_reg <= 8'h10;       state <= S_SEND_DATA;
                     end
                     else begin
-                      shift_reg <= pixel_byte;
+                      // first pixel byte of the page: take the same stalling
+                      // path as every other pixel byte
+                      state <= S_LOAD_NEXT;
                     end
-
-                    bit_cnt <= 7;
-                    state <= S_SEND_DATA;
                 end
                 S_SEND_DATA: begin
                     if (bit_cnt == 0) begin
@@ -251,13 +277,19 @@ module i2c_oled_master (clk, reset, pixel_byte, col_x, page_y, scl, sda);
                     end
                 end
                 S_LOAD_NEXT: begin
-                    shift_reg <= pixel_byte;
-                    bit_cnt <= 7;
-                    state <= S_SEND_DATA;
+                    // Hold here until pixel_scanner has the byte for the
+                    // current col_x/page_y. SCL is held low throughout this
+                    // state, so waiting is ordinary I2C clock stretching.
+                    if (pixel_valid) begin
+                        shift_reg <= pixel_byte;
+                        bit_cnt <= 7;
+                        state <= S_SEND_DATA;
+                    end
                 end
                 S_STOP: begin
                     state <= S_IDLE;
                 end
+                default: state <= S_IDLE;
             endcase
         end
     end
