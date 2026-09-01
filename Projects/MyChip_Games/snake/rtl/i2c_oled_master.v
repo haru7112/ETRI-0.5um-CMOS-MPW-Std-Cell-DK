@@ -26,6 +26,14 @@ module i2c_oled_master #(
     reg  [DW-1:0] div_cnt;
     wire          phase_en = (div_cnt == DIV[DW-1:0] - 1'b1);
 
+    // The RTL cannot see the clock actually applied to the part, so it can
+    // only report what it was configured for. If the panel stays blank,
+    // check this line against the real board clock first: a CLK_HZ that is
+    // too low makes SCL correspondingly too fast and the SSD1315 never
+    // responds.
+    initial $display("i2c_oled_master %m: CLK_HZ=%0d DIV=%0d -> SCL=%0d Hz",
+                     CLK_HZ, DIV, CLK_HZ/(4*DIV));
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n)        div_cnt <= {DW{1'b0}};
         else if (phase_en) div_cnt <= {DW{1'b0}};

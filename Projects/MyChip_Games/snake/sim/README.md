@@ -37,3 +37,23 @@ far short of the ~203 the scan needs, so this test only passes because the
 
     iverilog -g2005 -o stress.out ../rtl/*.v tb_stress.v
     vvp stress.out
+
+## tb_clkcheck.v — CLK_HZ mismatch
+
+Instantiates two `snake_top`s off one 125 MHz clock, one with the default
+25 MHz parameters and one with `.CLK_HZ(125_000_000)`, and reports the SCL
+each produces. Run it if the panel is blank: the mismatched instance
+drives SCL at 1.84 MHz, over four times the SSD1315's 400 kHz limit, and
+the display never responds.
+
+    iverilog -g2005 -o clkchk.out ../rtl/*.v tb_clkcheck.v
+    vvp clkchk.out
+
+## tb_timing.v — real elapsed-time checks
+
+Measures the CLK_HZ-derived constants without overriding them: game tick
+period, 1 Hz timer, SCL t_LOW/t_HIGH against the I2C fast-mode minimums.
+
+## Running tb_snake at the Zybo clock
+
+    iverilog -g2005 -DCLK125 -o snake.out ../rtl/*.v tb_snake.v

@@ -4,9 +4,15 @@
 // -> i2c_oled_master timing margin.
 module tb_snake;
 
-    localparam integer CLK_HZ = 25_000_000;   // chip target
+`ifdef CLK125
+    localparam integer CLK_HZ  = 125_000_000;   // Zybo Z7-20 PL clock
+    localparam integer HALF_NS = 4;
+`else
+    localparam integer CLK_HZ  = 25_000_000;    // chip target
+    localparam integer HALF_NS = 20;
+`endif
     reg clk = 0;
-    always #20 clk = ~clk;             // 25 MHz
+    always #(HALF_NS) clk = ~clk;
 
     reg rst_n = 0;
     reg joy_up=1, joy_dn=1, joy_lf=1, joy_rt=1, joy_ct=1;   // active low
@@ -132,7 +138,7 @@ module tb_snake;
         dump_frame;
 
         $display("\nworst pixel_byte margin = %0d ns (%0d core clks)",
-                 worst_margin, worst_margin/40);
+                 worst_margin, worst_margin/(2*HALF_NS));
         $finish;
     end
 
