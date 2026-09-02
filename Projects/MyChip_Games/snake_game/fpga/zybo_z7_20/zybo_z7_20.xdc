@@ -1,8 +1,17 @@
 #-----------------------------------------------------------------------------
 # zybo_z7_20.xdc - constraints for snake_zybo_top on a Digilent Zybo Z7-20
 #
-# Pin numbers follow Digilent's Zybo-Z7-Master.xdc.  Cross check them against
-# the master file that ships with your board revision before you build.
+# Every pin below was taken from Digilent's Zybo-Z7-Master.xdc (Rev. B), not
+# from memory.
+#
+# Everything lives on Pmod JE, on purpose:
+#   * JE is a STANDARD Pmod - it has 200 ohm series protection resistors, which
+#     is what you want in front of hand wired modules.
+#   * JE needs exactly the 8 signals this design uses.
+#   * Its master-XDC comments carry the physical pin numbers (Sch=je[1] ..
+#     je[10]), so there is no ambiguity.  Do NOT move this to JB/JC/JD without
+#     re-deriving the pins: those are differential Pmods whose array index runs
+#     p[1], n[1], p[2], n[2] ... which is NOT the physical pin order.
 #-----------------------------------------------------------------------------
 
 ## 125 MHz system clock
@@ -13,29 +22,33 @@ create_clock -period 8.000 -name sys_clk [get_ports clk125]
 create_generated_clock -name clk25 -source [get_ports clk125] -divide_by 5 \
     [get_pins u_bufg25/O]
 
-## switches / buttons / LEDs
-set_property -dict {PACKAGE_PIN T16 IOSTANDARD LVCMOS33} [get_ports sw3]
-set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVCMOS33} [get_ports btn0]
-set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports led0]
+## board switches / buttons / LEDs
+set_property -dict {PACKAGE_PIN T16 IOSTANDARD LVCMOS33} [get_ports sw3]    ;# sw[3]
+set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVCMOS33} [get_ports btn0]   ;# btn[0]
+set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports led0]   ;# led[0]
 
-## Pmod JE - SSD1315 OLED (standard Pmod, 200 ohm series protection)
-##   JE1 SCL   JE2 SDA   JE3 RES#   JE5 GND   JE6 VCC3V3
-set_property -dict {PACKAGE_PIN V12 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_scl]
-set_property -dict {PACKAGE_PIN W16 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_sda]
-set_property -dict {PACKAGE_PIN J15 IOSTANDARD LVCMOS33}             [get_ports oled_res_n]
+#-----------------------------------------------------------------------------
+# Pmod JE
+#
+#      +----------------------------------+
+#   1  |  SCL   SDA   RES#  JS_OK  GND VCC |  6      (3V3 on VCC)
+#   7  |  JS_UP JS_DN JS_LT JS_RT  GND VCC |  12
+#      +----------------------------------+
+#-----------------------------------------------------------------------------
+set_property -dict {PACKAGE_PIN V12 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_scl]   ;# JE1
+set_property -dict {PACKAGE_PIN W16 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_sda]   ;# JE2
+set_property -dict {PACKAGE_PIN J15 IOSTANDARD LVCMOS33}             [get_ports oled_res_n] ;# JE3
+set_property -dict {PACKAGE_PIN H15 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_ok]      ;# JE4
+set_property -dict {PACKAGE_PIN V13 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_up]      ;# JE7
+set_property -dict {PACKAGE_PIN U17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_down]    ;# JE8
+set_property -dict {PACKAGE_PIN T17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_left]    ;# JE9
+set_property -dict {PACKAGE_PIN Y17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_right]   ;# JE10
 
-## Pmod JC - 5-way navigation switch, common pin to GND
-##   JC1 UP  JC2 DOWN  JC3 LEFT  JC4 RIGHT  JC7 OK(centre)  JC5 GND
-set_property -dict {PACKAGE_PIN V15 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_up]
-set_property -dict {PACKAGE_PIN W15 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_down]
-set_property -dict {PACKAGE_PIN T11 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_left]
-set_property -dict {PACKAGE_PIN T10 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_right]
-set_property -dict {PACKAGE_PIN W14 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_ok]
-
-## the switch and the panel are asynchronous to everything
-set_false_path -from [get_ports {sw3 btn0 js_*}]
+## the switch, the buttons and the panel are all asynchronous to the core
+set_false_path -from [get_ports {sw3 btn0 js_up js_down js_left js_right js_ok}]
 set_false_path -to   [get_ports {led0 oled_res_n}]
 
-## I2C runs at 400 kHz, two orders of magnitude below the clock: no point in
-## timing the pad round trip
+## I2C runs at 400 kHz, two orders of magnitude below the clock, so there is no
+## point timing the pad round trip
 set_false_path -from [get_ports oled_sda]
+set_false_path -to   [get_ports {oled_scl oled_sda}]

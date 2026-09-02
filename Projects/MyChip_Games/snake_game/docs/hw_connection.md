@@ -63,45 +63,68 @@
 
 ## 2. Zybo Z7-20 (3.3V)
 
-핀 번호는 Digilent `Zybo-Z7-Master.xdc` 기준입니다. 보드 리비전에 따라
-다를 수 있으니 빌드 전에 한 번 대조하세요.
+핀은 Digilent `Zybo-Z7-Master.xdc` (Rev. B) 에서 그대로 가져왔고,
+`fpga/zybo_z7_20/check_xdc.py` 가 Verilog 포트와 핀 배정을 교차검증합니다.
 
-### Pmod JE — OLED (standard Pmod, 200옴 직렬 보호 저항 내장)
+### 전부 Pmod JE 하나에
+
+JE를 고른 이유가 있습니다.
+
+* JE는 **standard Pmod** 라 200옴 직렬 보호 저항이 들어 있습니다. 손으로 배선한
+  모듈 앞에 두기에 가장 안전합니다.
+* 필요한 신호가 정확히 8개고 JE가 정확히 8개를 줍니다.
+* 마스터 XDC 주석에 물리 핀 번호(`Sch=je[1]` ~ `je[10]`)가 그대로 적혀 있어
+  모호함이 없습니다.
+
+> **JB/JC/JD 로 옮기지 마세요** (핀을 다시 유도하지 않는 한). 이들은 차동 Pmod라
+> 배열 인덱스가 `p[1], n[1], p[2], n[2] ...` 순서입니다. 즉 `jc[1]` 은 JC2가
+> 아니라 **JC7** 입니다. 처음에 이걸 착각해서 조이스틱 핀 4개가 틀려 있었습니다.
+
+```
+      +--------------------------------------+
+   1  |  SCL    SDA    RES#   JS_OK  GND VCC |  6      VCC = 3V3
+   7  |  JS_UP  JS_DN  JS_LT  JS_RT  GND VCC |  12
+      +--------------------------------------+
+```
 
 | Pmod JE | FPGA 핀 | 신호 |
 |---|---|---|
-| JE1 | V12 | SCL |
-| JE2 | W16 | SDA |
-| JE3 | J15 | RES# |
-| JE5 | — | GND |
-| JE6 | — | VCC 3V3 |
+| JE1 | V12 | OLED SCL |
+| JE2 | W16 | OLED SDA |
+| JE3 | J15 | OLED RES# |
+| JE4 | H15 | 조이스틱 OK (center) |
+| JE5, JE11 | — | GND |
+| JE6, JE12 | — | VCC 3V3 |
+| JE7 | V13 | 조이스틱 UP |
+| JE8 | U17 | 조이스틱 DOWN |
+| JE9 | T17 | 조이스틱 LEFT |
+| JE10 | Y17 | 조이스틱 RIGHT |
 
-JE에는 200옴 직렬 저항이 있어 I2C 400kHz에는 문제가 없습니다. 모듈에 풀업이
-없다면 4.7k 를 3.3V로 추가하세요 (XDC의 `PULLUP TRUE` 는 수십 k라 보조 수단일
-뿐입니다).
-
-### Pmod JC — 5방향 스위치
-
-| Pmod JC | FPGA 핀 | 신호 |
-|---|---|---|
-| JC1 | V15 | UP |
-| JC2 | W15 | DOWN |
-| JC3 | T11 | LEFT |
-| JC4 | T10 | RIGHT |
-| JC7 | W14 | OK (center) |
-| JC5 | — | GND (스위치 공통) |
-
-내부 풀업을 켜 두었으므로 스위치는 GND로 닫히기만 하면 됩니다.
+조이스틱 입력에는 FPGA 내부 풀업을 켜 두었으므로 스위치는 GND로 닫히기만 하면
+됩니다. I2C 는 모듈에 풀업이 없다면 4.7k 를 3.3V로 추가하세요
+(XDC의 `PULLUP TRUE` 는 수십 k라 보조 수단일 뿐입니다).
+JE의 200옴 직렬 저항은 400kHz I2C에 문제되지 않습니다.
 
 ### 보드 자체
 
 | 보드 | 핀 | 용도 |
 |---|---|---|
 | SW3 | T16 | 리셋 (올리면 리셋) |
-| BTN0 | K18 | 예비 OK/시작 버튼 |
+| BTN0 | K18 | 예비 OK/시작 버튼 (조이스틱 없이도 화면 확인 가능) |
 | LD0 | M14 | 하트비트 |
 
----
+### 빌드
+
+```bash
+cd fpga/zybo_z7_20
+python3 check_xdc.py                      # 포트/핀 교차검증
+vivado -mode batch -source build.tcl      # build/snake_zybo.bit
+```
+
+125MHz를 5분주해 25MHz를 만들고 코어는 실칩과 같은 RTL을 그대로 씁니다.
+`build.tcl` 은 분주 클럭에 대한 `create_generated_clock` 이 실제로 만들어졌는지
+확인하고, 안 만들어졌으면 에러로 멈춥니다 (조용히 타이밍이 검증되지 않는 것이
+가장 나쁜 경우라서).
 
 ## 3. 브링업 순서
 

@@ -6,12 +6,16 @@
 //  will get from its crystal oscillator, turns the two open drain enables into
 //  real tri-states, and maps the board's buttons/LEDs.
 //
-//  Board hookup (see docs/hw_connection.md):
-//      Pmod JE : SSD1315 OLED   JE1=SCL  JE2=SDA  JE3=RES#  (5=GND 6=VCC3V3)
-//      Pmod JC : 5-way switch   JC1=UP JC2=DOWN JC3=LEFT JC4=RIGHT JC7=OK
-//      SW3     : reset (slide up = reset)
-//      BTN0    : extra OK/start button, works without the joystick fitted
-//      LD0     : heartbeat, fast blink until the panel answers on I2C
+//  Board hookup - everything on Pmod JE (see docs/hw_connection.md):
+//
+//      +--------------------------------------+
+//   1  |  SCL    SDA    RES#   JS_OK  GND VCC |  6      VCC = 3V3
+//   7  |  JS_UP  JS_DN  JS_LT  JS_RT  GND VCC |  12
+//      +--------------------------------------+
+//
+//      SW3  : reset (slide up = reset)
+//      BTN0 : extra OK/start button, works without the joystick fitted
+//      LD0  : heartbeat, fast blink until the panel answers on I2C
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
@@ -26,11 +30,11 @@ module snake_zybo_top (
     inout  wire oled_sda,        // JE2
     output wire oled_res_n,      // JE3
 
-    input  wire js_up,           // JC1  \
-    input  wire js_down,         // JC2   |  5-way switch, closes to GND,
-    input  wire js_left,         // JC3   |  internal pull-ups enabled in the XDC
-    input  wire js_right,        // JC4   |
-    input  wire js_ok            // JC7  /
+    input  wire js_ok,           // JE4   \
+    input  wire js_up,           // JE7    |  5-way switch, closes to GND,
+    input  wire js_down,         // JE8    |  internal pull-ups enabled in the XDC
+    input  wire js_left,         // JE9    |
+    input  wire js_right         // JE10  /
 );
     //------------------------------------------------------------------
     // 125MHz -> 25MHz.  A plain divide by five on a BUFG: the core is

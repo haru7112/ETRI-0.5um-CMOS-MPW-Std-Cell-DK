@@ -148,19 +148,30 @@ horizontal addressing 랩어라운드까지 구현하고 1024바이트 GDDRAM을
 
 ```bash
 cd fpga/zybo_z7_20
+python3 check_xdc.py                      # 포트/핀 교차검증 (Vivado 불필요)
 vivado -mode batch -source build.tcl      # build/snake_zybo.bit
 ```
 
 125MHz를 5분주해 25MHz를 만들고 코어는 그대로 씁니다.
-결선은 `docs/hw_connection.md` 를 보세요. 요약:
+결선은 전부 **Pmod JE 하나**입니다 (`docs/hw_connection.md`).
 
-| 보드 | 신호 |
+| Pmod JE | 신호 | | Pmod JE | 신호 |
+|---|---|---|---|---|
+| JE1 | OLED SCL | | JE7 | 조이스틱 UP |
+| JE2 | OLED SDA | | JE8 | 조이스틱 DOWN |
+| JE3 | OLED RES# | | JE9 | 조이스틱 LEFT |
+| JE4 | 조이스틱 OK | | JE10 | 조이스틱 RIGHT |
+| JE5/11 | GND | | JE6/12 | VCC 3V3 |
+
+| 보드 | 용도 |
 |---|---|
-| Pmod JE1 / JE2 / JE3 | OLED SCL / SDA / RES# (JE5=GND, JE6=3V3) |
-| Pmod JC1..JC4, JC7 | 조이스틱 UP/DOWN/LEFT/RIGHT/OK (JC5=GND) |
 | SW3 | 리셋 |
 | BTN0 | 조이스틱 없이도 시작할 수 있는 예비 OK |
 | LD0 | 하트비트. 패널이 ACK 하기 전에는 빠르게 깜빡임 |
+
+핀은 Digilent 마스터 XDC에서 가져왔고 `check_xdc.py` 가 교차검증합니다.
+JE는 200옴 직렬 보호 저항이 있는 standard Pmod입니다. 차동 Pmod(JB/JC/JD)는
+배열 인덱스가 물리 핀 순서와 다르니 옮기지 마세요.
 
 LD0가 계속 빠르게 깜빡이면 I2C가 ACK를 못 받고 있다는 뜻입니다
 (주소 0x3C/0x3D, 풀업, 전원 순서를 확인하세요).
