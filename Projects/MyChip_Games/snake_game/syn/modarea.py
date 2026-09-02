@@ -4,15 +4,23 @@ lef=open(os.path.join(DK,'etri050_stdcells.lef')).read()
 sz={m.group(1):(float(m.group(2)),float(m.group(3)))
     for m in re.finditer(r'MACRO (\w+).*?SIZE ([\d.]+) BY ([\d.]+)', lef, re.S)}
 SRC="../rtl/snake_top.v ../rtl/snake_body.v ../rtl/game_ctrl.v ../rtl/pixel_gen.v ../rtl/font_rom.v ../rtl/oled_ctrl.v ../rtl/i2c_master.v ../rtl/debounce.v ../rtl/lfsr11.v"
+QFLOW_ABC = "+strash;scorr;ifraig;retime,{D};strash;dch,-f;map,-M,1,{D}"
+
 def run(top, params=""):
+    # qflow's own script - see area.py for why the default yosys flow is not used
     open('t.ys','w').write(f"""
-read_verilog -I../rtl {SRC}
+read_verilog -sv {SRC}
 {params}
 hierarchy -top {top}
-synth -top {top} -flatten
+synth -top {top}
 dfflibmap -liberty {DK}/khu_etri05_stdcells.lib
-abc -liberty {DK}/khu_etri05_stdcells.lib
-opt_clean
+opt
+abc -liberty {DK}/khu_etri05_stdcells.lib -script {QFLOW_ABC}
+flatten
+setundef -zero
+clean -purge
+opt
+clean
 stat
 """)
     t=subprocess.run(['yosys','-s','t.ys'],capture_output=True,text=True)

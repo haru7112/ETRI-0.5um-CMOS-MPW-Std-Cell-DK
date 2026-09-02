@@ -18,6 +18,7 @@ all :
 	fi
 	@if [ ! -e "./synthesis" ]; then mkdir ./synthesis; fi
 	@if [ ! -e "./log" ]; then mkdir ./log; fi
+	@if [ ! -e "./layout" ]; then mkdir ./layout; fi
 	touch project_vars.sh
 	@echo
 	@echo 'QFlow RTL-to-Layout, ETRI 0.5um CMOS, TOP = $(TOP_MODULE)'
@@ -31,6 +32,10 @@ all :
 	@echo '    make lvs'
 	@echo '    make size            # measure the routed core, feeds chip_top'
 	@echo
+	@echo 'Area estimate before you start:  cd ../syn && python3 area.py'
+	@echo 'It runs qflow own synthesis script and is calibrated against the'
+	@echo 'pong_pt1 tape-out that ships in this kit (+1.2% on cell area).'
+	@echo
 
 # -----------------------------------------------------
 synthesize : ./log/synth.log
@@ -43,6 +48,11 @@ place : ./log/place.log
 
 ./log/place.log : ./layout/$(TOP_MODULE).cel2 ./log/synth.log project_vars.sh
 	qflow place -T etri050 $(TOP_MODULE)
+
+# pin side constraints for graywolf, the same idea as pads_ETRI/games.cel2
+./layout/$(TOP_MODULE).cel2 : $(TOP_MODULE).cel2
+	@mkdir -p ./layout
+	cp $< $@
 
 # -----------------------------------------------------
 sta : ./log/sta.log
