@@ -28,21 +28,26 @@ set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVCMOS33} [get_ports btn0]   ;# b
 set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports led0]   ;# led[0]
 
 #-----------------------------------------------------------------------------
-# Pmod JE
+# Pmod JE - as wired on the bench.  The board is drawn the way you look at it,
+# pin 1 on the right:
 #
-#      +----------------------------------+
-#   1  |  SCL   SDA   RES#  JS_OK  GND VCC |  6      (3V3 on VCC)
-#   7  |  JS_UP JS_DN JS_LT JS_RT  GND VCC |  12
-#      +----------------------------------+
+#                       +---------------------------------------+
+#   (3V3 on VCC)     6  |  VCC   GND   JS_UP   RES#  SCL   SDA  |  1
+#                   12  |  VCC   GND   JS_OK  JS_RT JS_LT JS_DN |  7
+#                       +---------------------------------------+
+#
+# Which signal sits on which pin is free - the core does not care - so this
+# follows the harness rather than the other way round.  check_xdc.py verifies
+# the mapping against the Verilog ports and the Digilent master XDC either way.
 #-----------------------------------------------------------------------------
-set_property -dict {PACKAGE_PIN V12 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_scl]   ;# JE1
-set_property -dict {PACKAGE_PIN W16 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_sda]   ;# JE2
+set_property -dict {PACKAGE_PIN V12 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_sda]   ;# JE1
+set_property -dict {PACKAGE_PIN W16 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports oled_scl]   ;# JE2
 set_property -dict {PACKAGE_PIN J15 IOSTANDARD LVCMOS33}             [get_ports oled_res_n] ;# JE3
-set_property -dict {PACKAGE_PIN H15 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_ok]      ;# JE4
-set_property -dict {PACKAGE_PIN V13 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_up]      ;# JE7
-set_property -dict {PACKAGE_PIN U17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_down]    ;# JE8
-set_property -dict {PACKAGE_PIN T17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_left]    ;# JE9
-set_property -dict {PACKAGE_PIN Y17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_right]   ;# JE10
+set_property -dict {PACKAGE_PIN H15 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_up]      ;# JE4
+set_property -dict {PACKAGE_PIN V13 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_down]    ;# JE7
+set_property -dict {PACKAGE_PIN U17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_left]    ;# JE8
+set_property -dict {PACKAGE_PIN T17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_right]   ;# JE9
+set_property -dict {PACKAGE_PIN Y17 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports js_ok]      ;# JE10
 
 ## the switch, the buttons and the panel are all asynchronous to the core
 set_false_path -from [get_ports {sw3 btn0 js_up js_down js_left js_right js_ok}]

@@ -6,12 +6,13 @@
 //  will get from its crystal oscillator, turns the two open drain enables into
 //  real tri-states, and maps the board's buttons/LEDs.
 //
-//  Board hookup - everything on Pmod JE (see docs/hw_connection.md):
+//  Board hookup - everything on Pmod JE (see docs/hw_connection.md).
+//  Drawn the way you look at the board, pin 1 on the right:
 //
-//      +--------------------------------------+
-//   1  |  SCL    SDA    RES#   JS_OK  GND VCC |  6      VCC = 3V3
-//   7  |  JS_UP  JS_DN  JS_LT  JS_RT  GND VCC |  12
-//      +--------------------------------------+
+//                    +---------------------------------------+
+//   VCC = 3V3     6  |  VCC   GND   JS_UP   RES#  SCL   SDA  |  1
+//                12  |  VCC   GND   JS_OK  JS_RT JS_LT JS_DN |  7
+//                    +---------------------------------------+
 //
 //      SW3  : reset (slide up = reset)
 //      BTN0 : extra OK/start button, works without the joystick fitted
@@ -26,15 +27,15 @@ module snake_zybo_top (
     input  wire btn0,            // spare OK button, active high
     output wire led0,
 
-    inout  wire oled_scl,        // JE1
-    inout  wire oled_sda,        // JE2
+    inout  wire oled_sda,        // JE1
+    inout  wire oled_scl,        // JE2
     output wire oled_res_n,      // JE3
 
-    input  wire js_ok,           // JE4   \
-    input  wire js_up,           // JE7    |  5-way switch, closes to GND,
-    input  wire js_down,         // JE8    |  internal pull-ups enabled in the XDC
-    input  wire js_left,         // JE9    |
-    input  wire js_right         // JE10  /
+    input  wire js_up,           // JE4   \
+    input  wire js_down,         // JE7    |  5-way switch, closes to GND,
+    input  wire js_left,         // JE8    |  internal pull-ups enabled in the XDC
+    input  wire js_right,        // JE9    |
+    input  wire js_ok            // JE10  /
 );
     //------------------------------------------------------------------
     // 125MHz -> 25MHz.  A plain divide by five on a BUFG: the core is

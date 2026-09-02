@@ -81,24 +81,29 @@ JE를 고른 이유가 있습니다.
 > 아니라 **JC7** 입니다. 처음에 이걸 착각해서 조이스틱 핀 4개가 틀려 있었습니다.
 
 ```
-      +--------------------------------------+
-   1  |  SCL    SDA    RES#   JS_OK  GND VCC |  6      VCC = 3V3
-   7  |  JS_UP  JS_DN  JS_LT  JS_RT  GND VCC |  12
-      +--------------------------------------+
+                  +---------------------------------------+
+   VCC = 3V3   6  |  VCC   GND   JS_UP   RES#  SCL   SDA  |  1
+              12  |  VCC   GND   JS_OK  JS_RT JS_LT JS_DN |  7
+                  +---------------------------------------+
 ```
+
+보드를 바라보는 방향 기준(1번 핀이 오른쪽)으로 그린 것입니다.
 
 | Pmod JE | FPGA 핀 | 신호 |
 |---|---|---|
-| JE1 | V12 | OLED SCL |
-| JE2 | W16 | OLED SDA |
+| JE1 | V12 | OLED SDA |
+| JE2 | W16 | OLED SCL |
 | JE3 | J15 | OLED RES# |
-| JE4 | H15 | 조이스틱 OK (center) |
+| JE4 | H15 | 조이스틱 UP |
 | JE5, JE11 | — | GND |
 | JE6, JE12 | — | VCC 3V3 |
-| JE7 | V13 | 조이스틱 UP |
-| JE8 | U17 | 조이스틱 DOWN |
-| JE9 | T17 | 조이스틱 LEFT |
-| JE10 | Y17 | 조이스틱 RIGHT |
+| JE7 | V13 | 조이스틱 DOWN |
+| JE8 | U17 | 조이스틱 LEFT |
+| JE9 | T17 | 조이스틱 RIGHT |
+| JE10 | Y17 | 조이스틱 OK (center) |
+
+어느 신호를 어느 핀에 둘지는 자유입니다. 코어는 상관하지 않으므로 실제 배선에
+맞추면 되고, `check_xdc.py` 가 Verilog 포트·마스터 XDC와 대조해 줍니다.
 
 조이스틱 입력에는 FPGA 내부 풀업을 켜 두었으므로 스위치는 GND로 닫히기만 하면
 됩니다. I2C 는 모듈에 풀업이 없다면 4.7k 를 3.3V로 추가하세요

@@ -169,10 +169,10 @@ vivado -mode batch -source build.tcl      # build/snake_zybo.bit
 
 | Pmod JE | 신호 | | Pmod JE | 신호 |
 |---|---|---|---|---|
-| JE1 | OLED SCL | | JE7 | 조이스틱 UP |
-| JE2 | OLED SDA | | JE8 | 조이스틱 DOWN |
-| JE3 | OLED RES# | | JE9 | 조이스틱 LEFT |
-| JE4 | 조이스틱 OK | | JE10 | 조이스틱 RIGHT |
+| JE1 | OLED SDA | | JE7 | 조이스틱 DOWN |
+| JE2 | OLED SCL | | JE8 | 조이스틱 LEFT |
+| JE3 | OLED RES# | | JE9 | 조이스틱 RIGHT |
+| JE4 | 조이스틱 UP | | JE10 | 조이스틱 OK |
 | JE5/11 | GND | | JE6/12 | VCC 3V3 |
 
 | 보드 | 용도 |
