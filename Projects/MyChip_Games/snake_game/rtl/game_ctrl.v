@@ -160,7 +160,20 @@ module game_ctrl #(
     wire eat_now  = food_en && (food_r == step_pos[POS_W-1:0]);
 
     //------------------------------------------------------------------
-    // food candidate straight out of the LFSR, rejection sampled
+    // Food candidate: taken off the LFSR and re-rolled until it lands inside
+    // the play field.  There is deliberately NO give-up on this test.
+    //
+    // A give-up that accepts an out of range cell puts the food under a wall,
+    // where the 0xFF wall byte hides it completely - that is exactly what a
+    // 3 bit counter used to do on roughly one placement in fifty, because 2.2%
+    // of the LFSR period has eight consecutive out of range candidates.
+    //
+    // Looping forever is safe here because the sequence is finite and known:
+    // over the LFSR's full 2047 states the longest run of out of range
+    // candidates is 21, for every supported cell size.  So this state exits
+    // within 21 clocks - 840ns - against a 100ms game step.  Clamping into
+    // range would also terminate, but it piles 19% of all food onto the first
+    // column, which is very visible in play.  tb_food checks the whole period.
     //------------------------------------------------------------------
     wire [GX_W-1:0] fx_c = rnd[GX_W-1:0];
     wire [GY_W-1:0] fy_c = rnd[GX_W+GY_W-1:GX_W];
@@ -223,24 +236,28 @@ module game_ctrl #(
                 end
             end
             //--------------------------------------------------------------
-            S_FOOD: begin               // draw a candidate inside the play area
-                if (food_in_range || (food_try == 3'd7)) begin
-                    food_r   <= {fy_c, fx_c};
-                    cmp_food <= 1'b1;
+            S_FOOD: begin               // re-roll until it is inside the field
+                if (food_in_range) begin
+                    food_r        <= {fy_c, fx_c};
+                    cmp_food      <= 1'b1;
                     cmp_skip_tail <= 1'b0;
-                    scan_req <= 1'b1;
-                    st       <= S_FSCAN;
+                    scan_req      <= 1'b1;
+                    st            <= S_FSCAN;
                 end
-                if (food_try != 3'd7) food_try <= food_try + 3'd1;
             end
             //--------------------------------------------------------------
-            S_FSCAN: begin              // reject it when it lands on the snake
+            // Landing on the snake is the only thing that sends us back, and
+            // that retry does have a give-up: after 7 goes the cell is taken as
+            // it is.  Harmless - it is inside the field, and the tail vacates
+            // it within a few steps.
+            S_FSCAN: begin
                 if (scan_done) begin
                     if (!cmp_hit || (food_try == 3'd7)) begin
                         food_en <= 1'b1;
                         st      <= S_IDLE;
                     end else begin
-                        st <= S_FOOD;
+                        food_try <= food_try + 3'd1;
+                        st       <= S_FOOD;
                     end
                 end
             end
