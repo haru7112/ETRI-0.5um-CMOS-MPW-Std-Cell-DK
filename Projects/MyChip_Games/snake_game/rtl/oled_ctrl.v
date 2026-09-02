@@ -92,10 +92,8 @@ module oled_ctrl #(
         6'd22: init_rom = 8'hA4;   // resume from RAM
         6'd23: init_rom = 8'hA6;   // normal (not inverted)
         6'd24: init_rom = 8'h2E;   // scrolling off
-        // The addressing window is set once, here: horizontal addressing wraps
-        // the panel's own pointer back to (0,0) after the last page, so every
-        // later frame is one uninterrupted 1024 byte burst with no command
-        // block in front of it.
+        // The addressing window.  These six bytes are ALSO re-sent in front of
+        // every frame - see the P_FCMD phase - so the same ROM serves both.
         6'd25: init_rom = 8'h21;   // column address
         6'd26: init_rom = 8'h00;
         6'd27: init_rom = 8'h7F;
@@ -107,7 +105,19 @@ module oled_ctrl #(
     endcase
 
     // ---- sequencer -------------------------------------------------------
-    localparam P_INIT = 1'b0, P_FDATA = 1'b1;
+    // Three phases, and the window really is re-sent before every frame.
+    //
+    // Relying on the panel's own wrap-around instead saves about sixty gates
+    // and costs the display its ability to heal.  The panel ACKs every data
+    // byte whatever it contains, so a glitch on the bus - a Pmod jumper moving
+    // while the board is handled - shifts the byte framing without ever
+    // producing a NACK.  Nothing then triggers the recovery path, the write
+    // pointer stays offset, and every later frame is drawn skewed until
+    // someone presses reset.  Re-sending 0x21/0x22 costs 9 bytes in 1033 and
+    // snaps the picture back within one frame, about 25ms.
+    localparam P_INIT = 2'd0, P_FCMD = 2'd1, P_FDATA = 2'd2;
+    localparam [10:0] WIN_FIRST = 11'd25;   // index of 0x21 in init_rom
+    localparam [10:0] WIN_LAST  = 11'd30;   // index of the last window byte
 
     localparam T_RESLO = 4'd0, T_RESHI = 4'd1, T_ADDR  = 4'd2, T_ADDRW = 4'd3,
                T_CTRL  = 4'd4, T_CTRLW = 4'd5, T_FETCH = 4'd6, T_DATA  = 4'd7,
@@ -115,7 +125,7 @@ module oled_ctrl #(
                T_GAP0  = 4'd11, T_GAP = 4'd12;
 
     reg [3:0]  t_st;
-    reg        phase;
+    reg [1:0]  phase;
     reg [10:0] pkt_idx;
     reg [5:0]  ms_cnt;
     reg        init_done;
@@ -126,8 +136,9 @@ module oled_ctrl #(
 
     assign display_on = init_done;
 
-    wire [10:0] pkt_last = (phase == P_INIT) ? {5'd0, INIT_N} - 11'd1 : 11'd1023;
-    wire [7:0]  pkt_byte = (phase == P_INIT) ? init_rom : pix_data;
+    wire [10:0] pkt_last = (phase == P_INIT) ? {5'd0, INIT_N} - 11'd1 :
+                           (phase == P_FCMD) ? WIN_LAST : 11'd1023;
+    wire [7:0]  pkt_byte = (phase == P_FDATA) ? pix_data : init_rom;
 
     always @(posedge clk)
         if (!rst_n) begin
@@ -229,15 +240,25 @@ module oled_ctrl #(
                 t_st     <= T_STOPW;
             end
             T_STOPW: if (i2c_done) begin
-                pkt_idx <= 11'd0;
-                if (phase == P_INIT) begin
+                case (phase)
+                P_INIT : begin
                     init_done <= 1'b1;
-                    phase     <= P_FDATA;
+                    phase     <= P_FCMD;
+                    pkt_idx   <= WIN_FIRST;
                     t_st      <= T_ADDR;
-                end else begin
+                end
+                P_FCMD : begin
+                    phase   <= P_FDATA;
+                    pkt_idx <= 11'd0;
+                    t_st    <= T_ADDR;
+                end
+                default: begin
                     frame_done <= 1'b1;           // let the game advance one step
+                    phase      <= P_FCMD;
+                    pkt_idx    <= WIN_FIRST;
                     t_st       <= T_GAP0;
                 end
+                endcase
             end
             //--------------------------------------------------------------
             // one dead cycle so game_ctrl has registered its busy flag before

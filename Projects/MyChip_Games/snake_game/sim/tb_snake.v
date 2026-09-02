@@ -66,6 +66,19 @@ module tb_snake;
         end
     endtask
 
+    // the top rule spans the full width while the game is running, so a fully
+    // lit row 0 is a cheap "the picture is where it should be" probe
+    function integer top_rule_lit;
+        input dummy;
+        integer x, n;
+        begin
+            n = 0;
+            for (x = 0; x < 128; x = x + 1)
+                if (u_panel.gddram[{3'd0, x[6:0]}][0]) n = n + 1;
+            top_rule_lit = n;
+        end
+    endfunction
+
     task wait_frames(input integer n);
         integer target;
         begin
@@ -154,6 +167,19 @@ module tb_snake;
         x_before = g_hx;
         wait_steps(2);
         check(g_hx == x_before + 2, "head advanced two cells to the right");
+
+        // ---- 4b. a bus glitch must heal by itself --------------------------
+        //  A jolt on the Pmod shifts the byte framing without producing a NACK
+        //  - the panel ACKs every data byte whatever it holds - so nothing
+        //  triggers the reset path and the write pointer simply stays offset.
+        //  The window command in front of every frame is what pulls it back.
+        wait_frames(1);
+        check(top_rule_lit(0) == 128, "top rule intact before the glitch");
+        u_panel.col  = 7'd37;                      // pretend the pointer slipped
+        u_panel.page = 3'd5;
+        $display("%0t ps : panel write pointer forced to (col 37, page 5)", $time);
+        wait_frames(2);
+        check(top_rule_lit(0) == 128, "picture healed itself after a bus glitch");
 
         // ---- 5. steer up ---------------------------------------------------
         y_before = g_hy;
