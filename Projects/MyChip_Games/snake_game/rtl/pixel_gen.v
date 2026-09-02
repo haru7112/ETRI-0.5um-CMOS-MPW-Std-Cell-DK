@@ -8,19 +8,22 @@
 //  Each byte is produced on demand, in the ~22us the I2C link needs to shift
 //  the previous one out:
 //
-//     static part  : walls, status bar, food, UI text  -> pure combinational
-//     snake part   : one rotation of the body register, ORing a cell mask into
+//     static part  : the two rules, the divider, the score, the food
+//     snake part   : one rotation of the body queue, ORing a cell mask into
 //                    the accumulator whenever a segment lands on this byte
 //
-//  A body scan is MAXLEN clocks (48 @25MHz = 1.9us), comfortably inside the
+//  A body scan is MAXLEN clocks (32 @25MHz = 1.3us), comfortably inside the
 //  I2C byte time, so the snake costs no display bandwidth at all.
+//
+//  There is no text anywhere: the border blinks while the game waits for OK,
+//  which reads as clearly as the word GAME OVER and costs two gates instead
+//  of fourteen letters of font ROM.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module pixel_gen #(
     parameter CELL_SH  = 1,
-    parameter MAXLEN   = 48,
-    parameter EN_TEXT  = 1
+    parameter MAXLEN   = 48
 )(
     input  wire        clk,
     input  wire        rst_n,
@@ -36,7 +39,7 @@ module pixel_gen #(
     input  wire        st_title,
     input  wire        st_over,
     input  wire [7:0]  score_bcd,         // 2 BCD digits, {tens, units}
-    input  wire        blink,             // ~4Hz, makes the food distinguishable
+    input  wire        blink,             // ~4Hz
     input  wire        food_en,
 
     // ---- body scan port --------------------------------------------------
@@ -53,84 +56,16 @@ module pixel_gen #(
     localparam CELL_BITS = (1 << CELL_PX) - 1;   // 2'b11 / 4'hF / 8'hFF
     localparam CPP_MASK  = CPP - 1;
 
-    // character codes of font_rom
-    localparam C_A=10, C_C=11, C_E=12, C_G=13, C_H=14, C_K=15, C_M=16,
-               C_N=17, C_O=18, C_P=19, C_R=20, C_S=21, C_U=22, C_V=23, C_SP=24;
-
-    wire [GX_W-1:0] food_x = food_pos_i[GX_W-1:0];
-    wire [GY_W-1:0] food_y = food_pos_i[POS_W-1:GX_W];
     wire [GX_W-1:0] cell_x = x[6:CELL_SH];
 
     //------------------------------------------------------------------
-    // Text layer
+    // Score: two digits in the left column, on one page only
     //------------------------------------------------------------------
-    wire [3:0] ch_idx = x[6:3];
-    wire [2:0] ch_col = x[2:0];
-    reg  [4:0] ch_code;
+    wire       in_score = (cell_x < FLD_X0[GX_W-1:0]);
+    wire [3:0] digit    = x[3] ? score_bcd[3:0] : score_bcd[7:4];
     wire [7:0] font_bits;
 
-    font_rom #(.WITH_LETTERS(EN_TEXT)) u_font (
-        .code (ch_code), .col (ch_col), .bits (font_bits));
-
-    wire txt_title = EN_TEXT && st_title && ((page == 3'd3) || (page == 3'd5));
-    wire txt_over  = EN_TEXT && st_over  &&  (page == 3'd3);
-    wire txt_page  = (page == 3'd0) || txt_title || txt_over;
-
-    always @* begin
-        ch_code = C_SP;
-        if (page == 3'd0) begin
-            // status bar: "SCORE nnn"  (digits only when letters are compiled out)
-            if (EN_TEXT) begin
-                case (ch_idx)
-                    4'd0: ch_code = C_S;
-                    4'd1: ch_code = C_C;
-                    4'd2: ch_code = C_O;
-                    4'd3: ch_code = C_R;
-                    4'd4: ch_code = C_E;
-                    4'd6: ch_code = {1'b0, score_bcd[7:4]};
-                    4'd7: ch_code = {1'b0, score_bcd[3:0]};
-                    default: ch_code = C_SP;
-                endcase
-            end else begin
-                case (ch_idx)
-                    4'd0: ch_code = {1'b0, score_bcd[7:4]};
-                    4'd1: ch_code = {1'b0, score_bcd[3:0]};
-                    default: ch_code = C_SP;
-                endcase
-            end
-        end else if (txt_over) begin
-            case (ch_idx)                       // "GAME OVER"
-                4'd3 : ch_code = C_G;
-                4'd4 : ch_code = C_A;
-                4'd5 : ch_code = C_M;
-                4'd6 : ch_code = C_E;
-                4'd8 : ch_code = C_O;
-                4'd9 : ch_code = C_V;
-                4'd10: ch_code = C_E;
-                4'd11: ch_code = C_R;
-                default: ch_code = C_SP;
-            endcase
-        end else if (txt_title && (page == 3'd3)) begin
-            case (ch_idx)                       // "SNAKE"
-                4'd5 : ch_code = C_S;
-                4'd6 : ch_code = C_N;
-                4'd7 : ch_code = C_A;
-                4'd8 : ch_code = C_K;
-                4'd9 : ch_code = C_E;
-                default: ch_code = C_SP;
-            endcase
-        end else if (txt_title) begin
-            case (ch_idx)                       // "PUSH OK"
-                4'd4 : ch_code = C_P;
-                4'd5 : ch_code = C_U;
-                4'd6 : ch_code = C_S;
-                4'd7 : ch_code = C_H;
-                4'd9 : ch_code = C_O;
-                4'd10: ch_code = C_K;
-                default: ch_code = C_SP;
-            endcase
-        end
-    end
+    font_rom u_font (.digit(digit), .col(x[2:0]), .bits(font_bits));
 
     //------------------------------------------------------------------
     // Cell mask generator, shared between the food and the body scan.
@@ -151,42 +86,35 @@ module pixel_gen #(
     wire        tgt_here   = (tgt_x == cell_x) && ((tgt_y >> SUB_W) == page);
 
     //------------------------------------------------------------------
-    // Static layer: walls and food.
+    // Border.  No per pixel loop is needed: a wall column is a solid 0xFF
+    // whatever the page, and the two rules always land on page 0 and page 7
+    // - cell row 0 and row GRID_H-1 shift down to those pages for every
+    // supported cell size - so each is a single constant mask.
     //
-    // The border needs no per pixel loop.  A side wall column is a solid
-    // 0xFF whatever the page is, and the top and bottom walls always land on
-    // page 1 and page 7 - FLD_Y0 = CPP and FLD_Y1 = GRID_H-1 shift down to
-    // page 1 and page 7 for every supported cell size - so each is a single
-    // constant mask.
+    // While the game waits for OK (title, or after a crash) the whole border
+    // blinks.  That is the only "GAME OVER" this chip needs.
     //------------------------------------------------------------------
     localparam [7:0] TOP_MASK = CELL_BITS[7:0];
     localparam [7:0] BOT_MASK = CELL_BITS[7:0] << ((CPP-1) << CELL_SH);
 
-    wire side_wall = (cell_x == FLD_X0[GX_W-1:0]) || (cell_x == FLD_X1[GX_W-1:0]);
+    wire border_on = ~(st_title | st_over) | blink;
 
-    reg [7:0] wall_byte;
-    always @* begin
-        if (side_wall)          wall_byte = 8'hFF;
-        else if (page == 3'd1)  wall_byte = TOP_MASK;
-        else if (page == 3'd7)  wall_byte = BOT_MASK;
-        else                    wall_byte = 8'h00;
-    end
+    wire [7:0] rules = ((page == 3'd0) ? TOP_MASK : 8'h00) |
+                       ((page == 3'd7) ? BOT_MASK : 8'h00);
+    wire side_wall   = (cell_x == FLD_X0[GX_W-1:0]) || (cell_x == FLD_X1[GX_W-1:0]);
+    wire [7:0] wall_byte = border_on ? (side_wall ? 8'hFF : rules) : 8'h00;
 
     wire [7:0] food_byte = (food_en && blink && tgt_here) ? cell_mask : 8'h00;
 
-    // page 0 is the status bar and owns its byte, a message page keeps the
-    // side walls underneath so the frame never looks broken
-    reg [7:0] static_byte;
-    always @* begin
-        if (page == 3'd0)      static_byte = font_bits;
-        else if (txt_page)     static_byte = font_bits | wall_byte;
-        else                   static_byte = wall_byte | food_byte;
-    end
+    wire [7:0] score_byte = (page == SCORE_P[2:0]) ? font_bits : 8'h00;
+
+    wire [7:0] static_byte = in_score ? (wall_byte | score_byte)
+                                      : (wall_byte | food_byte);
 
     //------------------------------------------------------------------
-    // Snake layer: accumulate one rotation of the body register
+    // Snake layer: accumulate one rotation of the body queue
     //------------------------------------------------------------------
-    wire seg_here = scan_valid && !txt_page && !st_title && tgt_here;
+    wire seg_here = scan_valid && !st_title && !in_score && tgt_here;
 
     reg [7:0] acc;
 
@@ -208,7 +136,7 @@ module pixel_gen #(
                 if (seg_here)
                     acc <= acc | cell_mask;
                 if (scan_done) begin
-                    dout  <= seg_here ? (acc | cell_mask) : acc;
+                    dout  <= acc;
                     valid <= 1'b1;
                     busy  <= 1'b0;
                 end

@@ -63,8 +63,8 @@ module game_ctrl #(
 );
 `include "snake_params.vh"
 
-    localparam CX0 = (GRID_W/2) - INIT_LEN;      // head of the freshly loaded snake
-    localparam CY0 = (FLD_Y0 + FLD_Y1) / 2;
+    localparam CX0 = ((FLD_X0 + FLD_X1) / 2) - INIT_LEN;  // freshly loaded head
+    localparam CY0 = GRID_H / 2;
 
     localparam S_TITLE = 4'd0,
                S_NEW   = 4'd1,

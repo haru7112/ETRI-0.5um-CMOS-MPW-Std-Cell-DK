@@ -4,12 +4,12 @@ lef=open(os.path.join(DK,'etri050_stdcells.lef')).read()
 sz={m.group(1):(float(m.group(2)),float(m.group(3)))
     for m in re.finditer(r'MACRO (\w+).*?SIZE ([\d.]+) BY ([\d.]+)', lef, re.S)}
 
-def run(cell_sh, maxlen, len_w, en_text, top='snake_top'):
+def run(cell_sh, maxlen, len_w, top='snake_top'):
     ys = f"""
 read_verilog -I../rtl ../rtl/snake_top.v ../rtl/snake_body.v ../rtl/game_ctrl.v \\
              ../rtl/pixel_gen.v ../rtl/font_rom.v ../rtl/oled_ctrl.v \\
              ../rtl/i2c_master.v ../rtl/debounce.v ../rtl/lfsr11.v
-chparam -set CELL_SH {cell_sh} -set MAXLEN {maxlen} -set LEN_W {len_w} -set EN_TEXT {en_text} {top}
+chparam -set CELL_SH {cell_sh} -set MAXLEN {maxlen} -set LEN_W {len_w} {top}
 hierarchy -top {top}
 synth -top {top} -flatten
 dfflibmap -liberty {DK}/khu_etri05_stdcells.lib
@@ -37,12 +37,11 @@ BUDGET      = CORE_WINDOW * UTIL       # um2 of standard cells
 
 print(f"28-pin package budget: core {CORE_WINDOW/1e6:.3f} mm2 x {UTIL*100:.1f}% "
       f"= {BUDGET/1e6:.3f} mm2 of cells\n")
-print(f"{'CELL_SH':>7s} {'grid':>8s} {'MAXLEN':>6s} {'TEXT':>4s} {'cells':>6s} {'FF':>5s} "
+print(f"{'CELL_SH':>7s} {'grid':>8s} {'MAXLEN':>6s} {'cells':>6s} {'FF':>5s} "
       f"{'cell mm2':>9s} {'core mm2':>9s} {'vs budget':>10s}")
-for cs,ml,lw in ((1,48,6),(1,32,6),(2,32,6),(2,24,5),(3,24,5),(3,16,5)):
-    for et in (1,0):
-        a,c,ff,_ = run(cs,ml,lw,et)
-        gw,gh = 128>>cs, 64>>cs
-        core = a/UTIL
-        print(f"{cs:7d} {f'{gw}x{gh}':>8s} {ml:6d} {et:4d} {c:6d} {ff:5d} "
-              f"{a/1e6:9.3f} {core/1e6:9.3f} {a/BUDGET:9.2f}x")
+for cs,ml,lw in ((1,48,6),(1,32,6),(2,32,6),(2,24,5),(2,16,5),(3,24,5),(3,16,5)):
+    a,c,ff,_ = run(cs,ml,lw)
+    gw,gh = 128>>cs, 64>>cs
+    core = a/UTIL
+    print(f"{cs:7d} {f'{gw}x{gh}':>8s} {ml:6d} {c:6d} {ff:5d} "
+          f"{a/1e6:9.3f} {core/1e6:9.3f} {a/BUDGET:9.2f}x")

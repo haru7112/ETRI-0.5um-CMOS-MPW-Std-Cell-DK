@@ -21,7 +21,6 @@ module snake_top #(
     parameter MAXLEN   = 48,         // longest snake the register can hold
     parameter LEN_W    = 6,          // must cover MAXLEN
     parameter INIT_LEN = 3,
-    parameter EN_TEXT  = 1,          // compile the letters of the UI messages
     parameter RES_MS   = 20
 )(
     input  wire       clk,
@@ -61,7 +60,15 @@ module snake_top #(
             ms_pulse <= 1'b0;
         end
 
-    wire blink = |ms_free[7:6];      // food on 3/4 of a 256ms period
+    // The blink phase is sampled once per frame.  A frame takes ~25ms to
+    // shift out, so a free running blink would toggle in the middle of one and
+    // leave the border half drawn.
+    wire blink_raw = |ms_free[7:6];  // on for 3/4 of a 256ms period
+    reg  blink;
+
+    always @(posedge clk)
+        if (!rst_n)          blink <= 1'b1;
+        else if (frame_done) blink <= blink_raw;
 
     //------------------------------------------------------------------
     // inputs
@@ -139,7 +146,7 @@ module snake_top #(
     wire [6:0] pix_x;
     wire [2:0] pix_page;
 
-    pixel_gen #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN), .EN_TEXT(EN_TEXT)) u_pix (
+    pixel_gen #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN)) u_pix (
         .clk(clk), .rst_n(rst_n),
         .req(pix_req), .x(pix_x), .page(pix_page),
         .valid(pix_valid), .dout(pix_data),

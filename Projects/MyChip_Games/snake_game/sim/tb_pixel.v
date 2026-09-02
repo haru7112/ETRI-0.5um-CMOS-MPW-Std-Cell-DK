@@ -17,6 +17,7 @@ module tb_pixel;
     localparam GRID_W = (1 << GX_W);
     localparam GRID_H = (1 << GY_W);
     localparam CPP    = (8 >> CELL_SH);
+    localparam SCORE_W= (16 >> CELL_SH);
     localparam NSEG   = 5;
 
     reg clk = 0, rst_n = 0;
@@ -44,7 +45,7 @@ module tb_pixel;
         .scan_busy(scan_busy), .scan_pos(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .cmp_hit(cmp_hit), .head(head), .len(len));
 
-    pixel_gen #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN), .EN_TEXT(1)) u_pix (
+    pixel_gen #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN)) u_pix (
         .clk(clk), .rst_n(rst_n),
         .req(req), .x(x), .page(page), .valid(valid), .dout(dout),
         .st_title(1'b0), .st_over(1'b0), .score_bcd(8'h00),
@@ -105,7 +106,7 @@ module tb_pixel;
 
     initial begin
         errors = 0;
-        bx = GRID_W/2;
+        bx = (SCORE_W + GRID_W - 1) / 2;
         by = GRID_H/2;
         #20 rst_n = 1;
         @(posedge clk);
@@ -132,22 +133,27 @@ module tb_pixel;
             end
 
         lit = 0;
-        for (j = 1; j < GRID_W-1; j = j + 1)
-            for (k = CPP+1; k < GRID_H-1; k = k + 1)
+        for (j = SCORE_W+1; j < GRID_W-1; j = j + 1)
+            for (k = 1; k < GRID_H-1; k = k + 1)
                 if (cell_lit(j[GX_W-1:0], k[GY_W-1:0])) lit = lit + 1;
         if (lit != NSEG) begin
             $display("[FAIL] %0d lit cells inside the field, expected %0d", lit, NSEG);
             errors = errors + 1;
         end
 
-        // the border must be closed on all four sides
+        // the two rules run the full width, the divider and the right edge
+        // close the play field
         for (j = 0; j < GRID_W; j = j + 1)
-            if (!cell_lit(j[GX_W-1:0], CPP[GY_W-1:0]) ||
-                !cell_lit(j[GX_W-1:0], (GRID_H-1)))
+            if (!cell_lit(j[GX_W-1:0], 0) || !cell_lit(j[GX_W-1:0], (GRID_H-1))) begin
+                $display("[FAIL] rule broken at column %0d", j);
                 errors = errors + 1;
-        for (k = CPP; k < GRID_H; k = k + 1)
-            if (!cell_lit(0, k[GY_W-1:0]) || !cell_lit((GRID_W-1), k[GY_W-1:0]))
+            end
+        for (k = 0; k < GRID_H; k = k + 1)
+            if (!cell_lit(SCORE_W[GX_W-1:0], k[GY_W-1:0]) ||
+                !cell_lit((GRID_W-1), k[GY_W-1:0])) begin
+                $display("[FAIL] wall broken at row %0d", k);
                 errors = errors + 1;
+            end
 
         if (errors == 0) $display("==== PIXEL TB PASSED (CELL_SH=%0d) ====", CELL_SH);
         else             $display("==== PIXEL TB FAILED (CELL_SH=%0d, %0d) ====", CELL_SH, errors);

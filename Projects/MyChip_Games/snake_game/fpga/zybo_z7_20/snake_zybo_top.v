@@ -65,11 +65,10 @@ module snake_zybo_top (
     snake_top #(
         .CLK_HZ  (25_000_000),
         .SCL_HZ  (400_000),
-        .CELL_SH (1),          // 2x2 pixel cells -> 64 x 32 play grid
-        .MAXLEN  (48),
+        .CELL_SH (2),          // 4x4 pixel cells -> 32 x 16 play grid
+        .MAXLEN  (32),
         .LEN_W   (6),
         .INIT_LEN(3),
-        .EN_TEXT (1),
         .RES_MS  (20)
     ) u_core (
         .clk        (clk25),

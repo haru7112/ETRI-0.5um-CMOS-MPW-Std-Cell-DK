@@ -32,7 +32,7 @@ module tb_snake;
 
     snake_top #(
         .CLK_HZ(CLK_HZ), .SCL_HZ(SCL_HZ), .CELL_SH(CELL_SH), .MAXLEN(MAXLEN),
-        .LEN_W(6), .INIT_LEN(3), .EN_TEXT(1), .RES_MS(4)
+        .LEN_W(6), .INIT_LEN(3), .RES_MS(4)
     ) dut (
         .clk(clk), .rst_n(rst_n), .btn_n(btn_n),
         .oled_res_n(oled_res_n),

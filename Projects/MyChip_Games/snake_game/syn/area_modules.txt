@@ -1,10 +1,10 @@
 module          cells    FF  area mm2
-snake_body        814   144     0.537
-game_ctrl         420    54     0.252
-pixel_gen         498    19     0.263
-font_rom          223     0     0.113
+snake_body        625   106     0.407
+game_ctrl         430    52     0.253
+pixel_gen         267    19     0.151
+font_rom          114     0     0.058
 oled_ctrl         516    81     0.318
 i2c_master        186    32     0.117
 debounce          101    35     0.077
 lfsr11             29    11     0.022
-sum of parts                    1.700
+sum of parts                    1.403
