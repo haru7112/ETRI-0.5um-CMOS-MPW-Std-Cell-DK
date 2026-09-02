@@ -80,6 +80,7 @@ module snake_top #(
     //------------------------------------------------------------------
     wire             body_load, body_move, body_grow;
     wire [10:0]      body_pos;
+    wire [1:0]       body_dir;
     wire             g_scan_req, p_scan_req;
     wire [10:0]      cmp_pos;
     wire             cmp_skip_tail, scan_done, cmp_hit;
@@ -93,10 +94,10 @@ module snake_top #(
     assign scan_pos = {{(11-POS_W){1'b0}}, scan_pos_n};
     assign head     = {{(11-POS_W){1'b0}}, head_n};
 
-    snake_body #(.POS_W(POS_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
+    snake_body #(.POS_W(POS_W), .GX_W(GX_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
         .clk(clk), .rst_n(rst_n),
         .load(body_load), .move(body_move), .grow(body_grow),
-        .move_pos(body_pos[POS_W-1:0]),
+        .move_pos(body_pos[POS_W-1:0]), .move_dir(body_dir),
         .scan_req(g_scan_req | p_scan_req),
         .cmp_pos(cmp_pos[POS_W-1:0]),
         .cmp_skip_tail(cmp_skip_tail),
@@ -118,7 +119,7 @@ module snake_top #(
         .btn_level(btn_level), .btn_press(btn_press),
         .frame_done(frame_done), .busy(game_busy),
         .body_load(body_load), .body_move(body_move), .body_grow(body_grow),
-        .body_pos(body_pos),
+        .body_pos(body_pos), .body_dir(body_dir),
         .scan_req(g_scan_req), .cmp_pos(cmp_pos), .cmp_skip_tail(cmp_skip_tail),
         .scan_done(scan_done), .cmp_hit(cmp_hit),
         .head(head), .len(len),

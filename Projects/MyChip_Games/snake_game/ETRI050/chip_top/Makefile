@@ -8,10 +8,13 @@
 #     ~/ETRI050_DesignKit/scripts/get_core_pos.sh      <chip>
 # exactly as the other MyChip_Games chip_top makefiles do.
 #
-# NOTE ON THE FRAME: with the default parameters (2x2 pixel cells, MAXLEN=48)
-# the routed core needs roughly 4.5 mm2, which does NOT fit the 28 pin frame
-# (about 1.0 mm2 of core window).  Use MPW_PAD_84Pin_IO.mag, or shrink the
-# design first - see ../docs/area.md for the measured numbers per parameter set.
+# NOTE ON THE FRAME: the My Chip service only packages the standard
+# MPW_PAD_28pin layout, whose pin-route ring leaves a core window of exactly
+# 1018 x 1018 um (measured from the pong_pt1 2025 tape-out in this kit).  With
+# the default parameters the routed core needs about 2.16 mm2, so it does NOT
+# fit yet - see ../docs/area.md for the measured numbers and what is left to
+# cut.  A larger die is possible after prior arrangement but comes as bare die
+# with no package.
 #-----------------------------------------------------------------
 export DK_HOME=~/ETRI050_DesignKit
 
@@ -22,7 +25,7 @@ SCRIPTS_PATH = ~/ETRI050_DesignKit/scripts
 PAD_PATH     = ~/ETRI050_DesignKit/pads_ETRI
 LAYOUT_PATH  = ../layout
 
-PAD_FRAME    = MPW_PAD_84Pin_IO
+PAD_FRAME    = MPW_PAD_28Pin_IO
 
 PAD_X        =
 PAD_Y        =

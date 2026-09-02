@@ -24,6 +24,7 @@ module tb_pixel;
 
     reg              load = 0, move = 0, grow = 0;
     reg  [POS_W-1:0] move_pos = 0;
+    reg  [1:0]       move_dir = 0;
     reg              req = 0;
     reg  [6:0]       x = 0;
     reg  [2:0]       page = 0;
@@ -34,9 +35,10 @@ module tb_pixel;
     wire             valid;
     wire [7:0]       dout;
 
-    snake_body #(.POS_W(POS_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
+    snake_body #(.POS_W(POS_W), .GX_W(GX_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
         .clk(clk), .rst_n(rst_n),
         .load(load), .move(move), .grow(grow), .move_pos(move_pos),
+        .move_dir(move_dir),
         .scan_req(p_scan_req), .cmp_pos({POS_W{1'b0}}), .cmp_skip_tail(1'b0),
         .scan_busy(scan_busy), .scan_pos(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .cmp_hit(cmp_hit), .head(head), .len(len));
@@ -52,10 +54,10 @@ module tb_pixel;
     reg [7:0] img [0:1023];
     integer   i, j, k, lit, errors;
 
-    task push(input [GX_W-1:0] cx, input [GY_W-1:0] cy);
+    task push(input [GX_W-1:0] cx, input [GY_W-1:0] cy, input [1:0] d);
         begin
             @(posedge clk);
-            move_pos <= {cy, cx};  move <= 1'b1;  grow <= 1'b1;
+            move_pos <= {cy, cx};  move_dir <= d;  move <= 1'b1;  grow <= 1'b1;
             @(posedge clk);
             move <= 1'b0;  grow <= 1'b0;
             @(posedge clk);
@@ -109,10 +111,10 @@ module tb_pixel;
         load <= 1'b0;  move <= 1'b0;
         @(posedge clk);
         want[4] = {by, bx};
-        wx = bx + 1;  wy = by;      push(wx, wy);  want[3] = {wy, wx};
-        wx = bx + 2;  wy = by;      push(wx, wy);  want[2] = {wy, wx};
-        wx = bx + 2;  wy = by - 1;  push(wx, wy);  want[1] = {wy, wx};
-        wx = bx + 2;  wy = by - 2;  push(wx, wy);  want[0] = {wy, wx};
+        wx = bx + 1;  wy = by;      push(wx, wy, 2'b00);  want[3] = {wy, wx};
+        wx = bx + 2;  wy = by;      push(wx, wy, 2'b00);  want[2] = {wy, wx};
+        wx = bx + 2;  wy = by - 1;  push(wx, wy, 2'b11);  want[1] = {wy, wx};
+        wx = bx + 2;  wy = by - 2;  push(wx, wy, 2'b11);  want[0] = {wy, wx};
 
         $display("CELL_SH=%0d grid=%0dx%0d  len=%0d head=(%0d,%0d)",
                  CELL_SH, GRID_W, GRID_H, len, head[GX_W-1:0], head[POS_W-1:GX_W]);

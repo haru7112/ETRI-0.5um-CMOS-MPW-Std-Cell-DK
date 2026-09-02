@@ -27,13 +27,22 @@ stat
     ff=counts.get('DFFPOSX1',0)+counts.get('DFFSR',0)
     return area, sum(counts.values()), ff, counts
 
+# Calibration, both measured from the pong_pt1 2025 tape-out shipped in this
+# design kit (see docs/area.md):
+#   utilisation    routed DIEAREA vs the sum of the placed cells' LEF SIZE
+#   CORE_WINDOW    inside of the 28-pin frame's pin-route ring
+UTIL        = 0.823
+CORE_WINDOW = 1018.0 * 1018.0          # um2, the MPW_PAD_28pin core budget
+BUDGET      = CORE_WINDOW * UTIL       # um2 of standard cells
+
+print(f"28-pin package budget: core {CORE_WINDOW/1e6:.3f} mm2 x {UTIL*100:.1f}% "
+      f"= {BUDGET/1e6:.3f} mm2 of cells\n")
 print(f"{'CELL_SH':>7s} {'grid':>8s} {'MAXLEN':>6s} {'TEXT':>4s} {'cells':>6s} {'FF':>5s} "
-      f"{'cell mm2':>9s} {'core@60% mm2':>12s} {'frame':>7s}")
+      f"{'cell mm2':>9s} {'core mm2':>9s} {'vs budget':>10s}")
 for cs,ml,lw in ((1,48,6),(1,32,6),(2,32,6),(2,24,5),(3,24,5),(3,16,5)):
     for et in (1,0):
         a,c,ff,_ = run(cs,ml,lw,et)
         gw,gh = 128>>cs, 64>>cs
-        core=a/0.60
-        frame = '28pin' if core<=1.0e6 else '84pin' if core<=8.4e6 else 'TOO BIG'
+        core = a/UTIL
         print(f"{cs:7d} {f'{gw}x{gh}':>8s} {ml:6d} {et:4d} {c:6d} {ff:5d} "
-              f"{a/1e6:9.3f} {core/1e6:12.3f} {frame:>7s}")
+              f"{a/1e6:9.3f} {core/1e6:9.3f} {a/BUDGET:9.2f}x")

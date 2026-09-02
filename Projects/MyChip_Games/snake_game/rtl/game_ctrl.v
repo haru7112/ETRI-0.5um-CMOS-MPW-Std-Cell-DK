@@ -36,6 +36,7 @@ module game_ctrl #(
     output reg         body_move,
     output reg         body_grow,
     output reg  [10:0] body_pos,
+    output reg  [1:0]  body_dir,      // heading of this step, for the direction queue
     output reg         scan_req,
     output reg  [10:0] cmp_pos,
     output reg         cmp_skip_tail,
@@ -168,6 +169,7 @@ module game_ctrl #(
             body_move     <= 1'b0;
             body_grow     <= 1'b0;
             body_pos      <= 11'd0;
+            body_dir      <= 2'b00;
             scan_req      <= 1'b0;
             cmp_pos       <= 11'd0;
             cmp_skip_tail <= 1'b0;
@@ -200,6 +202,7 @@ module game_ctrl #(
                 body_load <= 1'b1;
                 body_move <= 1'b1;
                 body_pos  <= {{(11-POS_W){1'b0}}, CY0[GY_W-1:0], CX0[GX_W-1:0]};
+                body_dir  <= 2'b00;
                 dir       <= 2'b00;
                 eaten     <= 8'd0;
                 score_bcd <= 12'h000;
@@ -219,6 +222,7 @@ module game_ctrl #(
                 end else begin
                     body_move <= 1'b1;
                     body_grow <= 1'b1;
+                    body_dir  <= 2'b00;            // the build walk heads right
                     body_pos  <= body_pos + 11'd1;
                     build_cnt <= build_cnt - 1'b1;
                 end
@@ -274,6 +278,7 @@ module game_ctrl #(
                     end else begin
                         body_move <= 1'b1;
                         body_pos  <= {{(11-POS_W){1'b0}}, next_head};
+                        body_dir  <= dir;
                         if (eat_now) begin
                             body_grow <= 1'b1;
                             eaten     <= eaten + 8'd1;

@@ -48,6 +48,8 @@ module pixel_gen #(
 );
 `include "snake_params.vh"
 
+    reg  busy;                      // high while a byte is being accumulated
+
     localparam CELL_BITS = (1 << CELL_PX) - 1;   // 2'b11 / 4'hF / 8'hFF
     localparam CPP_MASK  = CPP - 1;
 
@@ -133,35 +135,50 @@ module pixel_gen #(
     end
 
     //------------------------------------------------------------------
-    // Static layer: walls + food, evaluated one pixel row at a time
+    // Cell mask generator, shared between the food and the body scan.
+    //
+    // The two never need it in the same cycle - the food goes into the
+    // accumulator when the byte is requested, the body during the rotation
+    // that follows - so one comparator and one shifter serve both.
     //------------------------------------------------------------------
-    reg  [7:0] static_byte;
-    reg  [7:0] wall_byte;
-    reg  [7:0] food_byte;
-    integer    b;
-    reg  [2:0] bsel;
-    reg  [5:0] py;
-    reg  [GY_W-1:0] cy;
+    wire [POS_W-1:0] tgt   = busy ? scan_pos_i[POS_W-1:0] : food_pos_i[POS_W-1:0];
+    wire [GX_W-1:0]  tgt_x = tgt[GX_W-1:0];
+    wire [GY_W-1:0]  tgt_y = tgt[POS_W-1:GX_W];
+    wire [1:0]       sub   = tgt_y[1:0] & CPP_MASK[1:0];
 
+    // NOTE: the width of a shift is the width of its left operand, so the shift
+    // amount is widened first - (sub << CELL_SH) alone would wrap inside 2 bits.
+    wire [3:0]       shamt = {2'b00, sub} << CELL_SH;
+    wire [7:0]  cell_mask  = CELL_BITS[7:0] << shamt;
+    wire        tgt_here   = (tgt_x == cell_x) && ((tgt_y >> SUB_W) == page);
+
+    //------------------------------------------------------------------
+    // Static layer: walls and food.
+    //
+    // The border needs no per pixel loop.  A side wall column is a solid
+    // 0xFF whatever the page is, and the top and bottom walls always land on
+    // page 1 and page 7 - FLD_Y0 = CPP and FLD_Y1 = GRID_H-1 shift down to
+    // page 1 and page 7 for every supported cell size - so each is a single
+    // constant mask.
+    //------------------------------------------------------------------
+    localparam [7:0] TOP_MASK = CELL_BITS[7:0];
+    localparam [7:0] BOT_MASK = CELL_BITS[7:0] << ((CPP-1) << CELL_SH);
+
+    wire side_wall = (cell_x == FLD_X0[GX_W-1:0]) || (cell_x == FLD_X1[GX_W-1:0]);
+
+    reg [7:0] wall_byte;
     always @* begin
-        wall_byte = 8'h00;
-        food_byte = 8'h00;
-        for (b = 0; b < 8; b = b + 1) begin
-            bsel = b;                  // truncating assignment, 0..7
-            py   = {page, bsel};
-            cy   = py[5:CELL_SH];
-            // border of the play field
-            if ((cy == FLD_Y0[GY_W-1:0]) || (cy == FLD_Y1[GY_W-1:0]) ||
-                (cell_x == FLD_X0[GX_W-1:0]) || (cell_x == FLD_X1[GX_W-1:0]))
-                wall_byte[b] = 1'b1;
-            // food
-            if (food_en && blink && (cell_x == food_x) && (cy == food_y))
-                food_byte[b] = 1'b1;
-        end
+        if (side_wall)          wall_byte = 8'hFF;
+        else if (page == 3'd1)  wall_byte = TOP_MASK;
+        else if (page == 3'd7)  wall_byte = BOT_MASK;
+        else                    wall_byte = 8'h00;
     end
+
+    wire [7:0] food_byte = (food_en && blink && tgt_here) ? cell_mask : 8'h00;
 
     // page 0 is the status bar and owns its byte, a message page keeps the
     // side walls underneath so the frame never looks broken
+    reg [7:0] static_byte;
     always @* begin
         if (page == 3'd0)      static_byte = font_bits;
         else if (txt_page)     static_byte = font_bits | wall_byte;
@@ -171,19 +188,9 @@ module pixel_gen #(
     //------------------------------------------------------------------
     // Snake layer: accumulate one rotation of the body register
     //------------------------------------------------------------------
-    wire [GX_W-1:0] seg_x = scan_pos_i[GX_W-1:0];
-    wire [GY_W-1:0] seg_y = scan_pos_i[POS_W-1:GX_W];
-    wire [1:0]      sub   = seg_y[1:0] & CPP_MASK[1:0];
-    // NOTE: the width of a shift is the width of its left operand, so the shift
-    // amount is widened first - (sub << CELL_SH) alone would wrap inside 2 bits.
-    wire [3:0]      shamt = {2'b00, sub} << CELL_SH;
-    wire [7:0]      cell_mask = CELL_BITS[7:0] << shamt;
-
-    wire seg_here = scan_valid && !txt_page && !st_title &&
-                    (seg_x == cell_x) && ((seg_y >> SUB_W) == page);
+    wire seg_here = scan_valid && !txt_page && !st_title && tgt_here;
 
     reg [7:0] acc;
-    reg       busy;
 
     always @(posedge clk)
         if (!rst_n) begin

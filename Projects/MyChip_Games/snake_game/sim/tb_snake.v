@@ -228,17 +228,28 @@ module tb_snake;
     end
 
     // print what the body register really holds, next to what the panel shows
+    //  the body is a head plus a direction queue, so walk it the same way the
+    //  hardware does to print the segment positions
     task dump_body;
         integer i;
-        reg [10:0] p;
+        reg [5:0] px;
+        reg [4:0] py;
+        reg [1:0] d;
         begin
             $write("%0t ps : body len=%0d :", $time, g_len);
+            px = g_hx;  py = g_hy;
             for (i = 0; i < g_len; i = i + 1) begin
-                p = dut.u_body.seg[i];
-                $write(" (%0d,%0d)", p[5:0], p[10:6]);
+                $write(" (%0d,%0d)", px, py);
+                d = dut.u_body.dq[i];
+                case (d)
+                    2'b00: px = px - 1;
+                    2'b10: px = px + 1;
+                    2'b01: py = py - 1;
+                    default: py = py + 1;
+                endcase
             end
-            $write("   head=(%0d,%0d) food=(%0d,%0d)/%b\n",
-                   g_hx, g_hy, dut.u_game.food_pos[5:0], dut.u_game.food_pos[10:6],
+            $write("   food=(%0d,%0d)/%b\n",
+                   dut.u_game.food_pos[5:0], dut.u_game.food_pos[10:6],
                    dut.u_game.food_en);
         end
     endtask
