@@ -33,7 +33,36 @@ module snake_top #(
     input  wire       sda_i,
     output wire       led_alive
 );
-`include "snake_params.vh"
+    //------------------------------------------------------------------
+    // Screen geometry.  THIS IS THE ONLY PLACE IT IS DEFINED.
+    //
+    // The panel is fixed at 128 x 64 in 8 pages of 8 rows.  CELL_SH sets the
+    // game cell size, everything else follows, and the sub-blocks receive the
+    // results as parameters rather than deriving them again - so changing the
+    // layout means editing these lines and nothing else.
+    //
+    //      CELL_SH = 1 -> 2x2 px cells -> 64 x 32 grid
+    //      CELL_SH = 2 -> 4x4 px cells -> 32 x 16 grid   (default)
+    //      CELL_SH = 3 -> 8x8 px cells -> 16 x  8 grid
+    //
+    //      x=0        16                                             127
+    //       +-----------------------------------------------------------+ y=0
+    //       |          |                                                |
+    //       |    42    |                 play field                     |
+    //       +-----------------------------------------------------------+ y=63
+    //        score      ^ vertical divider, which is also the left wall
+    //------------------------------------------------------------------
+    localparam GX_W    = 7 - CELL_SH;        // bits of a cell X coordinate
+    localparam GY_W    = 6 - CELL_SH;        // bits of a cell Y coordinate
+    localparam POS_W   = GX_W + GY_W;        // packed {y,x} cell position
+    localparam GRID_W  = (1 << GX_W);        // cells per row
+    localparam GRID_H  = (1 << GY_W);        // cells per column
+    localparam SCORE_W = (16 >> CELL_SH);    // score column width, in cells
+    localparam SCORE_P = 3;                  // page the two digits sit on
+    localparam FLD_X0  = SCORE_W;            // divider column, the left wall
+    localparam FLD_X1  = GRID_W - 1;         // right wall
+    localparam FLD_Y0  = 0;                  // top rule
+    localparam FLD_Y1  = GRID_H - 1;         // bottom rule
 
     //------------------------------------------------------------------
     // millisecond time base, shared by the debouncer, the game step timer
@@ -123,8 +152,10 @@ module snake_top #(
     wire [7:0]  score_bcd;
     wire [10:0] food_pos;
 
-    game_ctrl #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN), .LEN_W(LEN_W),
-                .INIT_LEN(INIT_LEN)) u_game (
+    game_ctrl #(.GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
+                .FLD_X0(FLD_X0), .FLD_X1(FLD_X1),
+                .FLD_Y0(FLD_Y0), .FLD_Y1(FLD_Y1),
+                .MAXLEN(MAXLEN), .LEN_W(LEN_W), .INIT_LEN(INIT_LEN)) u_game (
         .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
         .btn_level(btn_level), .btn_press(btn_press),
         .frame_done(frame_done), .busy(game_busy),
@@ -146,7 +177,9 @@ module snake_top #(
     wire [6:0] pix_x;
     wire [2:0] pix_page;
 
-    pixel_gen #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN)) u_pix (
+    pixel_gen #(.CELL_SH(CELL_SH), .GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
+                .FLD_X0(FLD_X0), .FLD_X1(FLD_X1), .SCORE_P(SCORE_P),
+                .MAXLEN(MAXLEN)) u_pix (
         .clk(clk), .rst_n(rst_n),
         .req(pix_req), .x(pix_x), .page(pix_page),
         .valid(pix_valid), .dout(pix_data),

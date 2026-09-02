@@ -45,7 +45,9 @@ module tb_pixel;
         .scan_busy(scan_busy), .scan_pos(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .cmp_hit(cmp_hit), .head(head), .len(len));
 
-    pixel_gen #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN)) u_pix (
+    pixel_gen #(.CELL_SH(CELL_SH), .GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
+                .FLD_X0(SCORE_W), .FLD_X1(GRID_W-1), .SCORE_P(3),
+                .MAXLEN(MAXLEN)) u_pix (
         .clk(clk), .rst_n(rst_n),
         .req(req), .x(x), .page(page), .valid(valid), .dout(dout),
         .st_title(1'b0), .st_over(1'b0), .score_bcd(8'h00),

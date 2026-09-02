@@ -29,6 +29,7 @@ module tb_food;
     localparam FLD_X0  = SCORE_W;
     localparam FLD_X1  = GRID_W - 1;
     localparam FLD_Y1  = GRID_H - 1;
+    localparam POS_W   = GX_W + GY_W;
     localparam PERIOD  = 2047;
     localparam MAX_RUN = 64;            // generous ceiling on the re-roll loop
 
@@ -40,7 +41,9 @@ module tb_food;
 
     // game_ctrl is instantiated so the REAL range predicate is exercised; it
     // stays in its title state and drives nothing here.
-    game_ctrl #(.CELL_SH(CELL_SH), .MAXLEN(32), .LEN_W(6), .INIT_LEN(3)) u_game (
+    game_ctrl #(.GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
+                .FLD_X0(FLD_X0), .FLD_X1(FLD_X1), .FLD_Y0(0), .FLD_Y1(FLD_Y1),
+                .MAXLEN(32), .LEN_W(6), .INIT_LEN(3)) u_game (
         .clk(clk), .rst_n(rst_n), .ms_pulse(1'b0),
         .btn_level(5'd0), .btn_press(5'd0),
         .frame_done(1'b0), .busy(),

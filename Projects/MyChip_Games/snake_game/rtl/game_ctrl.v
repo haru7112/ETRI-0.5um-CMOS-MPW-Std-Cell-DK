@@ -20,7 +20,17 @@
 `timescale 1ns/1ps
 
 module game_ctrl #(
-    parameter CELL_SH  = 1,
+    // Screen geometry is derived once in snake_top and handed down, so there
+    // is exactly one place in the design that decides where the walls are.
+    // The elaboration guards at the bottom of this file refuse to build if a
+    // caller passes a set that does not hang together.
+    parameter GX_W     = 6,      // bits of a cell X coordinate
+    parameter GY_W     = 5,      // bits of a cell Y coordinate
+    parameter POS_W    = 11,     // packed {y,x}, = GX_W + GY_W
+    parameter FLD_X0   = 8,      // divider column, the left wall
+    parameter FLD_X1   = 63,     // right wall
+    parameter FLD_Y0   = 0,      // top rule
+    parameter FLD_Y1   = 31,     // bottom rule
     parameter MAXLEN   = 48,
     parameter LEN_W    = 6,
     parameter INIT_LEN = 3
@@ -61,10 +71,8 @@ module game_ctrl #(
 
     input  wire [10:0] rnd
 );
-`include "snake_params.vh"
-
     localparam CX0 = ((FLD_X0 + FLD_X1) / 2) - INIT_LEN;  // freshly loaded head
-    localparam CY0 = GRID_H / 2;
+    localparam CY0 =  (FLD_Y0 + FLD_Y1) / 2;              // middle of the field
 
     localparam S_TITLE = 4'd0,
                S_NEW   = 4'd1,
@@ -317,5 +325,21 @@ module game_ctrl #(
             default: st <= S_TITLE;
             endcase
         end
+
+    //------------------------------------------------------------------
+    // Elaboration guards.  Passing geometry in as parameters is only safe if
+    // an inconsistent set cannot build: each of these instantiates a module
+    // that does not exist, so the error names the parameter that is wrong.
+    //------------------------------------------------------------------
+    generate
+        if (POS_W != GX_W + GY_W)
+            ERROR_POS_W_must_equal_GX_W_plus_GY_W u_chk_pos ();
+        if (FLD_X1 != (1 << GX_W) - 1)
+            ERROR_FLD_X1_must_be_last_column u_chk_x1 ();
+        if (FLD_Y1 != (1 << GY_W) - 1)
+            ERROR_FLD_Y1_must_be_last_row u_chk_y1 ();
+        if (FLD_X0 <= 0 || FLD_X0 >= FLD_X1)
+            ERROR_FLD_X0_must_be_inside_the_grid u_chk_x0 ();
+    endgenerate
 
 endmodule

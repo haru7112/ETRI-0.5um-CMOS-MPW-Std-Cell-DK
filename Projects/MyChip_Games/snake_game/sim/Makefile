@@ -13,7 +13,7 @@ FPGA  = ../fpga/zybo_z7_20
 SRC   = $(RTL)/snake_top.v $(RTL)/snake_body.v $(RTL)/game_ctrl.v \
         $(RTL)/pixel_gen.v $(RTL)/font_rom.v $(RTL)/oled_ctrl.v \
         $(RTL)/i2c_master.v $(RTL)/debounce.v $(RTL)/lfsr11.v $(RTL)/reset_sync.v
-IV    = iverilog -g2005 -I$(RTL)
+IV    = iverilog -g2005
 
 all: system pixel food lint
 

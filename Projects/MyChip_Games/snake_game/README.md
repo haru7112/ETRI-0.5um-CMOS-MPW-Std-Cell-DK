@@ -93,10 +93,9 @@ SSD1315를 horizontal addressing 모드로 두면 패널이 1024바이트를 정
 ```
 snake_game/
 ├── rtl/
-│   ├── snake_params.vh    CELL_SH 로부터 그리드/좌표폭 파생
 │   ├── snake_chip.v       ASIC 코어 top (qflow 대상, tri-state 없음)
 │   ├── snake_chip_pads.v  패드링까지 포함한 칩 전체 넷리스트(문서/검증용)
-│   ├── snake_top.v        코어 top (ms 시간축, 서브블록 결선)
+│   ├── snake_top.v        코어 top — 화면 기하를 여기서만 정의해 파라미터로 배포
 │   ├── snake_body.v       ★ 순환 시프트 레지스터 + 시분할 비교기
 │   ├── game_ctrl.v        게임 규칙 FSM, 점수, 먹이, 속도
 │   ├── pixel_gen.v        1024바이트 절차적 생성

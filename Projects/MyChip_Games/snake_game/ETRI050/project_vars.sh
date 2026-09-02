@@ -11,8 +11,8 @@ set source_file_list = "snake_chip.v snake_top.v snake_body.v game_ctrl.v \
                         pixel_gen.v font_rom.v oled_ctrl.v i2c_master.v \
                         debounce.v lfsr11.v reset_sync.v"
 
-# snake_params.vh is `include`d from the RTL.  yosys resolves that against the
-# directory of the file doing the include, so no extra include path is needed.
+# The design contains no `include at all: screen geometry is derived once in
+# snake_top and handed down as parameters, so no include path is needed.
 
 # Placement ------------------------------------------------
 #  0.85 is what the other MyChip games use; the snake core is dominated by a

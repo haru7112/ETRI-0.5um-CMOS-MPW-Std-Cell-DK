@@ -30,8 +30,9 @@ read_verilog [list \
 
 read_xdc [file join $here zybo_z7_20.xdc]
 
-# snake_params.vh is `include`d by several of the modules
-synth_design -top snake_zybo_top -part $part -include_dirs $rtl
+# no include path needed: the design has no `include at all - screen geometry
+# is derived once in snake_top and handed to the sub-blocks as parameters
+synth_design -top snake_zybo_top -part $part
 
 # The core runs on the BUFG output, so if create_generated_clock missed its
 # target pin the 25MHz domain would silently be timed against the 125MHz

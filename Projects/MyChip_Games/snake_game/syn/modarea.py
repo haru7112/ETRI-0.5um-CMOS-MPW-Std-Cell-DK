@@ -34,8 +34,8 @@ stat
 print(f"{'module':14s} {'cells':>6s} {'FF':>5s} {'area mm2':>9s}")
 tot=0
 for top,par in (('snake_body','chparam -set POS_W 9 -set GX_W 5 -set MAXLEN 32 -set LEN_W 6 snake_body'),
-                ('game_ctrl','chparam -set CELL_SH 2 -set MAXLEN 32 -set LEN_W 6 game_ctrl'),
-                ('pixel_gen','chparam -set CELL_SH 2 -set MAXLEN 32 pixel_gen'),
+                ('game_ctrl','chparam -set GX_W 5 -set GY_W 4 -set POS_W 9 -set FLD_X0 4 -set FLD_X1 31 -set FLD_Y0 0 -set FLD_Y1 15 -set MAXLEN 32 -set LEN_W 6 game_ctrl'),
+                ('pixel_gen','chparam -set CELL_SH 2 -set GX_W 5 -set GY_W 4 -set POS_W 9 -set FLD_X0 4 -set FLD_X1 31 -set SCORE_P 3 -set MAXLEN 32 pixel_gen'),
                 ('font_rom',''),('oled_ctrl',''),('i2c_master',''),
                 ('debounce','chparam -set N 5 debounce'),("lfsr11","")):
     a,c,f=run(top,par); tot+=a

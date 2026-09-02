@@ -22,7 +22,17 @@
 `timescale 1ns/1ps
 
 module pixel_gen #(
-    parameter CELL_SH  = 1,
+    // CELL_SH stays because this block works in pixels: it needs the cell size
+    // to slice a column index and to place a cell mask inside a page byte.
+    // Everything that is a *decision* about the screen layout comes down from
+    // snake_top instead, so there is one place that defines it.
+    parameter CELL_SH  = 1,      // cell edge = 2^CELL_SH pixels
+    parameter GX_W     = 6,      // bits of a cell X coordinate
+    parameter GY_W     = 5,      // bits of a cell Y coordinate
+    parameter POS_W    = 11,     // packed {y,x}, = GX_W + GY_W
+    parameter FLD_X0   = 8,      // divider column, the left wall
+    parameter FLD_X1   = 63,     // right wall
+    parameter SCORE_P  = 3,      // page the two score digits sit on
     parameter MAXLEN   = 48
 )(
     input  wire        clk,
@@ -49,10 +59,13 @@ module pixel_gen #(
     input  wire        scan_done,
     input  wire [10:0] food_pos_i
 );
-`include "snake_params.vh"
-
     reg  busy;                      // high while a byte is being accumulated
 
+    // pure unit conversions from the cell size - no layout policy in them, so
+    // they belong here rather than in the parameter list
+    localparam CELL_PX   = (1 << CELL_SH);       // pixels per cell edge
+    localparam CPP       = (8 >> CELL_SH);       // cells stacked in one page
+    localparam SUB_W     = (3 - CELL_SH);        // bits selecting the cell in a page
     localparam CELL_BITS = (1 << CELL_PX) - 1;   // 2'b11 / 4'hF / 8'hFF
     localparam CPP_MASK  = CPP - 1;
 
@@ -164,5 +177,19 @@ module pixel_gen #(
                 end
             end
         end
+
+    //------------------------------------------------------------------
+    // Elaboration guards - see game_ctrl for why these are here
+    //------------------------------------------------------------------
+    generate
+        if (POS_W != GX_W + GY_W)
+            ERROR_POS_W_must_equal_GX_W_plus_GY_W u_chk_pos ();
+        if (GX_W != 7 - CELL_SH)
+            ERROR_GX_W_does_not_match_CELL_SH u_chk_gx ();
+        if (GY_W != 6 - CELL_SH)
+            ERROR_GY_W_does_not_match_CELL_SH u_chk_gy ();
+        if (FLD_X1 != (1 << GX_W) - 1)
+            ERROR_FLD_X1_must_be_last_column u_chk_x1 ();
+    endgenerate
 
 endmodule
