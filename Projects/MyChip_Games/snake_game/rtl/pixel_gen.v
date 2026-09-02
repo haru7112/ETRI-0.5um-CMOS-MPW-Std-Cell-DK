@@ -104,7 +104,29 @@ module pixel_gen #(
     wire side_wall   = (cell_x == FLD_X0[GX_W-1:0]) || (cell_x == FLD_X1[GX_W-1:0]);
     wire [7:0] wall_byte = border_on ? (side_wall ? 8'hFF : rules) : 8'h00;
 
-    wire [7:0] food_byte = (food_en && blink && tgt_here) ? cell_mask : 8'h00;
+    //------------------------------------------------------------------
+    // Food.  It used to blink so it could not be mistaken for a body
+    // segment; drawing it hollow says the same thing without the flicker.
+    //
+    //   body            food
+    //   # # # #         # # # #
+    //   # # # #         # . . #
+    //   # # # #         # . . #
+    //   # # # #         # # # #
+    //
+    // A 2x2 cell has no room for an outline, so that build - and only that
+    // build - falls back to blinking; the term folds away otherwise.
+    //------------------------------------------------------------------
+    localparam FOOD_SOLID = (CELL_PX < 4);
+    localparam [7:0] RING_MID = 8'h01 | (8'h01 << (CELL_PX - 1));
+
+    wire [2:0] xin       = x[2:0] & (CELL_PX[2:0] - 3'd1);   // column in the cell
+    wire       edge_col  = (xin == 3'd0) || (xin == (CELL_PX[2:0] - 3'd1));
+    wire [7:0] food_pat  = edge_col ? CELL_BITS[7:0] : RING_MID;
+    wire [7:0] food_mask = food_pat << shamt;
+
+    wire food_show = food_en && tgt_here && (!FOOD_SOLID || blink);
+    wire [7:0] food_byte = food_show ? food_mask : 8'h00;
 
     wire [7:0] score_byte = (page == SCORE_P[2:0]) ? font_bits : 8'h00;
 
