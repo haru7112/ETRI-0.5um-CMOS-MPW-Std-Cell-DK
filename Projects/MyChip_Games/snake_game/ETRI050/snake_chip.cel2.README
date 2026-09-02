@@ -1,0 +1,5 @@
+snake_chip.cel2 pins the core's I/O to a side of the die before graywolf runs,
+exactly like pads_ETRI/games.cel2 does for the other MyChip games.  Copy it
+into ./layout/ before the first placement:
+
+    cp snake_chip.cel2 ./layout/snake_chip.cel2

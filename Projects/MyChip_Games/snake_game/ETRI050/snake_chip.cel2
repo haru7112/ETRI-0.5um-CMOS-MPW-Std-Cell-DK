@@ -1,0 +1,51 @@
+# graywolf pin side constraints for snake_chip
+#   inputs along the top edge, outputs along the bottom edge
+#   (same convention as pads_ETRI/games.cel2)
+
+padgroup Input_CLK              permute
+twpin_CLK                       nonfixed
+restrict side T
+
+padgroup Input_RST_N            permute
+twpin_RST_N                     nonfixed
+restrict side T
+
+padgroup Input_JS_UP            permute
+twpin_JS_UP                     nonfixed
+restrict side T
+
+padgroup Input_JS_DOWN          permute
+twpin_JS_DOWN                   nonfixed
+restrict side T
+
+padgroup Input_JS_LEFT          permute
+twpin_JS_LEFT                   nonfixed
+restrict side T
+
+padgroup Input_JS_RIGHT         permute
+twpin_JS_RIGHT                  nonfixed
+restrict side T
+
+padgroup Input_JS_OK            permute
+twpin_JS_OK                     nonfixed
+restrict side T
+
+padgroup Input_SDA_I            permute
+twpin_SDA_I                     nonfixed
+restrict side B
+
+padgroup Output_SCL_OE          permute
+twpin_SCL_OE                    nonfixed
+restrict side B
+
+padgroup Output_SDA_OE          permute
+twpin_SDA_OE                    nonfixed
+restrict side B
+
+padgroup Output_OLED_RES_N      permute
+twpin_OLED_RES_N                nonfixed
+restrict side B
+
+padgroup Output_LED             permute
+twpin_LED                       nonfixed
+restrict side B
