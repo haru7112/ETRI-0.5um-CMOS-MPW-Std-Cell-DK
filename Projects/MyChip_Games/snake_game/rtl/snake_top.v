@@ -72,33 +72,34 @@ module snake_top #(
         .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
         .pin_n(btn_n), .level(btn_level), .press(btn_press));
 
-    wire [15:0] rnd;
-    lfsr16 u_rnd (.clk(clk), .rst_n(rst_n), .rnd(rnd));
+    wire [10:0] rnd;
+    lfsr11 u_rnd (.clk(clk), .rst_n(rst_n), .rnd(rnd));
 
     //------------------------------------------------------------------
     // snake body register + its serial scan port
     //------------------------------------------------------------------
-    wire             body_load, body_move, body_grow;
-    wire [10:0]      body_pos;
-    wire [1:0]       body_dir;
+    wire             body_load, body_move, body_grow, cmp_food;
+    wire [10:0]      load_pos, step_pos;
+    wire [1:0]       step_dir;
     wire             g_scan_req, p_scan_req;
     wire [10:0]      cmp_pos;
     wire             cmp_skip_tail, scan_done, cmp_hit;
     wire [10:0]      scan_pos;
     wire             scan_valid;
-    wire [10:0]      head;
     wire [LEN_W-1:0] len;
 
     wire [POS_W-1:0] scan_pos_n;
     wire [POS_W-1:0] head_n;
+    wire [POS_W-1:0] step_pos_n;
     assign scan_pos = {{(11-POS_W){1'b0}}, scan_pos_n};
-    assign head     = {{(11-POS_W){1'b0}}, head_n};
 
     snake_body #(.POS_W(POS_W), .GX_W(GX_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
         .clk(clk), .rst_n(rst_n),
-        .load(body_load), .move(body_move), .grow(body_grow),
-        .move_pos(body_pos[POS_W-1:0]), .move_dir(body_dir),
+        .load(body_load), .load_pos(load_pos[POS_W-1:0]),
+        .move(body_move), .grow(body_grow),
+        .step_dir(step_dir), .step_pos(step_pos_n),
         .scan_req(g_scan_req | p_scan_req),
+        .cmp_food(cmp_food),
         .cmp_pos(cmp_pos[POS_W-1:0]),
         .cmp_skip_tail(cmp_skip_tail),
         .scan_busy(),
@@ -106,11 +107,13 @@ module snake_top #(
         .cmp_hit(cmp_hit),
         .head(head_n), .len(len));
 
+    assign step_pos = {{(11-POS_W){1'b0}}, step_pos_n};
+
     //------------------------------------------------------------------
     // game rules
     //------------------------------------------------------------------
     wire        st_title, st_over, game_busy, frame_done, food_en;
-    wire [11:0] score_bcd;
+    wire [7:0]  score_bcd;
     wire [10:0] food_pos;
 
     game_ctrl #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN), .LEN_W(LEN_W),
@@ -119,10 +122,11 @@ module snake_top #(
         .btn_level(btn_level), .btn_press(btn_press),
         .frame_done(frame_done), .busy(game_busy),
         .body_load(body_load), .body_move(body_move), .body_grow(body_grow),
-        .body_pos(body_pos), .body_dir(body_dir),
-        .scan_req(g_scan_req), .cmp_pos(cmp_pos), .cmp_skip_tail(cmp_skip_tail),
+        .load_pos(load_pos), .step_dir(step_dir), .step_pos(step_pos),
+        .scan_req(g_scan_req), .cmp_food(cmp_food),
+        .cmp_pos(cmp_pos), .cmp_skip_tail(cmp_skip_tail),
         .scan_done(scan_done), .cmp_hit(cmp_hit),
-        .head(head), .len(len),
+        .len(len),
         .st_title(st_title), .st_over(st_over), .score_bcd(score_bcd),
         .food_pos(food_pos), .food_en(food_en),
         .rnd(rnd));

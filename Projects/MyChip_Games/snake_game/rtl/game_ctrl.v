@@ -4,8 +4,14 @@
 //
 //  All state changes happen in the gap between two OLED frames (frame_done ->
 //  busy -> idle).  That keeps the picture tear free and, more importantly,
-//  guarantees that the body shift register is never asked to move and to
-//  rotate for a scan in the same cycle.
+//  guarantees that the body queue is never asked to shift and to rotate for a
+//  scan in the same cycle.
+//
+//  This block deliberately owns NO position arithmetic and only one position
+//  register (the food).  On a 0.5um process the mux tree that feeds a 9 bit
+//  register from nine FSM states costs more than the adder it would save, so
+//  the next head position is computed inside snake_body - which already has
+//  the incrementer pair for its scan walk - and comes back on step_pos.
 //
 //  Direction encoding (chosen so that "opposite" is a single bit flip):
 //      00 RIGHT (x+1)   01 DOWN (y+1)   10 LEFT (x-1)   11 UP (y-1)
@@ -31,28 +37,29 @@ module game_ctrl #(
     input  wire        frame_done,
     output reg         busy,
 
-    // body register control
+    // body control
     output reg         body_load,
     output reg         body_move,
     output reg         body_grow,
-    output reg  [10:0] body_pos,
-    output reg  [1:0]  body_dir,      // heading of this step, for the direction queue
+    output wire [10:0] load_pos,
+    output wire [1:0]  step_dir,
+    input  wire [10:0] step_pos,
     output reg         scan_req,
-    output reg  [10:0] cmp_pos,
+    output reg         cmp_food,
+    output wire [10:0] cmp_pos,
     output reg         cmp_skip_tail,
     input  wire        scan_done,
     input  wire        cmp_hit,
-    input  wire [10:0] head,
     input  wire [LEN_W-1:0] len,
 
     // rendering state
     output wire        st_title,
     output wire        st_over,
-    output reg  [11:0] score_bcd,
-    output reg  [10:0] food_pos,
+    output reg  [7:0]  score_bcd,       // 2 BCD digits, {tens, units}
+    output wire [10:0] food_pos,
     output reg         food_en,
 
-    input  wire [15:0] rnd
+    input  wire [10:0] rnd
 );
 `include "snake_params.vh"
 
@@ -71,15 +78,19 @@ module game_ctrl #(
 
     reg  [3:0]       st;
     reg  [1:0]       dir, dir_nxt;
-    reg  [7:0]       eaten;
     reg  [7:0]       ms_cnt;
     reg              tick_pend;
     reg              ok_pend;
     reg  [LEN_W-1:0] build_cnt;
-    reg  [5:0]       food_try;
+    reg  [2:0]       food_try;
+    reg  [POS_W-1:0] food_r;
 
     assign st_title = (st == S_TITLE);
     assign st_over  = (st == S_OVER);
+    assign step_dir = dir;
+    assign load_pos = {{(11-POS_W){1'b0}}, CY0[GY_W-1:0], CX0[GX_W-1:0]};
+    assign cmp_pos  = {{(11-POS_W){1'b0}}, food_r};
+    assign food_pos = {{(11-POS_W){1'b0}}, food_r};
 
     //------------------------------------------------------------------
     // direction capture (free running, applied at the next game step)
@@ -104,9 +115,10 @@ module game_ctrl #(
         else if (want_v && (want != (dir ^ 2'b10))) dir_nxt <= want;
 
     //------------------------------------------------------------------
-    // game step timer: millisecond prescaler, speed rises with the score
+    // game step timer: millisecond prescaler, speed rises with the length
+    // (len is already there for the scan, so no separate meal counter)
     //------------------------------------------------------------------
-    wire [2:0] level    = (eaten[7:2] > 6'd7) ? 3'd7 : eaten[4:2];
+    wire [2:0] level    = (len[LEN_W-1:5] != 0) ? 3'd7 : len[4:2];
     wire [7:0] speed_ms = 8'd200 - {1'b0, level, 4'b0};    // 200ms .. 88ms
 
     wire in_play = (st != S_TITLE) && (st != S_OVER) && (st != S_NEW);
@@ -137,18 +149,15 @@ module game_ctrl #(
         else if (btn_press[4]) ok_pend <= 1'b1;
 
     //------------------------------------------------------------------
-    // next head position and the wall test
+    // the wall test and the meal test both ride on step_pos
     //------------------------------------------------------------------
-    wire [GX_W-1:0]  hx = head[GX_W-1:0];
-    wire [GY_W-1:0]  hy = head[POS_W-1:GX_W];
-    wire [GX_W-1:0]  nx = dir[0] ? hx : (dir[1] ? hx - 1'b1 : hx + 1'b1);
-    wire [GY_W-1:0]  ny = dir[0] ? (dir[1] ? hy - 1'b1 : hy + 1'b1) : hy;
-    wire [POS_W-1:0] next_head = {ny, nx};
+    wire [GX_W-1:0] nx = step_pos[GX_W-1:0];
+    wire [GY_W-1:0] ny = step_pos[POS_W-1:GX_W];
 
     wire hit_wall = (nx == FLD_X0[GX_W-1:0]) || (nx == FLD_X1[GX_W-1:0]) ||
                     (ny == FLD_Y0[GY_W-1:0]) || (ny == FLD_Y1[GY_W-1:0]);
 
-    wire eat_now  = food_en && (food_pos[POS_W-1:0] == next_head);
+    wire eat_now  = food_en && (food_r == step_pos[POS_W-1:0]);
 
     //------------------------------------------------------------------
     // food candidate straight out of the LFSR, rejection sampled
@@ -168,18 +177,15 @@ module game_ctrl #(
             body_load     <= 1'b0;
             body_move     <= 1'b0;
             body_grow     <= 1'b0;
-            body_pos      <= 11'd0;
-            body_dir      <= 2'b00;
             scan_req      <= 1'b0;
-            cmp_pos       <= 11'd0;
+            cmp_food      <= 1'b0;
             cmp_skip_tail <= 1'b0;
             dir           <= 2'b00;
-            eaten         <= 8'd0;
-            score_bcd     <= 12'h000;
-            food_pos      <= 11'd0;
+            score_bcd     <= 8'h00;
+            food_r        <= {POS_W{1'b0}};
             food_en       <= 1'b0;
             build_cnt     <= {LEN_W{1'b0}};
-            food_try      <= 6'd0;
+            food_try      <= 3'd0;
         end else begin
             body_load <= 1'b0;
             body_move <= 1'b0;
@@ -196,54 +202,43 @@ module game_ctrl #(
                 end
             end
             //--------------------------------------------------------------
-            // load == move with the length forced back to 1 (see snake_body)
             S_NEW: begin
                 busy      <= 1'b1;
-                body_load <= 1'b1;
-                body_move <= 1'b1;
-                body_pos  <= {{(11-POS_W){1'b0}}, CY0[GY_W-1:0], CX0[GX_W-1:0]};
-                body_dir  <= 2'b00;
+                body_load <= 1'b1;             // head <= load_pos, len <= 1
                 dir       <= 2'b00;
-                eaten     <= 8'd0;
-                score_bcd <= 12'h000;
+                score_bcd <= 8'h00;
                 food_en   <= 1'b0;
                 build_cnt <= INIT_LEN[LEN_W-1:0] - 1'b1;
                 st        <= S_BUILD;
             end
             //--------------------------------------------------------------
-            // The body control outputs are registered, so 'head' is one cycle
-            // behind this state.  The build walk therefore advances body_pos
-            // itself (x sits in the low bits of the packed position) instead of
-            // reading head back, otherwise every step would write the same cell.
             S_BUILD: begin              // walk right to reach the initial length
                 if (build_cnt == {LEN_W{1'b0}}) begin
-                    food_try <= 6'd0;
+                    food_try <= 3'd0;
                     st       <= S_FOOD;
                 end else begin
-                    body_move <= 1'b1;
+                    body_move <= 1'b1;         // dir is still RIGHT here
                     body_grow <= 1'b1;
-                    body_dir  <= 2'b00;            // the build walk heads right
-                    body_pos  <= body_pos + 11'd1;
                     build_cnt <= build_cnt - 1'b1;
                 end
             end
             //--------------------------------------------------------------
             S_FOOD: begin               // draw a candidate inside the play area
-                if (food_in_range || (food_try == 6'd63)) begin
-                    cmp_pos       <= {{(11-POS_W){1'b0}}, fy_c, fx_c};
+                if (food_in_range || (food_try == 3'd7)) begin
+                    food_r   <= {fy_c, fx_c};
+                    cmp_food <= 1'b1;
                     cmp_skip_tail <= 1'b0;
-                    scan_req      <= 1'b1;
-                    st            <= S_FSCAN;
+                    scan_req <= 1'b1;
+                    st       <= S_FSCAN;
                 end
-                if (food_try != 6'd63) food_try <= food_try + 6'd1;
+                if (food_try != 3'd7) food_try <= food_try + 3'd1;
             end
             //--------------------------------------------------------------
             S_FSCAN: begin              // reject it when it lands on the snake
                 if (scan_done) begin
-                    if (!cmp_hit || (food_try == 6'd63)) begin
-                        food_pos <= cmp_pos;
-                        food_en  <= 1'b1;
-                        st       <= S_IDLE;
+                    if (!cmp_hit || (food_try == 3'd7)) begin
+                        food_en <= 1'b1;
+                        st      <= S_IDLE;
                     end else begin
                         st <= S_FOOD;
                     end
@@ -264,8 +259,8 @@ module game_ctrl #(
                 if (hit_wall) begin
                     st <= S_OVER;
                 end else begin
-                    cmp_pos       <= {{(11-POS_W){1'b0}}, next_head};
-                    cmp_skip_tail <= 1'b1;   // the tail vacates this step
+                    cmp_food      <= 1'b0;     // test step_pos against the body
+                    cmp_skip_tail <= 1'b1;     // the tail vacates this step
                     scan_req      <= 1'b1;
                     st            <= S_SSCAN;
                 end
@@ -277,25 +272,16 @@ module game_ctrl #(
                         st <= S_OVER;
                     end else begin
                         body_move <= 1'b1;
-                        body_pos  <= {{(11-POS_W){1'b0}}, next_head};
-                        body_dir  <= dir;
                         if (eat_now) begin
                             body_grow <= 1'b1;
-                            eaten     <= eaten + 8'd1;
-                            food_try  <= 6'd0;
+                            food_try  <= 3'd0;
                             st        <= S_FOOD;
-                            // BCD score, 3 digits
                             if (score_bcd[3:0] != 4'd9)
                                 score_bcd[3:0] <= score_bcd[3:0] + 4'd1;
                             else begin
                                 score_bcd[3:0] <= 4'd0;
                                 if (score_bcd[7:4] != 4'd9)
                                     score_bcd[7:4] <= score_bcd[7:4] + 4'd1;
-                                else begin
-                                    score_bcd[7:4] <= 4'd0;
-                                    if (score_bcd[11:8] != 4'd9)
-                                        score_bcd[11:8] <= score_bcd[11:8] + 4'd1;
-                                end
                             end
                         end else begin
                             st <= S_IDLE;

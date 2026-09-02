@@ -8,7 +8,7 @@ def run(cell_sh, maxlen, len_w, en_text, top='snake_top'):
     ys = f"""
 read_verilog -I../rtl ../rtl/snake_top.v ../rtl/snake_body.v ../rtl/game_ctrl.v \\
              ../rtl/pixel_gen.v ../rtl/font_rom.v ../rtl/oled_ctrl.v \\
-             ../rtl/i2c_master.v ../rtl/debounce.v ../rtl/lfsr16.v
+             ../rtl/i2c_master.v ../rtl/debounce.v ../rtl/lfsr11.v
 chparam -set CELL_SH {cell_sh} -set MAXLEN {maxlen} -set LEN_W {len_w} -set EN_TEXT {en_text} {top}
 hierarchy -top {top}
 synth -top {top} -flatten

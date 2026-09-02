@@ -35,7 +35,7 @@ module pixel_gen #(
     // ---- game state ------------------------------------------------------
     input  wire        st_title,
     input  wire        st_over,
-    input  wire [11:0] score_bcd,         // 3 BCD digits, {d2,d1,d0}
+    input  wire [7:0]  score_bcd,         // 2 BCD digits, {tens, units}
     input  wire        blink,             // ~4Hz, makes the food distinguishable
     input  wire        food_en,
 
@@ -87,16 +87,14 @@ module pixel_gen #(
                     4'd2: ch_code = C_O;
                     4'd3: ch_code = C_R;
                     4'd4: ch_code = C_E;
-                    4'd6: ch_code = {1'b0, score_bcd[11:8]};
-                    4'd7: ch_code = {1'b0, score_bcd[7:4]};
-                    4'd8: ch_code = {1'b0, score_bcd[3:0]};
+                    4'd6: ch_code = {1'b0, score_bcd[7:4]};
+                    4'd7: ch_code = {1'b0, score_bcd[3:0]};
                     default: ch_code = C_SP;
                 endcase
             end else begin
                 case (ch_idx)
-                    4'd0: ch_code = {1'b0, score_bcd[11:8]};
-                    4'd1: ch_code = {1'b0, score_bcd[7:4]};
-                    4'd2: ch_code = {1'b0, score_bcd[3:0]};
+                    4'd0: ch_code = {1'b0, score_bcd[7:4]};
+                    4'd1: ch_code = {1'b0, score_bcd[3:0]};
                     default: ch_code = C_SP;
                 endcase
             end

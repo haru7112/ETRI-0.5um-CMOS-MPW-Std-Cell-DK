@@ -9,7 +9,7 @@ set sta_tool = opensta
 # explicitly.  Order does not matter, qflow feeds them all to yosys.
 set source_file_list = "snake_chip.v snake_top.v snake_body.v game_ctrl.v \
                         pixel_gen.v font_rom.v oled_ctrl.v i2c_master.v \
-                        debounce.v lfsr16.v reset_sync.v"
+                        debounce.v lfsr11.v reset_sync.v"
 
 # snake_params.vh is included from the RTL, so yosys needs the include path
 set yosys_options = "-I./source"

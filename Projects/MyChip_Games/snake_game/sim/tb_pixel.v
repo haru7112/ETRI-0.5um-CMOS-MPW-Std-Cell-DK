@@ -23,30 +23,31 @@ module tb_pixel;
     always #5 clk = ~clk;
 
     reg              load = 0, move = 0, grow = 0;
-    reg  [POS_W-1:0] move_pos = 0;
-    reg  [1:0]       move_dir = 0;
+    reg  [POS_W-1:0] load_pos = 0;
+    reg  [1:0]       step_dir = 0;
     reg              req = 0;
     reg  [6:0]       x = 0;
     reg  [2:0]       page = 0;
 
     wire             p_scan_req, scan_valid, scan_done, cmp_hit, scan_busy;
-    wire [POS_W-1:0] scan_pos, head;
+    wire [POS_W-1:0] scan_pos, head, step_pos;
     wire [LEN_W-1:0] len;
     wire             valid;
     wire [7:0]       dout;
 
     snake_body #(.POS_W(POS_W), .GX_W(GX_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
         .clk(clk), .rst_n(rst_n),
-        .load(load), .move(move), .grow(grow), .move_pos(move_pos),
-        .move_dir(move_dir),
-        .scan_req(p_scan_req), .cmp_pos({POS_W{1'b0}}), .cmp_skip_tail(1'b0),
+        .load(load), .load_pos(load_pos), .move(move), .grow(grow),
+        .step_dir(step_dir), .step_pos(step_pos),
+        .scan_req(p_scan_req), .cmp_food(1'b0), .cmp_pos({POS_W{1'b0}}),
+        .cmp_skip_tail(1'b0),
         .scan_busy(scan_busy), .scan_pos(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .cmp_hit(cmp_hit), .head(head), .len(len));
 
     pixel_gen #(.CELL_SH(CELL_SH), .MAXLEN(MAXLEN), .EN_TEXT(1)) u_pix (
         .clk(clk), .rst_n(rst_n),
         .req(req), .x(x), .page(page), .valid(valid), .dout(dout),
-        .st_title(1'b0), .st_over(1'b0), .score_bcd(12'h000),
+        .st_title(1'b0), .st_over(1'b0), .score_bcd(8'h00),
         .blink(1'b0), .food_en(1'b0),
         .scan_req(p_scan_req), .scan_pos_i({{(11-POS_W){1'b0}}, scan_pos}),
         .scan_valid(scan_valid), .scan_done(scan_done), .food_pos_i(11'd0));
@@ -54,10 +55,12 @@ module tb_pixel;
     reg [7:0] img [0:1023];
     integer   i, j, k, lit, errors;
 
-    task push(input [GX_W-1:0] cx, input [GY_W-1:0] cy, input [1:0] d);
+    task push(input [1:0] d);
         begin
             @(posedge clk);
-            move_pos <= {cy, cx};  move_dir <= d;  move <= 1'b1;  grow <= 1'b1;
+            step_dir <= d;
+            @(posedge clk);
+            move <= 1'b1;  grow <= 1'b1;
             @(posedge clk);
             move <= 1'b0;  grow <= 1'b0;
             @(posedge clk);
@@ -106,15 +109,15 @@ module tb_pixel;
         by = GRID_H/2;
         #20 rst_n = 1;
         @(posedge clk);
-        move_pos <= {by, bx};  load <= 1'b1;  move <= 1'b1;
+        load_pos <= {by, bx};  load <= 1'b1;
         @(posedge clk);
-        load <= 1'b0;  move <= 1'b0;
+        load <= 1'b0;
         @(posedge clk);
         want[4] = {by, bx};
-        wx = bx + 1;  wy = by;      push(wx, wy, 2'b00);  want[3] = {wy, wx};
-        wx = bx + 2;  wy = by;      push(wx, wy, 2'b00);  want[2] = {wy, wx};
-        wx = bx + 2;  wy = by - 1;  push(wx, wy, 2'b11);  want[1] = {wy, wx};
-        wx = bx + 2;  wy = by - 2;  push(wx, wy, 2'b11);  want[0] = {wy, wx};
+        wx = bx + 1;  wy = by;      push(2'b00);  want[3] = {wy, wx};
+        wx = bx + 2;  wy = by;      push(2'b00);  want[2] = {wy, wx};
+        wx = bx + 2;  wy = by - 1;  push(2'b11);  want[1] = {wy, wx};
+        wx = bx + 2;  wy = by - 2;  push(2'b11);  want[0] = {wy, wx};
 
         $display("CELL_SH=%0d grid=%0dx%0d  len=%0d head=(%0d,%0d)",
                  CELL_SH, GRID_W, GRID_H, len, head[GX_W-1:0], head[POS_W-1:GX_W]);

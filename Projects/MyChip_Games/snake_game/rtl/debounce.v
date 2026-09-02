@@ -1,8 +1,9 @@
 //----------------------------------------------------------------------------
 // debounce.v
-//  Two stage metastability sync + 3 sample majority filter clocked by a 1ms
-//  strobe.  A level therefore has to be stable for ~3ms before it is accepted,
-//  which is well beyond the bounce time of a tactile 5-way switch.
+//  Two stage metastability sync + 2 sample agreement filter clocked by a 1ms
+//  strobe.  A level therefore has to be stable for ~2ms before it is accepted,
+//  which is well beyond the bounce time of a tactile 5-way switch, and it is
+//  one flop per input cheaper than a 3 sample majority.
 //  Inputs are active low (switch closes to GND, external pull-up).
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
@@ -18,7 +19,7 @@ module debounce #(
     output reg  [N-1:0] press             // 1 clock wide pulse on 0->1 of level
 );
     reg [N-1:0] s0, s1;
-    reg [N-1:0] h0, h1, h2;
+    reg [N-1:0] h0, h1;
     reg [N-1:0] level_d;
     integer i;
 
@@ -31,11 +32,10 @@ module debounce #(
 
     always @(posedge clk)
         if (!rst_n) begin
-            h0 <= {N{1'b0}};  h1 <= {N{1'b0}};  h2 <= {N{1'b0}};
+            h0 <= {N{1'b0}};  h1 <= {N{1'b0}};
         end else if (ms_pulse) begin
             h0 <= ~s1;                    // active low pin -> active high sample
             h1 <= h0;
-            h2 <= h1;
         end
 
     always @(posedge clk)
@@ -43,8 +43,8 @@ module debounce #(
             level <= {N{1'b0}};
         end else begin
             for (i = 0; i < N; i = i + 1) begin
-                if       ( h0[i] &  h1[i] &  h2[i]) level[i] <= 1'b1;
-                else if (~h0[i] & ~h1[i] & ~h2[i]) level[i] <= 1'b0;
+                if      ( h0[i] &  h1[i]) level[i] <= 1'b1;
+                else if (~h0[i] & ~h1[i]) level[i] <= 1'b0;
             end
         end
 

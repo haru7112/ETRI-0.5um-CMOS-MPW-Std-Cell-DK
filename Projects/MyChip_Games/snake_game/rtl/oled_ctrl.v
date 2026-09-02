@@ -36,8 +36,8 @@ module oled_ctrl #(
 
     // pixel source
     output reg        pix_req,
-    output reg  [6:0] pix_x,
-    output reg  [2:0] pix_page,
+    output wire [6:0] pix_x,
+    output wire [2:0] pix_page,
     input  wire       pix_valid,
     input  wire [7:0] pix_data,
 
@@ -47,11 +47,15 @@ module oled_ctrl #(
 
     output wire       display_on       // high once the panel has been initialised
 );
-    localparam INIT_N = 6'd26;
+    localparam INIT_N = 6'd32;
 
     // ---- I2C engine ------------------------------------------------------
     reg        i2c_start, i2c_write, i2c_stop;
-    reg  [7:0] i2c_din;
+    reg  [1:0] din_sel;
+    wire [7:0] i2c_din = (din_sel == 2'd0) ? {I2C_ADDR, 1'b0}
+                       : (din_sel == 2'd1) ? ((phase == P_FDATA) ? 8'h40 : 8'h00)
+                       :                     pkt_byte;
+    localparam D_ADDR = 2'd0, D_CTRL = 2'd1, D_BYTE = 2'd2;
     wire       i2c_busy, i2c_done, i2c_ack;
 
     i2c_master #(.CLK_HZ(CLK_HZ), .SCL_HZ(SCL_HZ)) u_i2c (
@@ -88,24 +92,22 @@ module oled_ctrl #(
         6'd22: init_rom = 8'hA4;   // resume from RAM
         6'd23: init_rom = 8'hA6;   // normal (not inverted)
         6'd24: init_rom = 8'h2E;   // scrolling off
-        6'd25: init_rom = 8'hAF;   // display on
+        // The addressing window is set once, here: horizontal addressing wraps
+        // the panel's own pointer back to (0,0) after the last page, so every
+        // later frame is one uninterrupted 1024 byte burst with no command
+        // block in front of it.
+        6'd25: init_rom = 8'h21;   // column address
+        6'd26: init_rom = 8'h00;
+        6'd27: init_rom = 8'h7F;
+        6'd28: init_rom = 8'h22;   // page address
+        6'd29: init_rom = 8'h00;
+        6'd30: init_rom = 8'h07;
+        6'd31: init_rom = 8'hAF;   // display on
         default: init_rom = 8'hE3; // NOP
     endcase
 
-    // ---- window setup sent in front of every frame -----------------------
-    reg [7:0] fcmd_rom;
-    always @* case (pkt_idx[2:0])
-        3'd0: fcmd_rom = 8'h21;    // set column address
-        3'd1: fcmd_rom = 8'h00;
-        3'd2: fcmd_rom = 8'h7F;
-        3'd3: fcmd_rom = 8'h22;    // set page address
-        3'd4: fcmd_rom = 8'h00;
-        3'd5: fcmd_rom = 8'h07;
-        default: fcmd_rom = 8'hE3;
-    endcase
-
     // ---- sequencer -------------------------------------------------------
-    localparam P_INIT = 2'd0, P_FCMD = 2'd1, P_FDATA = 2'd2;
+    localparam P_INIT = 1'b0, P_FDATA = 1'b1;
 
     localparam T_RESLO = 4'd0, T_RESHI = 4'd1, T_ADDR  = 4'd2, T_ADDRW = 4'd3,
                T_CTRL  = 4'd4, T_CTRLW = 4'd5, T_FETCH = 4'd6, T_DATA  = 4'd7,
@@ -113,19 +115,19 @@ module oled_ctrl #(
                T_GAP0  = 4'd11, T_GAP = 4'd12;
 
     reg [3:0]  t_st;
-    reg [1:0]  phase;
+    reg        phase;
     reg [10:0] pkt_idx;
     reg [5:0]  ms_cnt;
     reg        init_done;
     reg        pix_rdy;
 
+    assign pix_x    = pkt_idx[6:0];
+    assign pix_page = pkt_idx[9:7];
+
     assign display_on = init_done;
 
-    wire [10:0] pkt_last = (phase == P_INIT)  ? {5'd0, INIT_N} - 11'd1 :
-                           (phase == P_FCMD)  ? 11'd5 :
-                                                11'd1023;
-    wire [7:0]  pkt_byte = (phase == P_INIT)  ? init_rom :
-                           (phase == P_FCMD)  ? fcmd_rom : pix_data;
+    wire [10:0] pkt_last = (phase == P_INIT) ? {5'd0, INIT_N} - 11'd1 : 11'd1023;
+    wire [7:0]  pkt_byte = (phase == P_INIT) ? init_rom : pix_data;
 
     always @(posedge clk)
         if (!rst_n) begin
@@ -137,12 +139,10 @@ module oled_ctrl #(
             init_done  <= 1'b0;
             frame_done <= 1'b0;
             pix_req    <= 1'b0;
-            pix_x      <= 7'd0;
-            pix_page   <= 3'd0;
             i2c_start  <= 1'b0;
             i2c_write  <= 1'b0;
             i2c_stop   <= 1'b0;
-            i2c_din    <= 8'h00;
+            din_sel    <= D_ADDR;
             pix_rdy    <= 1'b0;
         end else begin
             if (pix_valid) pix_rdy <= 1'b1;
@@ -178,7 +178,7 @@ module oled_ctrl #(
             end
             //--------------------------------------------------------------
             T_ADDR: if (!i2c_busy) begin
-                i2c_din   <= {I2C_ADDR, 1'b0};      // write transfer
+                din_sel   <= D_ADDR;                // slave address, write
                 i2c_start <= 1'b1;
                 t_st      <= T_ADDRW;
             end
@@ -190,7 +190,7 @@ module oled_ctrl #(
             T_CTRL: if (!i2c_busy) begin
                 // Co=0 D/C#=0 -> everything that follows is a command,
                 // Co=0 D/C#=1 -> everything that follows is display data
-                i2c_din   <= (phase == P_FDATA) ? 8'h40 : 8'h00;
+                din_sel   <= D_CTRL;
                 i2c_write <= 1'b1;
                 t_st      <= T_CTRLW;
             end
@@ -201,19 +201,15 @@ module oled_ctrl #(
             //--------------------------------------------------------------
             T_FETCH: begin
                 if (phase == P_FDATA) begin
-                    pix_x    <= pkt_idx[6:0];
-                    pix_page <= pkt_idx[9:7];
-                    pix_req  <= 1'b1;
-                    pix_rdy  <= 1'b0;
-                    t_st     <= T_DATA;
-                end else begin
-                    t_st <= T_DATA;
+                    pix_req <= 1'b1;
+                    pix_rdy <= 1'b0;
                 end
+                t_st <= T_DATA;
             end
             T_DATA: begin
                 if ((phase != P_FDATA) || pix_rdy) begin
                     if (!i2c_busy) begin
-                        i2c_din   <= pkt_byte;
+                        din_sel   <= D_BYTE;
                         i2c_write <= 1'b1;
                         t_st      <= T_DATAW;
                     end
@@ -234,15 +230,14 @@ module oled_ctrl #(
             end
             T_STOPW: if (i2c_done) begin
                 pkt_idx <= 11'd0;
-                case (phase)
-                P_INIT : begin init_done <= 1'b1; phase <= P_FCMD;  t_st <= T_ADDR; end
-                P_FCMD : begin                    phase <= P_FDATA; t_st <= T_ADDR; end
-                default: begin
+                if (phase == P_INIT) begin
+                    init_done <= 1'b1;
+                    phase     <= P_FDATA;
+                    t_st      <= T_ADDR;
+                end else begin
                     frame_done <= 1'b1;           // let the game advance one step
-                    phase      <= P_FCMD;
                     t_st       <= T_GAP0;
                 end
-                endcase
             end
             //--------------------------------------------------------------
             // one dead cycle so game_ctrl has registered its busy flag before

@@ -83,7 +83,7 @@ module tb_snake;
     wire [3:0]  g_st    = dut.u_game.st;
     wire [5:0]  g_len   = dut.u_body.len;
     wire [10:0] g_head  = dut.u_body.head;
-    wire [11:0] g_score = dut.u_game.score_bcd;
+    wire [7:0]  g_score = dut.u_game.score_bcd;
     wire [5:0]  g_hx    = g_head[5:0];
     wire [4:0]  g_hy    = g_head[10:6];
 
@@ -93,7 +93,7 @@ module tb_snake;
         if (g_st !== last_st) begin
             if (g_st == S_STEP) steps = steps + 1;
             if (g_st == S_IDLE && last_st == S_SSCAN)
-                $display("%0t ps : step %0d  head=(%0d,%0d) dir=%0d len=%0d score=%03h",
+                $display("%0t ps : step %0d  head=(%0d,%0d) dir=%0d len=%0d score=%02h",
                          $time, steps, g_hx, g_hy, dut.u_game.dir, g_len, g_score);
             last_st = g_st;
         end
@@ -178,7 +178,7 @@ module tb_snake;
         force_food_ahead;
         wait_steps(1);
         check(g_len == 4, "snake grew after eating");
-        check(g_score == 12'h001, "score counted the meal");
+        check(g_score == 8'h01, "score counted the meal");
         wait_frames(1);
         dump_body;
         u_panel.dump("AFTER EATING");
@@ -196,7 +196,7 @@ module tb_snake;
         hold_ms(4, 20);
         wait (g_st == S_IDLE);
         check(g_len == 3, "OK restarts the game");
-        check(g_score == 12'h000, "score cleared on restart");
+        check(g_score == 8'h00, "score cleared on restart");
         wait_frames(1);
         u_panel.dump("RESTARTED");
 
@@ -271,9 +271,9 @@ module tb_snake;
                 2'b01: hy = hy + 1;
                 default: hy = hy - 1;
             endcase
-            force dut.u_game.food_pos = {hy, hx};
+            force dut.u_game.food_r = {hy, hx};
             @(posedge clk);
-            release dut.u_game.food_pos;
+            release dut.u_game.food_r;
             $display("%0t ps : food forced to (%0d,%0d)", $time, hx, hy);
         end
     endtask

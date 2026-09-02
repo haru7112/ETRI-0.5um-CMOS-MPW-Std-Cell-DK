@@ -32,7 +32,12 @@
 //
 //  Direction encoding (shared with game_ctrl):
 //      00 RIGHT (x+1)  01 DOWN (y+1)  10 LEFT (x-1)  11 UP (y-1)
-//  Walking backwards simply flips the sign bit.
+//  bit0 picks the axis, bit1 the sign, and walking backwards just flips the
+//  sign - so ONE incrementer pair serves both the scan walk and the "where
+//  does the head go next" question.  step_pos carries that answer out to
+//  game_ctrl, which therefore needs no position arithmetic and no position
+//  registers of its own: on this process a spare 9 bit register plus the mux
+//  tree that feeds it from nine FSM states costs more than the adder does.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
@@ -47,14 +52,16 @@ module snake_body #(
 
     // ---- body update -----------------------------------------------------
     input  wire              load,        // pulse: restart as a 1 cell snake
-    input  wire              move,        // pulse: step to move_pos heading move_dir
+    input  wire [POS_W-1:0]  load_pos,    // its start cell (a constant, not a register)
+    input  wire              move,        // pulse: advance the head along step_dir
     input  wire              grow,        // pulse (with move): keep the old tail
-    input  wire [POS_W-1:0]  move_pos,
-    input  wire [1:0]        move_dir,
+    input  wire [1:0]        step_dir,    // heading of the next step
+    output wire [POS_W-1:0]  step_pos,    // where that step lands - the next head
 
     // ---- serial scan port ------------------------------------------------
     input  wire              scan_req,    // pulse: run a full MAXLEN step scan
-    input  wire [POS_W-1:0]  cmp_pos,     // position tested during the scan
+    input  wire              cmp_food,    // 0 = test step_pos, 1 = test cmp_pos
+    input  wire [POS_W-1:0]  cmp_pos,     // the candidate food cell
     input  wire              cmp_skip_tail,// ignore the tail, it moves away
     output reg               scan_busy,
     output wire [POS_W-1:0]  scan_pos,    // segment presented this cycle
@@ -77,7 +84,7 @@ module snake_body #(
         if (move) begin
             for (i = MAXLEN-1; i > 0; i = i - 1)
                 dq[i] <= dq[i-1];
-            dq[0] <= move_dir;
+            dq[0] <= step_dir;
         end else if (scan_busy) begin
             for (i = 0; i < MAXLEN-1; i = i + 1)
                 dq[i] <= dq[i+1];
@@ -90,23 +97,27 @@ module snake_body #(
             head <= {POS_W{1'b0}};
             len  <= {{(LEN_W-1){1'b0}}, 1'b1};
         end else if (load) begin
-            head <= move_pos;
+            head <= load_pos;
             len  <= {{(LEN_W-1){1'b0}}, 1'b1};
         end else if (move) begin
-            head <= move_pos;
+            head <= step_pos;
             if (grow && (len != MAXLEN[LEN_W-1:0]))
                 len <= len + 1'b1;
         end
 
-    // ---- the walker ------------------------------------------------------
-    //  one step backwards along dq_out: bit0 picks the axis, bit1 the sign,
-    //  and going backwards is the same delta with the sign inverted
+    // ---- the shared walker ----------------------------------------------
+    //  during a scan   : one step BACKWARDS from walk along dq_out
+    //  otherwise       : one step FORWARDS from head along step_dir
     reg  [POS_W-1:0] walk;
-    wire [GX_W-1:0]  wx = walk[GX_W-1:0];
-    wire [GY_W-1:0]  wy = walk[POS_W-1:GX_W];
-    wire [GX_W-1:0]  bx = dq_out[0] ? wx : (dq_out[1] ? wx + 1'b1 : wx - 1'b1);
-    wire [GY_W-1:0]  by = dq_out[0] ? (dq_out[1] ? wy + 1'b1 : wy - 1'b1) : wy;
+    wire [1:0]       wd = scan_busy ? dq_out : step_dir;
+    wire [POS_W-1:0] wp = scan_busy ? walk   : head;
+    wire             up = scan_busy ? wd[1]  : ~wd[1];   // backwards flips the sign
+    wire [GX_W-1:0]  wx = wp[GX_W-1:0];
+    wire [GY_W-1:0]  wy = wp[POS_W-1:GX_W];
+    wire [GX_W-1:0]  bx = wd[0] ? wx : (up ? wx + 1'b1 : wx - 1'b1);
+    wire [GY_W-1:0]  by = wd[0] ? (up ? wy + 1'b1 : wy - 1'b1) : wy;
 
+    assign step_pos = {by, bx};      // meaningful while no scan is running
     assign scan_pos = walk;
 
     // ---- scan sequencer --------------------------------------------------
@@ -114,7 +125,11 @@ module snake_body #(
 
     assign scan_valid = scan_busy && (scan_cnt < len);
 
-    wire cmp_now = scan_valid && (scan_pos == cmp_pos) &&
+    // the collision test needs the cell the head is about to enter, which is
+    // step_pos - but step_pos follows the walker once a scan starts, so it is
+    // sampled into cmp_tgt when the scan is launched
+    reg  [POS_W-1:0] cmp_tgt;
+    wire cmp_now = scan_valid && (scan_pos == cmp_tgt) &&
                    !(cmp_skip_tail && (scan_cnt == (len - 1'b1)));
 
     always @(posedge clk)
@@ -124,6 +139,7 @@ module snake_body #(
             scan_done <= 1'b0;
             cmp_hit   <= 1'b0;
             walk      <= {POS_W{1'b0}};
+            cmp_tgt   <= {POS_W{1'b0}};
         end else begin
             scan_done <= 1'b0;
             if (scan_req && !scan_busy) begin
@@ -131,9 +147,10 @@ module snake_body #(
                 scan_cnt  <= {LEN_W{1'b0}};
                 cmp_hit   <= 1'b0;
                 walk      <= head;          // segment 0 is the head itself
+                cmp_tgt   <= cmp_food ? cmp_pos : step_pos;
             end else if (scan_busy) begin
                 cmp_hit <= cmp_hit | cmp_now;
-                walk    <= {by, bx};
+                walk    <= step_pos;        // the walker output, stepping back
                 if (scan_cnt == (MAXLEN[LEN_W-1:0] - 1'b1)) begin
                     scan_busy <= 1'b0;
                     scan_done <= 1'b1;
