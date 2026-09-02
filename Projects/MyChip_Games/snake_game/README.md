@@ -110,7 +110,7 @@ snake_game/
 ├── fpga/zybo_z7_20/       Zybo Z7-20 래퍼 + XDC + Vivado 스크립트
 ├── ETRI050/               qflow RTL-to-GDS 프로젝트
 ├── syn/                   yosys 면적 측정 스크립트
-└── docs/                  결선도, 면적 리포트, 캡처된 화면
+└── docs/                  결선도, 면적 리포트, 디버깅 기록, 캡처된 화면
 ```
 
 ---
