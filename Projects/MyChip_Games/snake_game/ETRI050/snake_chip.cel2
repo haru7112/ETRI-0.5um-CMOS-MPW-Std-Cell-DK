@@ -1,45 +1,3 @@
-# graywolf pin side constraints for snake_chip
-#
-# This file places the CORE's signal pins only.  Power is not named here and
-# cannot be: inside the core it arrives on the rails and the stripes that
-# `addspacers -stripe 8 225 PG` builds, and around the core it arrives through
-# the PADVDD/PADGND cells placed in ../chip_top.  No .cel2 in this design kit
-# mentions vdd or gnd.
-#
-# ---- how a side becomes a package pin -------------------------------------
-#
-# MPW_PAD_28Pin_IO.mag has seven pad slots per side, named PAD_0..PAD_27 - an
-# empty template, which is what makes a custom pinout possible at all.
-# MPW_PAD_28Pin_IO_Games.mag is the same frame already filled in, and reading
-# it against MyChip_Game_Package.txt pins the correspondence down exactly:
-#
-#     side L -> package pins  1..7        side R -> package pins 15..21
-#     side B -> package pins  8..14       side T -> package pins 22..28
-#
-# ---- why one group per side ------------------------------------------------
-#
-# Twelve signals and sixteen power pads have to share 28 slots.  The Games
-# part puts every signal on T and B and fills L and R with power, so current
-# enters the ring from two opposite sides only.  Spreading the signals over
-# all four sides leaves 2/3/5/6 free slots per side instead, so the power pads
-# spread too and the ring is fed from four sides - worth having with ~2400
-# cells switching at 25MHz.
-#
-# Grouping is the other half of the point.  A padgroup is what keeps pads
-# adjacent, so the five joystick lines come out as five consecutive package
-# pins and go to one connector, and so do the panel lines.  One group per pin
-# would ask graywolf for nothing.
-#
-# permute is deliberately omitted: with it, graywolf may reorder the pads
-# inside a group, and the joystick is far easier to wire in UP/DOWN/LEFT/RIGHT
-# order.  Confirm what actually came out in layout/snake_chip.pin after
-# `make place`; grouping holds either way, only the order within a group
-# depends on this.
-#
-# Run `make check_pins` after editing - a misspelt twpin_ name is not an error
-# to graywolf, the pin simply goes back to being unconstrained.
-
-# ---- side T, package pins 22..28 : the 5-way switch ------------------------
 padgroup Joystick
 twpin_JS_UP                     nonfixed
 twpin_JS_DOWN                   nonfixed
@@ -48,11 +6,6 @@ twpin_JS_RIGHT                  nonfixed
 twpin_JS_OK                     nonfixed
 restrict side T
 
-# ---- side R, package pins 15..21 : the panel ------------------------------
-#
-# SCL_OE, SDA_OE and SDA_I are three core ports that become two PADINOUT cells
-# at chip_top (DO tied low, OEN driven, DI read back), so they have to sit
-# next to each other or the pad ring wiring gets long.
 padgroup OLED_I2C
 twpin_SCL_OE                    nonfixed
 twpin_SDA_OE                    nonfixed
@@ -60,13 +13,11 @@ twpin_SDA_I                     nonfixed
 twpin_OLED_RES_N                nonfixed
 restrict side R
 
-# ---- side B, package pins 8..14 : oscillator and reset --------------------
 padgroup System
 twpin_CLK                       nonfixed
 twpin_RST_N                     nonfixed
 restrict side B
 
-# ---- side L, package pins 1..7 : heartbeat --------------------------------
 padgroup Status
 twpin_LED                       nonfixed
 restrict side L

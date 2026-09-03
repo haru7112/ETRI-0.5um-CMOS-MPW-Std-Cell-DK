@@ -1,17 +1,64 @@
 #!/usr/bin/env python3
 """Cross check snake_chip.cel2 against the RTL port list and the pad frame.
 
+    python3 check_cel2.py          (or: make check_pins)
+
+WHY THIS EXISTS
+
 A typo in a twpin_ name is not an error to graywolf - the pin simply ends up
 unconstrained and lands wherever the placer likes, which is exactly what the
-file exists to prevent.  Nothing else in the flow notices, so check it here.
+file exists to prevent.  Nothing else in the flow notices.
 
-    python3 check_cel2.py
+AND WHY snake_chip.cel2 HAS NO COMMENTS
 
-Checks:
+It is not a shell-commented format.  None of the 46 .cel2 files in this design
+kit carry a '#' line, and between them they use only letters, digits, space,
+'[', ']' and '_'.  qflow's place step feeds the file through tcsh, so a
+backtick in a comment becomes command substitution and the run dies with
+"Unmatched '"'." before graywolf is ever reached.  The documentation that
+would otherwise sit at the top of the .cel2 lives here instead, and
+check_charset() below rejects anything outside the character set the kit uses.
+
+HOW A SIDE BECOMES A PACKAGE PIN
+
+MPW_PAD_28Pin_IO.mag has seven pad slots per side, named PAD_0..PAD_27 - an
+empty template, which is what makes a custom pinout possible at all.
+MPW_PAD_28Pin_IO_Games.mag is the same frame already filled in, and reading
+its instance names against MyChip_Game_Package.txt pins the correspondence
+down exactly:
+
+    side L -> package pins  1..7        side R -> package pins 15..21
+    side B -> package pins  8..14       side T -> package pins 22..28
+
+WHY ONE GROUP PER SIDE
+
+Twelve signals and sixteen power pads share 28 slots.  The Games part puts
+every signal on T and B and fills L and R with power, so current enters the
+ring from two opposite sides only.  Spreading the signals over all four sides
+leaves 2/3/5/6 free slots per side instead, so the power pads spread too and
+the ring is fed from four sides - worth having with ~2400 cells switching at
+25MHz.  Power itself is never named in a .cel2: inside the core it arrives on
+the rails and the stripes addspacers builds, and around the core through the
+PADVDD/PADGND cells placed in ../chip_top.
+
+Grouping is the other half of the point.  A padgroup is what keeps pads
+adjacent, so the five joystick lines come out as five consecutive package pins
+and go to one connector, and so do the panel lines.  One group per pin would
+ask graywolf for nothing.  SCL_OE, SDA_OE and SDA_I stay in one group because
+they become two PADINOUT cells at chip_top.
+
+'permute' is deliberately omitted, so that the joystick keeps UP/DOWN/LEFT/
+RIGHT order.  Confirm what actually came out in layout/snake_chip.pin after
+'make place'; grouping holds either way, only the order within a group depends
+on this.
+
+CHECKS
+
   * every port of snake_chip appears exactly once
   * no twpin_ name that is not a port
   * no side carries more pads than the frame has slots on that side, counted
     from pads_ETRI/MPW_PAD_28Pin_IO.mag rather than assumed
+  * no character outside the set the kit's own .cel2 files use
 """
 import os
 import re
@@ -53,6 +100,24 @@ def frame_slots(path):
     return slots
 
 
+def check_charset(path):
+    """Reject anything the kit's own .cel2 files never contain.
+
+    qflow's place step runs the file through tcsh, so a backtick, a quote or a
+    '#' comment breaks the run before graywolf sees it - and the error it dies
+    with ("Unmatched") does not name this file.
+    """
+    allowed = set(" \tABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                  "abcdefghijklmnopqrstuvwxyz0123456789[]_")
+    bad = []
+    for n, line in enumerate(open(path), 1):
+        for ch in line.rstrip('\n'):
+            if ch not in allowed:
+                bad.append((n, ch))
+                break
+    return bad
+
+
 def parse_cel2(path):
     groups, cur = [], None
     for line in open(path):
@@ -79,6 +144,14 @@ def rtl_ports(path):
 
 
 def main():
+    bad = check_charset(CEL2)
+    if bad:
+        for n, ch in bad:
+            print(f"FAIL  line {n}: {ch!r} - .cel2 goes through tcsh, so only "
+                  f"letters, digits, space, [ ] and _ are safe (no comments)")
+        print(f"\n{len(bad)} problem(s)")
+        return 1
+
     groups = parse_cel2(CEL2)
     ports = rtl_ports(RTL)
     slots = frame_slots(FRAME)
