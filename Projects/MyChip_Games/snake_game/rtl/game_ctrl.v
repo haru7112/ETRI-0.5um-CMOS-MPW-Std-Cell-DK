@@ -33,7 +33,10 @@ module game_ctrl #(
     parameter FLD_Y1   = 31,     // bottom rule
     parameter MAXLEN   = 48,
     parameter LEN_W    = 6,
-    parameter INIT_LEN = 3
+    parameter INIT_LEN = 3,
+    // Milliseconds per game step, fixed.  Keep it under 128 and the counter
+    // below is seven bits instead of eight - see the comment at the timer.
+    parameter STEP_MS  = 120
 )(
     input  wire        clk,
     input  wire        rst_n,
@@ -86,7 +89,11 @@ module game_ctrl #(
 
     reg  [3:0]       st;
     reg  [1:0]       dir, dir_nxt;
-    reg  [7:0]       ms_cnt;
+    // Width follows STEP_MS: 120 needs seven bits, 200 would need eight.
+    localparam integer      MS_W     = $clog2(STEP_MS + 1);
+    localparam [MS_W-1:0]   STEP_CNT = STEP_MS[MS_W-1:0];
+
+    reg  [MS_W-1:0]  ms_cnt;
     reg              tick_pend;
     reg              ok_pend;
     reg  [LEN_W-1:0] build_cnt;
@@ -123,28 +130,31 @@ module game_ctrl #(
         else if (want_v && (want != (dir ^ 2'b10))) dir_nxt <= want;
 
     //------------------------------------------------------------------
-    // game step timer: millisecond prescaler, speed rises with the length
-    // (len is already there for the scan, so no separate meal counter)
+    // Game step timer: a millisecond prescaler counting down from a constant.
+    //
+    // The step used to shorten as the snake grew, 200ms down to 88ms in eight
+    // steps off len.  That ramp cost a subtractor and the mux tree that fed
+    // it - measured at 0.020mm2 on the ETRI cells, which is 2% of the whole
+    // core budget - so it is gone and the step is one number.  Keeping
+    // STEP_MS under 128 also takes the counter from eight bits to seven.
     //------------------------------------------------------------------
-    wire [2:0] level    = (len[LEN_W-1:5] != 0) ? 3'd7 : len[4:2];
-    wire [7:0] speed_ms = 8'd200 - {1'b0, level, 4'b0};    // 200ms .. 88ms
 
     wire in_play = (st != S_TITLE) && (st != S_OVER) && (st != S_NEW);
 
     always @(posedge clk)
         if (!rst_n) begin
-            ms_cnt    <= 8'd200;
+            ms_cnt    <= STEP_CNT;
             tick_pend <= 1'b0;
         end else if (!in_play) begin
-            ms_cnt    <= speed_ms;
+            ms_cnt    <= STEP_CNT;
             tick_pend <= 1'b0;
         end else begin
             if (ms_pulse) begin
-                if (ms_cnt == 8'd0) begin
-                    ms_cnt    <= speed_ms;
+                if (ms_cnt == {MS_W{1'b0}}) begin
+                    ms_cnt    <= STEP_CNT;
                     tick_pend <= 1'b1;
                 end else begin
-                    ms_cnt <= ms_cnt - 8'd1;
+                    ms_cnt <= ms_cnt - 1'b1;
                 end
             end
             if (st == S_STEP) tick_pend <= 1'b0;

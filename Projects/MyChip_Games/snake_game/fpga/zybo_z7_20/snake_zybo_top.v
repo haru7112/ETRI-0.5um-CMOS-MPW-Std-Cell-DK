@@ -17,10 +17,18 @@
 //      SW3  : reset (slide up = reset)
 //      BTN0 : extra OK/start button, works without the joystick fitted
 //      LD0  : heartbeat, fast blink until the panel answers on I2C
+//
+//      The game step is fixed at STEP_MS milliseconds (parameter above) -
+//      it no longer speeds up as the snake grows.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
-module snake_zybo_top (
+module snake_zybo_top #(
+    // Milliseconds per game step.  Change this one number and rebuild to try
+    // a different pace on the bench; the chip build sets the same parameter in
+    // rtl/snake_chip.v.  Under 128 keeps the counter at seven bits.
+    parameter STEP_MS = 120
+)(
     input  wire clk125,          // K17, 125MHz board oscillator
 
     input  wire sw3,             // reset, active high
@@ -74,7 +82,8 @@ module snake_zybo_top (
         .MAXLEN  (32),
         .LEN_W   (6),
         .INIT_LEN(3),
-        .RES_MS  (20)
+        .RES_MS  (20),
+        .STEP_MS (STEP_MS)
     ) u_core (
         .clk        (clk25),
         .rst_n      (rst_n),

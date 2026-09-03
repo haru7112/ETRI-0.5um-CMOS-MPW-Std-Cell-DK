@@ -21,7 +21,8 @@ module snake_top #(
     parameter MAXLEN   = 48,         // longest snake the register can hold
     parameter LEN_W    = 6,          // must cover MAXLEN
     parameter INIT_LEN = 3,
-    parameter RES_MS   = 20
+    parameter RES_MS   = 20,
+    parameter STEP_MS  = 120         // ms per game step, fixed (no ramp)
 )(
     input  wire       clk,
     input  wire       rst_n,
@@ -155,7 +156,8 @@ module snake_top #(
     game_ctrl #(.GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
                 .FLD_X0(FLD_X0), .FLD_X1(FLD_X1),
                 .FLD_Y0(FLD_Y0), .FLD_Y1(FLD_Y1),
-                .MAXLEN(MAXLEN), .LEN_W(LEN_W), .INIT_LEN(INIT_LEN)) u_game (
+                .MAXLEN(MAXLEN), .LEN_W(LEN_W), .INIT_LEN(INIT_LEN),
+                .STEP_MS(STEP_MS)) u_game (
         .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
         .btn_level(btn_level), .btn_press(btn_press),
         .frame_done(frame_done), .busy(game_busy),

@@ -44,7 +44,8 @@ module snake_chip (
         .MAXLEN  (32),
         .LEN_W   (6),
         .INIT_LEN(3),
-        .RES_MS  (20)
+        .RES_MS  (20),
+        .STEP_MS (120)         // fixed step, was a 200->88ms ramp
     ) u_core (
         .clk        (CLK),
         .rst_n      (rst_n_s),
