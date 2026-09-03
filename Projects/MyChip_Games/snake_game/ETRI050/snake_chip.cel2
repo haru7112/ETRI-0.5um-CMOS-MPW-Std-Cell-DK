@@ -1,51 +1,57 @@
 # graywolf pin side constraints for snake_chip
-#   inputs along the top edge, outputs along the bottom edge
-#   (same convention as pads_ETRI/games.cel2)
+#
+# The 28 pin frame has exactly seven pad slots per side - counted from
+# pads_ETRI/MPW_PAD_28Pin_IO.mag, which places 7 PIC cells on each of T, B, L
+# and R.  Cross referencing pads_ETRI/games.cel2 against
+# pads_ETRI/MyChip_Game_Package.txt shows how those sides come out of the
+# package:
+#
+#     side T (7 pads)  ->  package pins 22..28
+#     side B (7 pads)  ->  package pins  9..13
+#     sides L and R    ->  pins 1..8 (VDD) and 14..21 (GND)
+#
+# So a part in this frame gets at most twelve signal pins, and this chip uses
+# exactly twelve.  T carries the seven a person touches, B the five that go to
+# the panel.
+#
+# Pins are grouped by function rather than one group per pin: a padgroup is
+# what keeps pads adjacent, so the five joystick lines come out as five
+# consecutive package pins and can be taken to one connector, and likewise the
+# I2C lines.  That is the whole point of writing this file - the board that
+# uses the chip is easier to lay out, and the pinout is predictable.
+#
+# permute is deliberately omitted: with it, graywolf may reorder the pads
+# inside a group, and the joystick is far easier to wire in UP/DOWN/LEFT/RIGHT
+# order.  Confirm the order that actually came out in layout/snake_chip.pin
+# after `make place`; grouping holds either way, only the order within a group
+# depends on this.
 
-padgroup Input_CLK              permute
-twpin_CLK                       nonfixed
-restrict side T
-
-padgroup Input_RST_N            permute
-twpin_RST_N                     nonfixed
-restrict side T
-
-padgroup Input_JS_UP            permute
+# ---- side T, package pins 22..28 : clock, reset and the 5-way switch -------
+padgroup Joystick
 twpin_JS_UP                     nonfixed
-restrict side T
-
-padgroup Input_JS_DOWN          permute
 twpin_JS_DOWN                   nonfixed
-restrict side T
-
-padgroup Input_JS_LEFT          permute
 twpin_JS_LEFT                   nonfixed
-restrict side T
-
-padgroup Input_JS_RIGHT         permute
 twpin_JS_RIGHT                  nonfixed
-restrict side T
-
-padgroup Input_JS_OK            permute
 twpin_JS_OK                     nonfixed
 restrict side T
 
-padgroup Input_SDA_I            permute
-twpin_SDA_I                     nonfixed
-restrict side B
+padgroup System
+twpin_CLK                       nonfixed
+twpin_RST_N                     nonfixed
+restrict side T
 
-padgroup Output_SCL_OE          permute
+# ---- side B, package pins 9..13 : the panel -------------------------------
+#
+# SCL_OE, SDA_OE and SDA_I are three core ports that become two PADINOUT cells
+# at chip_top (DO tied low, OEN driven, DI read back), so they have to sit
+# next to each other or the pad ring wiring gets long.
+padgroup OLED_I2C
 twpin_SCL_OE                    nonfixed
-restrict side B
-
-padgroup Output_SDA_OE          permute
 twpin_SDA_OE                    nonfixed
-restrict side B
-
-padgroup Output_OLED_RES_N      permute
+twpin_SDA_I                     nonfixed
 twpin_OLED_RES_N                nonfixed
 restrict side B
 
-padgroup Output_LED             permute
+padgroup Status
 twpin_LED                       nonfixed
 restrict side B

@@ -25,6 +25,7 @@ all :
 	@echo
 	@echo '    make config_m2f      # install the 2 metal std-cell views'
 	@echo '    make synthesize'
+	@echo '    make check_pins      # cross check snake_chip.cel2 before placing'
 	@echo '    make place'
 	@echo '    make sta'
 	@echo '    make route'
@@ -49,10 +50,17 @@ place : ./log/place.log
 ./log/place.log : ./layout/$(TOP_MODULE).cel2 ./log/synth.log project_vars.sh
 	qflow place -T etri050 $(TOP_MODULE)
 
-# pin side constraints for graywolf, the same idea as pads_ETRI/games.cel2
-./layout/$(TOP_MODULE).cel2 : $(TOP_MODULE).cel2
+# Pin side constraints for graywolf, the same idea as pads_ETRI/games.cel2.
+# A typo in a twpin_ name silently leaves that pin unconstrained, so the file
+# is cross checked against the RTL ports and the frame's slots per side before
+# it is handed to the placer.
+./layout/$(TOP_MODULE).cel2 : $(TOP_MODULE).cel2 check_cel2.py
+	python3 check_cel2.py
 	@mkdir -p ./layout
 	cp $< $@
+
+check_pins :
+	python3 check_cel2.py
 
 # -----------------------------------------------------
 sta : ./log/sta.log
@@ -103,4 +111,4 @@ config_m2f :
 	cd $(CELL_LIB) && $(MAKE) clean && $(MAKE)
 	@echo 'Std-Cell configured with $(CELL_SRC2)'
 
-.PHONY: all synthesize place sta route migrate lvs size clean config_m1f config_m2f
+.PHONY: all synthesize place sta route migrate lvs size check_pins clean config_m1f config_m2f
