@@ -8,7 +8,7 @@ set sta_tool = opensta
 # snake_chip is split over several files, so the source list has to be given
 # explicitly.  Order does not matter, qflow feeds them all to yosys.
 set source_file_list = "snake_chip.v snake_top.v snake_body.v game_ctrl.v \
-                        pixel_gen.v font_rom.v oled_ctrl.v i2c_master.v \
+                        pixel_gen.v font_rom.v pixel_out.v \
                         debounce.v lfsr11.v reset_sync.v"
 
 # The design contains no `include at all: screen geometry is derived once in
