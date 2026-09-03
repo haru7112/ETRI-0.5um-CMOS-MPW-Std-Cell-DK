@@ -47,10 +47,12 @@ and go to one connector, and so do the panel lines.  One group per pin would
 ask graywolf for nothing.  SCL_OE, SDA_OE and SDA_I stay in one group because
 they become two PADINOUT cells at chip_top.
 
-'permute' is deliberately omitted, so that the joystick keeps UP/DOWN/LEFT/
-RIGHT order.  Confirm what actually came out in layout/snake_chip.pin after
-'make place'; grouping holds either way, only the order within a group depends
-on this.
+Every padgroup carries 'permute', which is not optional here: all 46 .cel2
+files in this kit have it on every padgroup line, and graywolf exits 255 with
+no message of its own when it is missing.  So the order inside a group is
+graywolf's to choose - adjacency is what the grouping buys, and that is the
+part the board cares about.  Read layout/snake_chip.pin after 'make place' to
+see the order that came out.
 
 CHECKS
 
@@ -120,12 +122,13 @@ def check_charset(path):
 
 def parse_cel2(path):
     groups, cur = [], None
-    for line in open(path):
+    for n, line in enumerate(open(path), 1):
         s = line.split('#')[0].strip()
         if not s:
             continue
         if s.startswith('padgroup'):
-            cur = {'name': s.split()[1], 'pins': [], 'side': None}
+            cur = {'name': s.split()[1], 'pins': [], 'side': None,
+                   'permute': 'permute' in s.split(), 'line': n}
             groups.append(cur)
         elif s.startswith('twpin_') and cur is not None:
             cur['pins'].append(s.split()[0][len('twpin_'):])
@@ -187,6 +190,13 @@ def main():
     for g in groups:
         if g['side'] is None:
             print(f"FAIL  padgroup {g['name']} has no 'restrict side'")
+            return 1
+        if not g['permute']:
+            # Every padgroup line in all 46 .cel2 files of this kit carries
+            # permute, without exception.  Leaving it off makes graywolf exit
+            # 255 with no message of its own.
+            print(f"FAIL  line {g['line']}: padgroup {g['name']} is missing "
+                  f"'permute' - graywolf exits 255 without it")
             return 1
         per_side.setdefault(g['side'], []).extend(g['pins'])
         listed += g['pins']

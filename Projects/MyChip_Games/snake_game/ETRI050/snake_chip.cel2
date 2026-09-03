@@ -1,4 +1,4 @@
-padgroup Joystick
+padgroup Joystick permute
 twpin_JS_UP                     nonfixed
 twpin_JS_DOWN                   nonfixed
 twpin_JS_LEFT                   nonfixed
@@ -6,18 +6,18 @@ twpin_JS_RIGHT                  nonfixed
 twpin_JS_OK                     nonfixed
 restrict side T
 
-padgroup OLED_I2C
+padgroup OLED_I2C permute
 twpin_SCL_OE                    nonfixed
 twpin_SDA_OE                    nonfixed
 twpin_SDA_I                     nonfixed
 twpin_OLED_RES_N                nonfixed
 restrict side R
 
-padgroup System
+padgroup System permute
 twpin_CLK                       nonfixed
 twpin_RST_N                     nonfixed
 restrict side B
 
-padgroup Status
+padgroup Status permute
 twpin_LED                       nonfixed
 restrict side L
