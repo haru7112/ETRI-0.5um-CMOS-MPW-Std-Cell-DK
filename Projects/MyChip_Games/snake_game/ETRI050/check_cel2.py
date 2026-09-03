@@ -143,7 +143,33 @@ def rtl_ports(path):
     return names
 
 
+def check_tcsh(path):
+    """Lines whose quotes or backticks do not pair up.
+
+    project_vars.sh is sourced by tcsh, which parses quotes and backticks even
+    inside comments and does not join a backslash continued string.  Either
+    mistake kills qflow with "Unmatched" and no filename - it showed up at
+    `make place`, several steps after the file was read.  No other
+    project_vars.sh in the kit has an unbalanced line, so flag any.
+    """
+    bad = []
+    for n, line in enumerate(open(path), 1):
+        s = line.rstrip('\n')
+        for ch, what in (('"', 'double quote'), ('`', 'backtick')):
+            if s.count(ch) % 2:
+                bad.append((n, what, s.strip()))
+        if s.endswith('\\'):
+            bad.append((n, 'backslash continuation', s.strip()))
+    return bad
+
+
 def main():
+    for n, what, text in check_tcsh(os.path.join(HERE, 'project_vars.sh')):
+        print(f"FAIL  project_vars.sh:{n}  unbalanced {what} - tcsh parses "
+              f"these even in comments")
+        print(f"      {text[:70]}")
+        return 1
+
     bad = check_charset(CEL2)
     if bad:
         for n, ch in bad:
