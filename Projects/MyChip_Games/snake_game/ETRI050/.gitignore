@@ -1,0 +1,14 @@
+# qflow build products - regenerate with `make synthesize` (or by running
+# synthesis/snake_chip.ys through yosys, which is what that target does).
+log/
+source
+synthesis/*
+!synthesis/*.ys
+layout/*.def
+layout/*.rst
+layout/*.cfg
+layout/*.info
+layout/*.pin
+layout/*.par
+layout/*.blk
+layout/*.mag

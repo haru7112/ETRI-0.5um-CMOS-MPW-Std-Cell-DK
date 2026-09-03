@@ -1,0 +1,29 @@
+# qflow's own synthesis script for the etri050 node, run directly because the
+# qflow driver script is not installed in this environment.
+read_verilog ../../rtl/snake_chip.v
+read_verilog ../../rtl/snake_top.v
+read_verilog ../../rtl/snake_body.v
+read_verilog ../../rtl/game_ctrl.v
+read_verilog ../../rtl/pixel_gen.v
+read_verilog ../../rtl/font_rom.v
+read_verilog ../../rtl/oled_ctrl.v
+read_verilog ../../rtl/i2c_master.v
+read_verilog ../../rtl/debounce.v
+read_verilog ../../rtl/lfsr11.v
+read_verilog ../../rtl/reset_sync.v
+
+hierarchy -top snake_chip -check
+synth -top snake_chip
+dfflibmap -liberty /home/user/ETRI-0.5um-CMOS-MPW-Std-Cell-DK/digital_ETRI050_m2f/khu_etri05_stdcells.lib
+opt
+abc -liberty /home/user/ETRI-0.5um-CMOS-MPW-Std-Cell-DK/digital_ETRI050_m2f/khu_etri05_stdcells.lib -script +strash;scorr;ifraig;retime,{D};strash;dch,-f;map,-M,1,{D}
+flatten
+setundef -zero
+clean -purge
+iopadmap -outpad BUFX2 A:Y -bits
+opt
+clean
+
+stat -liberty /home/user/ETRI-0.5um-CMOS-MPW-Std-Cell-DK/digital_ETRI050_m2f/khu_etri05_stdcells.lib
+write_verilog -noattr snake_chip.rtlnopwr.v
+write_blif snake_chip.blif
