@@ -44,7 +44,7 @@ module tb_food;
     game_ctrl #(.GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
                 .FLD_X0(FLD_X0), .FLD_X1(FLD_X1), .FLD_Y0(0), .FLD_Y1(FLD_Y1),
                 .MAXLEN(32), .LEN_W(6), .INIT_LEN(3)) u_game (
-        .clk(clk), .rst_n(rst_n), .ms_pulse(1'b0),
+        .clk(clk), .rst_n(rst_n), .tick(1'b0),
         .btn_level(5'd0), .btn_press(5'd0),
         .frame_done(1'b0), .busy(),
         .body_load(), .body_move(), .body_grow(),

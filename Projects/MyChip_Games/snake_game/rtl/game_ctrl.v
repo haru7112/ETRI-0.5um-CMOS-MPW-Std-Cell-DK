@@ -34,13 +34,13 @@ module game_ctrl #(
     parameter MAXLEN   = 48,
     parameter LEN_W    = 6,
     parameter INIT_LEN = 3,
-    // Milliseconds per game step, fixed.  Keep it under 128 and the counter
-    // below is seven bits instead of eight - see the comment at the timer.
-    parameter STEP_MS  = 120
+    // Milliseconds per game step, fixed.  Rounded to the 16ms tick the timer
+    // counts, so the real step is TICK_MS * round(STEP_MS/16).
+    parameter STEP_MS  = 208
 )(
     input  wire        clk,
     input  wire        rst_n,
-    input  wire        ms_pulse,
+    input  wire        tick,
 
     // buttons: [0]=UP [1]=DOWN [2]=LEFT [3]=RIGHT [4]=OK(centre)
     input  wire [4:0]  btn_level,
@@ -89,9 +89,12 @@ module game_ctrl #(
 
     reg  [3:0]       st;
     reg  [1:0]       dir, dir_nxt;
-    // Width follows STEP_MS: 120 needs seven bits, 200 would need eight.
-    localparam integer      MS_W     = $clog2(STEP_MS + 1);
-    localparam [MS_W-1:0]   STEP_CNT = STEP_MS[MS_W-1:0];
+    // The timer counts 16ms ticks, not milliseconds, so a quarter second fits
+    // in four bits where counting milliseconds needed eight.
+    localparam integer      TICK_MS  = 16;
+    localparam integer      STEP_N   = (STEP_MS + TICK_MS/2) / TICK_MS;
+    localparam integer      MS_W     = $clog2(STEP_N + 1);
+    localparam [MS_W-1:0]   STEP_CNT = STEP_N[MS_W-1:0];
 
     reg  [MS_W-1:0]  ms_cnt;
     reg              tick_pend;
@@ -130,13 +133,18 @@ module game_ctrl #(
         else if (want_v && (want != (dir ^ 2'b10))) dir_nxt <= want;
 
     //------------------------------------------------------------------
-    // Game step timer: a millisecond prescaler counting down from a constant.
+    // Game step timer: counts down from a constant, in 16ms ticks.
     //
     // The step used to shorten as the snake grew, 200ms down to 88ms in eight
     // steps off len.  That ramp cost a subtractor and the mux tree that fed
-    // it - measured at 0.020mm2 on the ETRI cells, which is 2% of the whole
-    // core budget - so it is gone and the step is one number.  Keeping
-    // STEP_MS under 128 also takes the counter from eight bits to seven.
+    // it - measured at 0.020mm2 on the ETRI cells - so it is gone and the step
+    // is one number.
+    //
+    // Counting 16ms ticks rather than milliseconds is what keeps that number
+    // small: 208ms is thirteen ticks, four bits, where 208 milliseconds would
+    // have needed eight.  snake_top makes the tick out of the millisecond
+    // strobe and the free running counter that were already there, so it
+    // costs one comparison and no flops.
     //------------------------------------------------------------------
 
     wire in_play = (st != S_TITLE) && (st != S_OVER) && (st != S_NEW);
@@ -149,7 +157,7 @@ module game_ctrl #(
             ms_cnt    <= STEP_CNT;
             tick_pend <= 1'b0;
         end else begin
-            if (ms_pulse) begin
+            if (tick) begin
                 if (ms_cnt == {MS_W{1'b0}}) begin
                     ms_cnt    <= STEP_CNT;
                     tick_pend <= 1'b1;

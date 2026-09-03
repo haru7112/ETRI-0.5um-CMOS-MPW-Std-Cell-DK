@@ -22,7 +22,7 @@ module snake_top #(
     parameter LEN_W    = 6,          // must cover MAXLEN
     parameter INIT_LEN = 3,
     parameter RES_MS   = 20,
-    parameter STEP_MS  = 120         // ms per game step, fixed (no ramp)
+    parameter STEP_MS  = 208         // ms per game step, fixed (no ramp)
 )(
     input  wire       clk,
     input  wire       rst_n,
@@ -89,6 +89,11 @@ module snake_top #(
             ms_div   <= ms_div + 1'b1;
             ms_pulse <= 1'b0;
         end
+
+    // The game step is counted in 16ms ticks rather than milliseconds, which
+    // is what lets its counter be four bits wide instead of eight.  Both parts
+    // are already here, so the tick costs one comparison and no flops.
+    wire step_tick = ms_pulse && (ms_free[3:0] == 4'd0);
 
     // The blink phase is sampled once per frame.  A frame takes ~25ms to
     // shift out, so a free running blink would toggle in the middle of one and
@@ -158,7 +163,7 @@ module snake_top #(
                 .FLD_Y0(FLD_Y0), .FLD_Y1(FLD_Y1),
                 .MAXLEN(MAXLEN), .LEN_W(LEN_W), .INIT_LEN(INIT_LEN),
                 .STEP_MS(STEP_MS)) u_game (
-        .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
+        .clk(clk), .rst_n(rst_n), .tick(step_tick),
         .btn_level(btn_level), .btn_press(btn_press),
         .frame_done(frame_done), .busy(game_busy),
         .body_load(body_load), .body_move(body_move), .body_grow(body_grow),

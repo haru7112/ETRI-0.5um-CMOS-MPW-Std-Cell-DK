@@ -27,7 +27,7 @@ module snake_zybo_top #(
     // Milliseconds per game step.  Change this one number and rebuild to try
     // a different pace on the bench; the chip build sets the same parameter in
     // rtl/snake_chip.v.  Under 128 keeps the counter at seven bits.
-    parameter STEP_MS = 120
+    parameter STEP_MS = 208
 )(
     input  wire clk125,          // K17, 125MHz board oscillator
 
