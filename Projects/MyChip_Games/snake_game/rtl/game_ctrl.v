@@ -37,7 +37,6 @@ module game_ctrl #(
 )(
     input  wire        clk,
     input  wire        rst_n,
-    input  wire        ms_pulse,
 
     // buttons: [0]=UP [1]=DOWN [2]=LEFT [3]=RIGHT [4]=OK(centre)
     input  wire [4:0]  btn_level,
@@ -86,7 +85,7 @@ module game_ctrl #(
 
     reg  [3:0]       st;
     reg  [1:0]       dir, dir_nxt;
-    reg  [7:0]       ms_cnt;
+    reg  [4:0]       fr_cnt;
     reg              tick_pend;
     reg              ok_pend;
     reg  [LEN_W-1:0] build_cnt;
@@ -123,28 +122,32 @@ module game_ctrl #(
         else if (want_v && (want != (dir ^ 2'b10))) dir_nxt <= want;
 
     //------------------------------------------------------------------
-    // game step timer: millisecond prescaler, speed rises with the length
-    // (len is already there for the scan, so no separate meal counter)
+    // game step timer.  The step is counted in frames, not milliseconds: the
+    // raster scan already produces one frame_done every ~11ms and counting
+    // those costs five flops, where a millisecond prescaler off the 25MHz
+    // clock cost a fifteen bit divider plus its comparator.
+    // Speed rises with the length; len is already there for the scan, so no
+    // separate meal counter is needed.
     //------------------------------------------------------------------
     wire [2:0] level    = (len[LEN_W-1:5] != 0) ? 3'd7 : len[4:2];
-    wire [7:0] speed_ms = 8'd200 - {1'b0, level, 4'b0};    // 200ms .. 88ms
+    wire [4:0] speed_fr = 5'd18 - {2'b0, level};           // ~200ms .. ~120ms
 
     wire in_play = (st != S_TITLE) && (st != S_OVER) && (st != S_NEW);
 
     always @(posedge clk)
         if (!rst_n) begin
-            ms_cnt    <= 8'd200;
+            fr_cnt    <= 5'd18;
             tick_pend <= 1'b0;
         end else if (!in_play) begin
-            ms_cnt    <= speed_ms;
+            fr_cnt    <= speed_fr;
             tick_pend <= 1'b0;
         end else begin
-            if (ms_pulse) begin
-                if (ms_cnt == 8'd0) begin
-                    ms_cnt    <= speed_ms;
+            if (frame_done) begin
+                if (fr_cnt == 5'd0) begin
+                    fr_cnt    <= speed_fr;
                     tick_pend <= 1'b1;
                 end else begin
-                    ms_cnt <= ms_cnt - 8'd1;
+                    fr_cnt <= fr_cnt - 5'd1;
                 end
             end
             if (st == S_STEP) tick_pend <= 1'b0;

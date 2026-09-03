@@ -1,37 +1,37 @@
 //----------------------------------------------------------------------------
 // snake_top.v
-//  Core top level of the SNAKE chip: 25MHz in, an SSD1315 panel and a 5-way
-//  switch out, nothing else.  No CPU, no memory macro, no frame buffer.
+//  Core top level of the SNAKE chip: 25MHz in, a 5-way switch in, a MyChip
+//  Games raster stream out.  No CPU, no memory macro, no frame buffer.
 //
 //  Everything the chip remembers is:
 //      - MAXLEN x POS_W  body shift register   (snake_body)
 //      - head, length, direction, score, food  (~50 flops)
-//      - the display sequencer and I2C engine  (~60 flops)
+//      - the raster scan cursor                (~18 flops)
 //
-//  The open drain bus is presented as separate *_oe / *_i signals so that the
-//  ASIC top can wire them straight onto PADINOUT cells and the FPGA top onto
-//  an IOBUF, without a tri-state net crossing the synthesised core.
+//  The display is driven by the application board, which reads pixel/p_tick/
+//  v_sync exactly as it does for the other MyChip games.  The on-chip I2C
+//  panel driver that used to live here cost 0.367mm2 - 43% of the 28 pin
+//  frame's core budget - which is why it is gone; see docs/area.md.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module snake_top #(
     parameter CLK_HZ   = 25_000_000,
-    parameter SCL_HZ   = 400_000,
     parameter CELL_SH  = 1,          // 1 = 2x2px cells -> 64x32 grid
     parameter MAXLEN   = 48,         // longest snake the register can hold
     parameter LEN_W    = 6,          // must cover MAXLEN
-    parameter INIT_LEN = 3,
-    parameter RES_MS   = 20
+    parameter INIT_LEN = 3
 )(
     input  wire       clk,
     input  wire       rst_n,
 
     input  wire [4:0] btn_n,         // [0]UP [1]DOWN [2]LEFT [3]RIGHT [4]OK, active low
-    output wire       oled_res_n,
-    output wire       scl_oe,        // 1 = pull the line low
-    output wire       sda_oe,
-    input  wire       sda_i,
-    output wire       led_alive
+
+    output wire       pixel,         // MyChip Games raster stream
+    output wire       p_tick,
+    output wire       v_sync,
+    output wire       game_over,
+    output wire       game_complete
 );
     //------------------------------------------------------------------
     // Screen geometry.  THIS IS THE ONLY PLACE IT IS DEFINED.
@@ -65,39 +65,27 @@ module snake_top #(
     localparam FLD_Y1  = GRID_H - 1;         // bottom rule
 
     //------------------------------------------------------------------
-    // millisecond time base, shared by the debouncer, the game step timer
-    // and the panel reset delay
+    // Time base.  The raster scan is the clock of this design: one frame is
+    // 128 x 64 pixels x one body scan each, about 11ms at 25MHz, so frame_done
+    // arrives at ~90Hz and everything slow is counted in frames.
+    //
+    // That replaces the millisecond prescaler this design used to carry - a
+    // fifteen bit divider off 25MHz plus a ten bit free running counter, 26
+    // flops and two incrementers - with the six flops below.
     //------------------------------------------------------------------
-    localparam integer MS_DIV = CLK_HZ / 1000;
-    localparam integer MS_W   = $clog2(MS_DIV);
-
-    reg [MS_W-1:0] ms_div;
-    reg        ms_pulse;
-    reg [9:0]  ms_free;
+    reg [5:0] fr_free;
 
     always @(posedge clk)
-        if (!rst_n) begin
-            ms_div   <= {MS_W{1'b0}};
-            ms_pulse <= 1'b0;
-            ms_free  <= 10'd0;
-        end else if (ms_div == (MS_DIV-1)) begin
-            ms_div   <= {MS_W{1'b0}};
-            ms_pulse <= 1'b1;
-            ms_free  <= ms_free + 10'd1;
-        end else begin
-            ms_div   <= ms_div + 1'b1;
-            ms_pulse <= 1'b0;
-        end
+        if (!rst_n)          fr_free <= 6'd0;
+        else if (frame_done) fr_free <= fr_free + 6'd1;
 
-    // The blink phase is sampled once per frame.  A frame takes ~25ms to
-    // shift out, so a free running blink would toggle in the middle of one and
-    // leave the border half drawn.
-    wire blink_raw = |ms_free[7:6];  // on for 3/4 of a 256ms period
-    reg  blink;
+    // The blink phase only ever changes between frames, so a border can never
+    // be drawn half lit.
+    reg blink;
 
     always @(posedge clk)
         if (!rst_n)          blink <= 1'b1;
-        else if (frame_done) blink <= blink_raw;
+        else if (frame_done) blink <= |fr_free[3:2];   // on 3/4 of ~180ms
 
     //------------------------------------------------------------------
     // inputs
@@ -105,7 +93,7 @@ module snake_top #(
     wire [4:0] btn_level, btn_press;
 
     debounce #(.N(5)) u_deb (
-        .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
+        .clk(clk), .rst_n(rst_n), .sample(frame_done),
         .pin_n(btn_n), .level(btn_level), .press(btn_press));
 
     wire [10:0] rnd;
@@ -156,7 +144,7 @@ module snake_top #(
                 .FLD_X0(FLD_X0), .FLD_X1(FLD_X1),
                 .FLD_Y0(FLD_Y0), .FLD_Y1(FLD_Y1),
                 .MAXLEN(MAXLEN), .LEN_W(LEN_W), .INIT_LEN(INIT_LEN)) u_game (
-        .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
+        .clk(clk), .rst_n(rst_n),
         .btn_level(btn_level), .btn_press(btn_press),
         .frame_done(frame_done), .busy(game_busy),
         .body_load(body_load), .body_move(body_move), .body_grow(body_grow),
@@ -172,35 +160,30 @@ module snake_top #(
     //------------------------------------------------------------------
     // frame generation + panel driver
     //------------------------------------------------------------------
-    wire       pix_req, pix_valid;
-    wire [7:0] pix_data;
+    wire       pix_req, pix_valid, pix_data;
     wire [6:0] pix_x;
-    wire [2:0] pix_page;
+    wire [5:0] pix_y;
 
     pixel_gen #(.CELL_SH(CELL_SH), .GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
-                .FLD_X0(FLD_X0), .FLD_X1(FLD_X1), .SCORE_P(SCORE_P),
+                .FLD_X0(FLD_X0), .FLD_X1(FLD_X1),
+                .FLD_Y0(FLD_Y0), .FLD_Y1(FLD_Y1), .SCORE_P(SCORE_P),
                 .MAXLEN(MAXLEN)) u_pix (
         .clk(clk), .rst_n(rst_n),
-        .req(pix_req), .x(pix_x), .page(pix_page),
+        .req(pix_req), .x(pix_x), .y(pix_y),
         .valid(pix_valid), .dout(pix_data),
         .st_title(st_title), .st_over(st_over), .score_bcd(score_bcd),
         .blink(blink), .food_en(food_en),
         .scan_req(p_scan_req), .scan_pos_i(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .food_pos_i(food_pos));
 
-    wire display_on;
+    pixel_out #(.SCR_W(128), .SCR_H(64)) u_out (
+        .clk(clk), .rst_n(rst_n),
+        .req(pix_req), .x(pix_x), .y(pix_y),
+        .valid(pix_valid), .din(pix_data),
+        .p_tick(p_tick), .pixel(pixel), .v_sync(v_sync),
+        .frame_done(frame_done), .game_busy(game_busy));
 
-    oled_ctrl #(.I2C_ADDR(7'h3C), .RES_MS(RES_MS),
-                .CLK_HZ(CLK_HZ), .SCL_HZ(SCL_HZ)) u_oled (
-        .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
-        .oled_res_n(oled_res_n),
-        .scl_oe(scl_oe), .sda_oe(sda_oe), .sda_i(sda_i),
-        .pix_req(pix_req), .pix_x(pix_x), .pix_page(pix_page),
-        .pix_valid(pix_valid), .pix_data(pix_data),
-        .frame_done(frame_done), .game_busy(game_busy),
-        .display_on(display_on));
-
-    // slow heartbeat once the panel answered, fast blink while it does not
-    assign led_alive = display_on ? ms_free[9] : ms_free[6];
+    assign game_over     = st_over;
+    assign game_complete = (len == MAXLEN[LEN_W-1:0]);   // the board is full
 
 endmodule
