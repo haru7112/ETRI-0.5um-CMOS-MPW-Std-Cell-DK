@@ -1,32 +1,45 @@
 # graywolf pin side constraints for snake_chip
 #
-# The 28 pin frame has exactly seven pad slots per side - counted from
-# pads_ETRI/MPW_PAD_28Pin_IO.mag, which places 7 PIC cells on each of T, B, L
-# and R.  Cross referencing pads_ETRI/games.cel2 against
-# pads_ETRI/MyChip_Game_Package.txt shows how those sides come out of the
-# package:
+# This file places the CORE's signal pins only.  Power is not named here and
+# cannot be: inside the core it arrives on the rails and the stripes that
+# `addspacers -stripe 8 225 PG` builds, and around the core it arrives through
+# the PADVDD/PADGND cells placed in ../chip_top.  No .cel2 in this design kit
+# mentions vdd or gnd.
 #
-#     side T (7 pads)  ->  package pins 22..28
-#     side B (7 pads)  ->  package pins  9..13
-#     sides L and R    ->  pins 1..8 (VDD) and 14..21 (GND)
+# ---- how a side becomes a package pin -------------------------------------
 #
-# So a part in this frame gets at most twelve signal pins, and this chip uses
-# exactly twelve.  T carries the seven a person touches, B the five that go to
-# the panel.
+# MPW_PAD_28Pin_IO.mag has seven pad slots per side, named PAD_0..PAD_27 - an
+# empty template, which is what makes a custom pinout possible at all.
+# MPW_PAD_28Pin_IO_Games.mag is the same frame already filled in, and reading
+# it against MyChip_Game_Package.txt pins the correspondence down exactly:
 #
-# Pins are grouped by function rather than one group per pin: a padgroup is
-# what keeps pads adjacent, so the five joystick lines come out as five
-# consecutive package pins and can be taken to one connector, and likewise the
-# I2C lines.  That is the whole point of writing this file - the board that
-# uses the chip is easier to lay out, and the pinout is predictable.
+#     side L -> package pins  1..7        side R -> package pins 15..21
+#     side B -> package pins  8..14       side T -> package pins 22..28
+#
+# ---- why one group per side ------------------------------------------------
+#
+# Twelve signals and sixteen power pads have to share 28 slots.  The Games
+# part puts every signal on T and B and fills L and R with power, so current
+# enters the ring from two opposite sides only.  Spreading the signals over
+# all four sides leaves 2/3/5/6 free slots per side instead, so the power pads
+# spread too and the ring is fed from four sides - worth having with ~2400
+# cells switching at 25MHz.
+#
+# Grouping is the other half of the point.  A padgroup is what keeps pads
+# adjacent, so the five joystick lines come out as five consecutive package
+# pins and go to one connector, and so do the panel lines.  One group per pin
+# would ask graywolf for nothing.
 #
 # permute is deliberately omitted: with it, graywolf may reorder the pads
 # inside a group, and the joystick is far easier to wire in UP/DOWN/LEFT/RIGHT
-# order.  Confirm the order that actually came out in layout/snake_chip.pin
-# after `make place`; grouping holds either way, only the order within a group
+# order.  Confirm what actually came out in layout/snake_chip.pin after
+# `make place`; grouping holds either way, only the order within a group
 # depends on this.
+#
+# Run `make check_pins` after editing - a misspelt twpin_ name is not an error
+# to graywolf, the pin simply goes back to being unconstrained.
 
-# ---- side T, package pins 22..28 : clock, reset and the 5-way switch -------
+# ---- side T, package pins 22..28 : the 5-way switch ------------------------
 padgroup Joystick
 twpin_JS_UP                     nonfixed
 twpin_JS_DOWN                   nonfixed
@@ -35,12 +48,7 @@ twpin_JS_RIGHT                  nonfixed
 twpin_JS_OK                     nonfixed
 restrict side T
 
-padgroup System
-twpin_CLK                       nonfixed
-twpin_RST_N                     nonfixed
-restrict side T
-
-# ---- side B, package pins 9..13 : the panel -------------------------------
+# ---- side R, package pins 15..21 : the panel ------------------------------
 #
 # SCL_OE, SDA_OE and SDA_I are three core ports that become two PADINOUT cells
 # at chip_top (DO tied low, OEN driven, DI read back), so they have to sit
@@ -50,8 +58,15 @@ twpin_SCL_OE                    nonfixed
 twpin_SDA_OE                    nonfixed
 twpin_SDA_I                     nonfixed
 twpin_OLED_RES_N                nonfixed
+restrict side R
+
+# ---- side B, package pins 8..14 : oscillator and reset --------------------
+padgroup System
+twpin_CLK                       nonfixed
+twpin_RST_N                     nonfixed
 restrict side B
 
+# ---- side L, package pins 1..7 : heartbeat --------------------------------
 padgroup Status
 twpin_LED                       nonfixed
-restrict side B
+restrict side L

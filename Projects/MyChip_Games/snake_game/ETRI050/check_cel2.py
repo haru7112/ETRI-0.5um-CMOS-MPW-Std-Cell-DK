@@ -99,12 +99,22 @@ def main():
               f"{len(g['pins'])} pins  {' '.join(g['pins'])}")
     print()
 
-    for side in sorted(per_side):
-        n, cap = len(per_side[side]), slots.get(side, 0)
+    # Side to package pin range, read off MPW_PAD_28Pin_IO_Games.mag against
+    # MyChip_Game_Package.txt.  Shown so the pinout the board will see is
+    # visible here rather than worked out again by hand.
+    PINS = {'L': '1..7', 'B': '8..14', 'R': '15..21', 'T': '22..28'}
+
+    free = 0
+    for side in ('T', 'R', 'B', 'L'):
+        n, cap = len(per_side.get(side, [])), slots.get(side, 0)
         ok = n <= cap
         errors += 0 if ok else 1
-        print(f"  side {side}: {n} pins / {cap} frame slots  "
-              f"{'ok' if ok else 'OVER CAPACITY'}")
+        free += cap - n if ok else 0
+        print(f"  side {side} (package pins {PINS[side]:>6s}): "
+              f"{n} signal / {cap} slots, {cap - n} free for power  "
+              f"{'' if ok else 'OVER CAPACITY'}")
+    print(f"\n  {len(listed)} signal pads, {free} slots left for VDD/GND "
+          f"across {sum(1 for s in 'TRBL' if slots.get(s, 0) - len(per_side.get(s, [])) > 0)} sides")
     print()
 
     missing = sorted(set(ports) - set(listed))
