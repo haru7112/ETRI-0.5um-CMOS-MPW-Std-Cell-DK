@@ -35,8 +35,11 @@ module game_ctrl #(
     parameter LEN_W    = 6,
     parameter INIT_LEN = 3,
     // Milliseconds per game step, fixed.  Rounded to the 16ms tick the timer
-    // counts, so the real step is TICK_MS * round(STEP_MS/16).
-    parameter STEP_MS  = 208
+    // counts, so the real step is TICK_MS * round(STEP_MS/TICK_MS).
+    parameter STEP_MS  = 208,
+    // What one tick on the tick input is worth, in ms - snake_top makes it from
+    // a free running counter, so it is not a round number.
+    parameter TICK_MS  = 21
 )(
     input  wire        clk,
     input  wire        rst_n,
@@ -90,7 +93,6 @@ module game_ctrl #(
     reg  [1:0]       dir, dir_nxt;
     // The timer counts 16ms ticks, not milliseconds, so a quarter second fits
     // in four bits where counting milliseconds needed eight.
-    localparam integer      TICK_MS  = 16;
     localparam integer      STEP_N   = (STEP_MS + TICK_MS/2) / TICK_MS;
     localparam integer      MS_W     = $clog2(STEP_N + 1);
     localparam [MS_W-1:0]   STEP_CNT = STEP_N[MS_W-1:0];

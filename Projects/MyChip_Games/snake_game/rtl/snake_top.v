@@ -67,39 +67,49 @@ module snake_top #(
     localparam FLD_Y1  = GRID_H - 1;         // bottom rule
 
     //------------------------------------------------------------------
-    // millisecond time base, shared by the debouncer, the game step timer
-    // and the panel reset delay
+    // Time base: one free running counter, and every slow event is an edge on
+    // one of its bits.
+    //
+    // This was a divide-by-25000 down to a millisecond strobe plus a second
+    // counter of milliseconds - two incrementers, a 15 bit comparator and a
+    // reload mux on the first one.  Nothing here needs a round number of
+    // milliseconds, only a steady tick, so the comparator and the reload go
+    // and the two counters become one.  Bit n toggles every 2^n clocks, which
+    // at 25MHz is:
+    //
+    //      bit 14 ->  1.31ms      bit 21 ->  84ms
+    //      bit 18 -> 21.0ms       bit 24 -> 671ms
+    //
+    // The taps follow CLK_HZ, so a test bench can run the core on a slower
+    // clock and every ratio in the design stays where it is.  TICK_MS tells
+    // game_ctrl what a step tick is worth, so STEP_MS stays in milliseconds.
     //------------------------------------------------------------------
-    localparam integer MS_DIV = CLK_HZ / 1000;
-    localparam integer MS_W   = $clog2(MS_DIV);
+    localparam integer TAP_MS   = $clog2(CLK_HZ / 1000) - 1;   // ~1ms
+    localparam integer TAP_STEP = TAP_MS + 4;                  // ~16x that
+    localparam integer TMR_W    = TAP_MS + 11;
+    localparam integer TICK_MS  = ((1 << (TAP_STEP + 1)) + (CLK_HZ/2000))
+                                  / (CLK_HZ / 1000);
 
-    reg [MS_W-1:0] ms_div;
-    reg        ms_pulse;
-    reg [9:0]  ms_free;
+    reg [TMR_W-1:0] tmr;
+    reg             ms_d, step_d;
 
     always @(posedge clk)
         if (!rst_n) begin
-            ms_div   <= {MS_W{1'b0}};
-            ms_pulse <= 1'b0;
-            ms_free  <= 10'd0;
-        end else if (ms_div == (MS_DIV-1)) begin
-            ms_div   <= {MS_W{1'b0}};
-            ms_pulse <= 1'b1;
-            ms_free  <= ms_free + 10'd1;
+            tmr    <= {TMR_W{1'b0}};
+            ms_d   <= 1'b0;
+            step_d <= 1'b0;
         end else begin
-            ms_div   <= ms_div + 1'b1;
-            ms_pulse <= 1'b0;
+            tmr    <= tmr + 1'b1;
+            ms_d   <= tmr[TAP_MS];
+            step_d <= tmr[TAP_STEP];
         end
 
-    // The game step is counted in 16ms ticks rather than milliseconds, which
-    // is what lets its counter be four bits wide instead of eight.  Both parts
-    // are already here, so the tick costs one comparison and no flops.
-    wire step_tick = ms_pulse && (ms_free[3:0] == 4'd0);
+    wire ms_pulse  = tmr[TAP_MS]   & ~ms_d;    // panel reset, debouncer
+    wire step_tick = tmr[TAP_STEP] & ~step_d;  // the game step
 
-    // The blink phase is sampled once per frame.  A frame takes ~25ms to
-    // shift out, so a free running blink would toggle in the middle of one and
-    // leave the border half drawn.
-    wire blink_raw = |ms_free[7:6];  // on for 3/4 of a 256ms period
+    // The blink phase is sampled once per frame so a border is never drawn
+    // half lit.
+    wire blink_raw = |tmr[TAP_MS+8 : TAP_MS+7];   // 3/4 of a ~170ms period
     reg  blink;
 
     always @(posedge clk)
@@ -174,7 +184,7 @@ module snake_top #(
                 .FLD_X0(FLD_X0), .FLD_X1(FLD_X1),
                 .FLD_Y0(FLD_Y0), .FLD_Y1(FLD_Y1),
                 .MAXLEN(MAXLEN), .LEN_W(LEN_W), .INIT_LEN(INIT_LEN),
-                .STEP_MS(STEP_MS)) u_game (
+                .STEP_MS(STEP_MS), .TICK_MS(TICK_MS)) u_game (
         .clk(clk), .rst_n(rst_n), .tick(step_tick),
         .btn_level(btn_level), .btn_press(btn_press),
         .frame_done(frame_done), .busy(game_busy),
@@ -221,6 +231,6 @@ module snake_top #(
         .display_on(display_on));
 
     // slow heartbeat once the panel answered, fast blink while it does not
-    assign led_alive = display_on ? ms_free[9] : ms_free[6];
+    assign led_alive = display_on ? tmr[TAP_MS+10] : tmr[TAP_MS+7];
 
 endmodule
