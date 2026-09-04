@@ -11,11 +11,14 @@
 //
 //  Because the shift register starts cleared, rst_n stays low for STAGES
 //  clocks after the clock actually starts running, whatever RST_N did before.
+//  Two stages is the whole job - one to catch the metastable sample and one to
+//  clean it up - and the extra two were 0.008mm2 of DFFSR, which is twice the
+//  size of an ordinary flop on this library.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module reset_sync #(
-    parameter STAGES = 4
+    parameter STAGES = 2
 )(
     input  wire clk,
     input  wire arst_n,     // asynchronous, active low (from the pad)

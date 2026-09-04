@@ -29,14 +29,16 @@ module spi_master #(
     output reg        done,       // 1 clock pulse when the byte has gone
 
     output reg        sclk,
-    output reg        mosi
+    output wire       mosi
 );
     // half a SCLK period, in core clocks
     localparam integer DIV   = (CLK_HZ + (2*SCLK_HZ) - 1) / (2*SCLK_HZ);
     localparam integer DIV_W = (DIV <= 2) ? 1 : $clog2(DIV);
 
     reg [DIV_W-1:0] div;
+    // MOSI is the top of the shifter, not a copy of it kept in its own flop.
     reg [7:0]       sh;
+    assign mosi = sh[7];
     reg [2:0]       bit_n;
 
     wire tick = (div == DIV[DIV_W-1:0] - 1'b1);
@@ -49,14 +51,12 @@ module spi_master #(
             busy  <= 1'b0;
             done  <= 1'b0;
             sclk  <= 1'b0;
-            mosi  <= 1'b0;
         end else begin
             done <= 1'b0;
 
             if (!busy) begin
                 if (write) begin
-                    sh    <= {din[6:0], 1'b0};   // bit 7 goes out now
-                    mosi  <= din[7];
+                    sh    <= din;                // bit 7 goes out first
                     bit_n <= 3'd0;
                     div   <= {DIV_W{1'b0}};
                     sclk  <= 1'b0;
@@ -75,8 +75,7 @@ module spi_master #(
                         done <= 1'b1;
                     end else begin
                         bit_n <= bit_n + 3'd1;
-                        mosi  <= sh[7];          // next bit, while SCLK is low
-                        sh    <= {sh[6:0], 1'b0};
+                        sh    <= {sh[6:0], 1'b0};   // next bit, SCLK is low
                     end
                 end
             end

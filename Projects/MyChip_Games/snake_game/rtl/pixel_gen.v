@@ -42,7 +42,7 @@ module pixel_gen #(
     input  wire        req,               // pulse: build the byte for x/page
     input  wire [6:0]  x,
     input  wire [2:0]  page,
-    output reg         valid,             // 1 clock pulse, dout is good
+    output wire        valid,             // 1 clock pulse, dout is good
     output wire [7:0]  dout,
 
     // ---- game state ------------------------------------------------------
@@ -53,7 +53,7 @@ module pixel_gen #(
     input  wire        food_en,
 
     // ---- body scan port --------------------------------------------------
-    output reg         scan_req,
+    output wire        scan_req,
     input  wire [10:0] scan_pos_i,        // widest supported POS_W
     input  wire        scan_valid,
     input  wire        scan_done,
@@ -160,26 +160,25 @@ module pixel_gen #(
     reg [7:0] acc;
     assign dout = acc;
 
+    // Both of these are one clock wide and both are already written on the
+    // face of busy, so they are decodes rather than registers.  On a library
+    // with no enable flop a registered pulse is a flop AND the feedback mux
+    // that holds it low the rest of the time.
+    assign scan_req = req && !busy;
+    assign valid    = busy && scan_done;
+
     always @(posedge clk)
         if (!rst_n) begin
             acc      <= 8'h00;
             busy     <= 1'b0;
-            valid    <= 1'b0;
-            scan_req <= 1'b0;
         end else begin
-            valid    <= 1'b0;
-            scan_req <= 1'b0;
             if (req && !busy) begin
-                acc      <= static_byte;
-                busy     <= 1'b1;
-                scan_req <= 1'b1;
+                acc  <= static_byte;
+                busy <= 1'b1;
             end else if (busy) begin
                 if (seg_here)
                     acc <= acc | cell_mask;
-                if (scan_done) begin
-                    valid <= 1'b1;
-                    busy  <= 1'b0;
-                end
+                if (scan_done) busy <= 1'b0;
             end
         end
 

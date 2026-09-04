@@ -51,20 +51,20 @@ module game_ctrl #(
 
     // handshake with the display sequencer
     input  wire        frame_done,
-    output reg         busy,
+    output wire        busy,
 
     // body control
-    output reg         body_load,
+    output wire        body_load,
     output reg         body_move,
     output reg         body_grow,
     output wire [10:0] load_pos,
     output wire [1:0]  step_dir,
     input  wire [10:0] step_pos,
     input  wire        move_busy,
-    output reg         scan_req,
-    output reg         cmp_food,
+    output wire        scan_req,
+    output wire        cmp_food,
     output wire [10:0] cmp_pos,
-    output reg         cmp_skip_tail,
+    output wire        cmp_skip_tail,
     input  wire        scan_done,
     input  wire        cmp_hit,
     input  wire [LEN_W-1:0] len,
@@ -106,8 +106,26 @@ module game_ctrl #(
     // plus the decrementer and the compare that go with them.
     localparam integer BLD_W = (INIT_LEN <= 2) ? 1 : $clog2(INIT_LEN);
     reg  [BLD_W-1:0] build_cnt;
-    reg  [2:0]       food_try;
+    reg  [1:0]       food_try;
     reg  [POS_W-1:0] food_r;
+
+    // busy and body_load are decodes of the state, not registers.  On this
+    // library a held output is a flop plus the feedback mux that holds it,
+    // and busy is true in every state except the three that sit waiting for
+    // a frame - plus the frame_done cycle that leaves one of them.
+    wire waiting = (st == S_TITLE) || (st == S_IDLE) || (st == S_OVER);
+    wire leaving = frame_done && ((st == S_IDLE) ? tick_pend : ok_pend);
+    assign busy      = !waiting || leaving;
+    assign body_load = (st == S_NEW);
+
+    // The scan request and the two flags that qualify it are decodes too.
+    // The flags have to stay up for the whole wait and not just the request
+    // clock, because the body queue only takes a scan at one notch of its
+    // rotation - hence the request state AND the waiting state in each.
+    assign cmp_food      = (st == S_FOOD) || (st == S_FSCAN);
+    assign cmp_skip_tail = (st == S_STEP) || (st == S_SSCAN);
+    assign scan_req      = ((st == S_FOOD) && food_in_range) ||
+                           ((st == S_STEP) && !hit_wall);
 
     assign st_title = (st == S_TITLE);
     assign st_over  = (st == S_OVER);
@@ -218,37 +236,22 @@ module game_ctrl #(
     always @(posedge clk)
         if (!rst_n) begin
             st            <= S_TITLE;
-            busy          <= 1'b0;
-            body_load     <= 1'b0;
             body_move     <= 1'b0;
             body_grow     <= 1'b0;
-            scan_req      <= 1'b0;
-            cmp_food      <= 1'b0;
-            cmp_skip_tail <= 1'b0;
             dir           <= 2'b00;
             food_r        <= {POS_W{1'b0}};
             food_en       <= 1'b0;
             build_cnt     <= {BLD_W{1'b0}};
-            food_try      <= 3'd0;
+            food_try      <= 2'd0;
         end else begin
-            body_load <= 1'b0;
             body_move <= 1'b0;
             body_grow <= 1'b0;
-            scan_req  <= 1'b0;
 
             case (st)
             //--------------------------------------------------------------
-            S_TITLE: begin
-                busy <= 1'b0;
-                if (frame_done && ok_pend) begin
-                    busy <= 1'b1;
-                    st   <= S_NEW;
-                end
-            end
+            S_TITLE: if (frame_done && ok_pend) st <= S_NEW;
             //--------------------------------------------------------------
-            S_NEW: begin
-                busy      <= 1'b1;
-                body_load <= 1'b1;             // head <= load_pos, len <= 1
+            S_NEW: begin                       // head <= load_pos, len <= 1
                 dir       <= 2'b00;
                 food_en   <= 1'b0;
                 build_cnt <= INIT_LEN[BLD_W-1:0] - 1'b1;
@@ -265,7 +268,7 @@ module game_ctrl #(
                 if (move_busy || body_move) begin
                     // wait
                 end else if (build_cnt == {BLD_W{1'b0}}) begin
-                    food_try <= 3'd0;
+                    food_try <= 2'd0;
                     st       <= S_FOOD;
                 end else begin
                     body_move <= 1'b1;         // dir is still RIGHT here
@@ -276,49 +279,40 @@ module game_ctrl #(
             //--------------------------------------------------------------
             S_FOOD: begin               // re-roll until it is inside the field
                 if (food_in_range) begin
-                    food_r        <= {fy_c, fx_c};
-                    cmp_food      <= 1'b1;
-                    cmp_skip_tail <= 1'b0;
-                    scan_req      <= 1'b1;
-                    st            <= S_FSCAN;
+                    food_r <= {fy_c, fx_c};
+                    st     <= S_FSCAN;
                 end
             end
             //--------------------------------------------------------------
             // Landing on the snake is the only thing that sends us back, and
-            // that retry does have a give-up: after 7 goes the cell is taken as
+            // that retry does have a give-up: after 4 goes the cell is taken as
             // it is.  Harmless - it is inside the field, and the tail vacates
             // it within a few steps.
             S_FSCAN: begin
                 if (scan_done) begin
-                    if (!cmp_hit || (food_try == 3'd7)) begin
+                    if (!cmp_hit || (food_try == 2'd3)) begin
                         food_en <= 1'b1;
                         st      <= S_IDLE;
                     end else begin
-                        food_try <= food_try + 3'd1;
+                        food_try <= food_try + 2'd1;
                         st       <= S_FOOD;
                     end
                 end
             end
             //--------------------------------------------------------------
             S_IDLE: begin
-                busy <= 1'b0;
                 if (frame_done && tick_pend) begin
-                    busy <= 1'b1;
-                    dir  <= dir_nxt;
-                    st   <= S_STEP;
+                    dir <= dir_nxt;
+                    st  <= S_STEP;
                 end
             end
             //--------------------------------------------------------------
             S_STEP: begin               // walls are pure combinational, no scan
-                busy <= 1'b1;
                 if (hit_wall) begin
                     st <= S_OVER;
                 end else begin
-                    cmp_food      <= 1'b0;     // test step_pos against the body
-                    cmp_skip_tail <= 1'b1;     // the tail vacates this step
-                    scan_req      <= 1'b1;
-                    st            <= S_SSCAN;
-                end
+                    st <= S_SSCAN;      // test step_pos against the body, with
+                end                     // the tail excluded - it vacates this step
             end
             //--------------------------------------------------------------
             S_SSCAN: begin
@@ -329,7 +323,7 @@ module game_ctrl #(
                         body_move <= 1'b1;
                         if (eat_now) begin
                             body_grow <= 1'b1;
-                            food_try  <= 3'd0;
+                            food_try  <= 2'd0;
                             st        <= S_FOOD;
                         end else begin
                             st <= S_IDLE;
@@ -338,13 +332,7 @@ module game_ctrl #(
                 end
             end
             //--------------------------------------------------------------
-            S_OVER: begin
-                busy <= 1'b0;
-                if (frame_done && ok_pend) begin
-                    busy <= 1'b1;
-                    st   <= S_NEW;
-                end
-            end
+            S_OVER: if (frame_done && ok_pend) st <= S_NEW;
             default: st <= S_TITLE;
             endcase
         end

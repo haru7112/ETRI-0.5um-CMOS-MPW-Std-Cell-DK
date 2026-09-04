@@ -224,9 +224,9 @@ module snake_top #(
 
     wire display_on;
 
-    oled_ctrl #(.RES_MS(RES_MS),
+    oled_ctrl #(.RES_MS(RES_MS), .TICK_MS(TICK_MS),
                 .CLK_HZ(CLK_HZ), .SCLK_HZ(SCLK_HZ)) u_oled (
-        .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
+        .clk(clk), .rst_n(rst_n), .tick(step_tick),
         .oled_res_n(oled_res_n),
         .oled_sclk(oled_sclk), .oled_mosi(oled_mosi),
         .oled_dc(oled_dc), .oled_cs_n(oled_cs_n),

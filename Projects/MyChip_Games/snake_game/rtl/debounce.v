@@ -24,7 +24,10 @@
 //  than from a delayed copy of level - three registers for that one bit
 //  instead of five.
 //
-//  press is meaningful only where FILT has a 1; it reads zero elsewhere.
+//  press is meaningful only where FILT has a 1; it reads zero elsewhere.  It
+//  is a decode of the transition that is about to be taken, not a registered
+//  copy of it: on this library a one clock pulse held in a flop also pays for
+//  the feedback mux that keeps it low.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
@@ -53,23 +56,19 @@ module debounce #(
     generate for (g = 0; g < N; g = g + 1) begin : sw
         if (FILT[g]) begin : filtered
             reg  prev;                    // the previous accepted sample
-            reg  lvl, prs;
+            reg  lvl;
             wire agree = ~(now[g] ^ prev);   // this sample matches the last one
 
             always @(posedge clk)
                 if (!rst_n) begin
-                    prev <= 1'b0;  lvl <= 1'b0;  prs <= 1'b0;
-                end else begin
-                    prs <= 1'b0;
-                    if (ms_pulse) begin
-                        prev <= now[g];
-                        lvl  <= (agree & now[g]) | (~agree & lvl);
-                        prs  <= agree & now[g] & ~lvl;
-                    end
+                    prev <= 1'b0;  lvl <= 1'b0;
+                end else if (ms_pulse) begin
+                    prev <= now[g];
+                    lvl  <= (agree & now[g]) | (~agree & lvl);
                 end
 
             assign level[g] = lvl;
-            assign press[g] = prs;
+            assign press[g] = ms_pulse & agree & now[g] & ~lvl;
         end else begin : plain
             assign level[g] = now[g];
             assign press[g] = 1'b0;

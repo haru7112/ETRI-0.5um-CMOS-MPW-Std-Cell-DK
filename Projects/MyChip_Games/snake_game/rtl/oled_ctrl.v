@@ -33,34 +33,35 @@
 
 module oled_ctrl #(
     parameter RES_MS  = 20,          // RES# low, and then settle, in ms
+    parameter TICK_MS = 21,          // what one tick on the tick input is worth
     parameter CLK_HZ  = 25_000_000,
     parameter SCLK_HZ =  6_250_000
 )(
     input  wire        clk,
     input  wire        rst_n,
-    input  wire        ms_pulse,
+    input  wire        tick,        // slow strobe, TICK_MS apart, reset only
 
-    output reg         oled_res_n,
+    output wire        oled_res_n,
 
     // ---- 4-wire SPI to the panel ----------------------------------------
     output wire        oled_sclk,
     output wire        oled_mosi,
     output wire        oled_dc,     // 0 = command, 1 = display data
-    output reg         oled_cs_n,
+    output wire        oled_cs_n,
 
     // ---- picture source --------------------------------------------------
-    output reg         pix_req,
+    output wire        pix_req,
     output wire [6:0]  pix_x,
     output wire [2:0]  pix_page,
     input  wire        pix_valid,
     input  wire [7:0]  pix_data,
 
     // ---- game handshake --------------------------------------------------
-    output reg         frame_done,
+    output wire        frame_done,
     input  wire        game_busy,
     output wire        display_on   // high once the panel has been initialised
 );
-    reg        spi_write;
+    wire       spi_write;
     wire       spi_busy, spi_done;
 
     localparam P_INIT = 2'd0, P_FCMD = 2'd1, P_FDATA = 2'd2;
@@ -132,13 +133,33 @@ module oled_ctrl #(
                T_DATA  = 3'd3, T_DATAW = 3'd4, T_GAP0  = 3'd5, T_GAP = 3'd6;
 
     reg [2:0]  t_st;
-    reg [4:0]  ms_cnt;
-    reg        init_done;
+    // The panel reset used to count RES_MS millisecond strobes, which is a
+    // five bit counter, its compare and its decrementer to time something
+    // whose only requirement is "at least 3us".  It counts the slow tick
+    // snake_top already makes for the game step instead - two of them, so the
+    // wait is at least one whole tick however the free running counter
+    // happened to be phased when reset released.
+    localparam integer RES_N = (RES_MS + TICK_MS - 1) / TICK_MS + 1;
+    localparam integer RC_W  = (RES_N <= 2) ? 1 : $clog2(RES_N);
+
+    reg [RC_W-1:0] ms_cnt;
     reg        pix_rdy;
 
     assign pix_x      = pkt_idx[6:0];
     assign pix_page   = pkt_idx[9:7];
-    assign display_on = init_done;
+
+    // Everything below is a decode of the state, not a register of its own.
+    // With no enable flop in the cell list, a held output costs a flop plus
+    // the feedback mux that holds it, and a one clock pulse costs the same.
+    assign display_on = (phase != P_INIT);
+    assign oled_res_n = (t_st != T_RESLO);
+    assign oled_cs_n  = (t_st == T_RESLO) || (t_st == T_RESHI) ||
+                        (t_st == T_GAP0)  || (t_st == T_GAP);
+    assign pix_req    = (t_st == T_FETCH) && (phase == P_FDATA);
+    assign spi_write  = (t_st == T_DATA) && ((phase != P_FDATA) || pix_rdy)
+                        && !spi_busy;
+    assign frame_done = (t_st == T_DATAW) && spi_done &&
+                        (pkt_idx == pkt_last) && (phase == P_FDATA);
 
     wire [9:0]  pkt_last = (phase == P_INIT) ? INIT_N - 10'd1 :
                            (phase == P_FCMD) ? WIN_LAST : 10'd1023;
@@ -149,88 +170,58 @@ module oled_ctrl #(
             t_st       <= T_RESLO;
             phase      <= P_INIT;
             pkt_idx    <= 10'd0;
-            ms_cnt     <= RES_MS[4:0];
-            oled_res_n <= 1'b0;
-            oled_cs_n  <= 1'b1;
-            init_done  <= 1'b0;
-            frame_done <= 1'b0;
-            pix_req    <= 1'b0;
-            spi_write  <= 1'b0;
+            ms_cnt     <= RES_N[RC_W-1:0] - 1'b1;
             pix_rdy    <= 1'b0;
         end else begin
             if (pix_valid) pix_rdy <= 1'b1;
-            spi_write  <= 1'b0;
-            pix_req    <= 1'b0;
-            frame_done <= 1'b0;
 
             case (t_st)
             //--------------------------------------------------------------
             T_RESLO: begin
-                oled_res_n <= 1'b0;
-                oled_cs_n  <= 1'b1;
-                init_done  <= 1'b0;
-                phase      <= P_INIT;
-                if (ms_pulse) begin
-                    if (ms_cnt == 5'd0) begin
-                        ms_cnt <= RES_MS[4:0];
+                phase <= P_INIT;
+                if (tick) begin
+                    if (ms_cnt == {RC_W{1'b0}}) begin
+                        ms_cnt <= RES_N[RC_W-1:0] - 1'b1;
                         t_st   <= T_RESHI;
                     end else
-                        ms_cnt <= ms_cnt - 5'd1;
+                        ms_cnt <= ms_cnt - 1'b1;
                 end
             end
             T_RESHI: begin
-                oled_res_n <= 1'b1;
-                if (ms_pulse) begin
-                    if (ms_cnt == 5'd0) begin
-                        pkt_idx   <= 10'd0;
-                        oled_cs_n <= 1'b0;        // select for the whole burst
-                        t_st      <= T_FETCH;
+                if (tick) begin
+                    if (ms_cnt == {RC_W{1'b0}}) begin
+                        pkt_idx <= 10'd0;
+                        t_st    <= T_FETCH;
                     end else
-                        ms_cnt <= ms_cnt - 5'd1;
+                        ms_cnt <= ms_cnt - 1'b1;
                 end
             end
             //--------------------------------------------------------------
             T_FETCH: begin
-                if (phase == P_FDATA) begin
-                    pix_req <= 1'b1;
-                    pix_rdy <= 1'b0;
-                end
+                if (phase == P_FDATA) pix_rdy <= 1'b0;
                 t_st <= T_DATA;
             end
-            T_DATA: begin
-                if ((phase != P_FDATA) || pix_rdy) begin
-                    if (!spi_busy) begin
-                        spi_write <= 1'b1;
-                        t_st      <= T_DATAW;
-                    end
-                end
-            end
+            T_DATA: if (spi_write) t_st <= T_DATAW;
             T_DATAW: if (spi_done) begin
                 if (pkt_idx != pkt_last) begin
                     pkt_idx <= pkt_idx + 10'd1;
                     t_st    <= T_FETCH;
                 end else begin
-                    // end of the burst: raise CS# so the panel resynchronises
-                    oled_cs_n <= 1'b1;
+                    pkt_idx <= 10'd0;
                     case (phase)
                     P_INIT : begin
-                        init_done <= 1'b1;
-                        phase     <= P_FCMD;
-                        pkt_idx   <= 10'd0;
-                        oled_cs_n <= 1'b0;
-                        t_st      <= T_FETCH;
+                        phase <= P_FCMD;
+                        t_st  <= T_FETCH;
                     end
                     P_FCMD : begin
-                        phase     <= P_FDATA;
-                        pkt_idx   <= 10'd0;
-                        oled_cs_n <= 1'b0;
-                        t_st      <= T_FETCH;
+                        phase <= P_FDATA;
+                        t_st  <= T_FETCH;
                     end
                     default: begin
-                        frame_done <= 1'b1;       // let the game advance a step
-                        phase      <= P_FCMD;
-                        pkt_idx    <= 10'd0;
-                        t_st       <= T_GAP0;
+                        // CS# rises here, decoded off T_GAP0, and the game gets
+                        // its frame_done in the same cycle
+                        phase <= P_FCMD;
+                        t_st  <= T_GAP0;
                     end
                     endcase
                 end
@@ -239,10 +230,7 @@ module oled_ctrl #(
             // one dead cycle so game_ctrl has registered its busy flag before
             // we look at it, then hold the panel idle until the step is done
             T_GAP0: t_st <= T_GAP;
-            T_GAP : if (!game_busy) begin
-                oled_cs_n <= 1'b0;
-                t_st      <= T_FETCH;             // never tear a frame
-            end
+            T_GAP : if (!game_busy) t_st <= T_FETCH;   // never tear a frame
             //--------------------------------------------------------------
             default: t_st <= T_RESLO;
             endcase
