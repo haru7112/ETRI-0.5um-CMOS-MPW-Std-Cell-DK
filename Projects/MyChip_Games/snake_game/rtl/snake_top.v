@@ -131,7 +131,7 @@ module snake_top #(
     //------------------------------------------------------------------
     // snake body register + its serial scan port
     //------------------------------------------------------------------
-    wire             body_load, body_move, body_grow, cmp_food;
+    wire             body_load, body_move, body_grow, cmp_food, move_busy;
     wire [10:0]      load_pos, step_pos;
     wire [1:0]       step_dir;
     wire             g_scan_req, p_scan_req;
@@ -149,7 +149,7 @@ module snake_top #(
     snake_body #(.POS_W(POS_W), .GX_W(GX_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
         .clk(clk), .rst_n(rst_n),
         .load(body_load), .load_pos(load_pos[POS_W-1:0]),
-        .move(body_move), .grow(body_grow),
+        .move(body_move), .grow(body_grow), .move_busy(move_busy),
         .step_dir(step_dir), .step_pos(step_pos_n),
         .scan_req(g_scan_req | p_scan_req),
         .cmp_food(cmp_food),
@@ -190,6 +190,7 @@ module snake_top #(
         .frame_done(frame_done), .busy(game_busy),
         .body_load(body_load), .body_move(body_move), .body_grow(body_grow),
         .load_pos(load_pos), .step_dir(step_dir), .step_pos(step_pos),
+        .move_busy(move_busy),
         .scan_req(g_scan_req), .cmp_food(cmp_food),
         .cmp_pos(cmp_pos), .cmp_skip_tail(cmp_skip_tail),
         .scan_done(scan_done), .cmp_hit(cmp_hit),

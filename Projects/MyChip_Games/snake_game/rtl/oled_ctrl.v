@@ -16,8 +16,18 @@
 //
 //  Re-sending the window every frame is kept.  On I2C it was the only way a
 //  framing glitch could heal, since the panel ACKs whatever it is sent; on SPI
-//  CS# rising between bursts already resynchronises the panel, but 9 bytes in
-//  1033 is cheap insurance and it costs nothing in gates.
+//  CS# rising between bursts already resynchronises the panel.  It is not free
+//  - dropping it, and with it the six window bytes and one bit of phase, is
+//  worth 0.032mm2, measured - but it is the only thing standing between one
+//  lost bit on the SCLK wire and a picture that stays wrong until someone
+//  presses reset.  Six bytes in 1030 buys that back every frame.
+//
+//  Two things about the counters, both measured at 0.015mm2 together:
+//    - pkt_idx is 10 bits, not 11.  The longest burst is 1024 bytes, so 1023
+//      is the largest value it ever holds and the eleventh bit was dead.
+//    - every burst starts at index zero, including the per frame window, which
+//      is why the window sits at the FRONT of the init ROM.  A reload with a
+//      constant costs a mux on every bit; a reload with zero is a clear.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
@@ -56,7 +66,7 @@ module oled_ctrl #(
     localparam P_INIT = 2'd0, P_FCMD = 2'd1, P_FDATA = 2'd2;
 
     reg [1:0]  phase;
-    reg [10:0] pkt_idx;
+    reg [9:0]  pkt_idx;
 
     assign oled_dc = (phase == P_FDATA);
 
@@ -93,35 +103,36 @@ module oled_ctrl #(
     assign init_rom_q = init_rom;
 
     always @* case (pkt_idx[3:0])
-        4'd0 : init_rom = 8'hAE;   // display off while we set up
-        4'd1 : init_rom = 8'h8D;   // charge pump
-        4'd2 : init_rom = 8'h14;   //   = enable
-        4'd3 : init_rom = 8'h20;   // memory addressing mode
-        4'd4 : init_rom = 8'h00;   //   = horizontal, so it wraps for us
-        4'd5 : init_rom = 8'hA1;   // segment remap
-        4'd6 : init_rom = 8'hC8;   // COM scan direction remapped
-        // The addressing window.  These six bytes are ALSO re-sent in front of
-        // every frame - see the P_FCMD phase - so the same ROM serves both.
-        4'd7 : init_rom = 8'h21;   // column address
-        4'd8 : init_rom = 8'h00;
-        4'd9 : init_rom = 8'h7F;
-        4'd10: init_rom = 8'h22;   // page address
-        4'd11: init_rom = 8'h00;
-        4'd12: init_rom = 8'h07;
+        // The addressing window comes FIRST so that every burst this block
+        // ever sends starts at index zero - the init list, the per frame
+        // window, and the 1024 data bytes alike.  pkt_idx therefore only ever
+        // reloads with a zero, which is a clear and not a constant mux.
+        4'd0 : init_rom = 8'h21;   // column address
+        4'd1 : init_rom = 8'h00;
+        4'd2 : init_rom = 8'h7F;
+        4'd3 : init_rom = 8'h22;   // page address
+        4'd4 : init_rom = 8'h00;
+        4'd5 : init_rom = 8'h07;
+        4'd6 : init_rom = 8'hAE;   // display off while we set the rest up
+        4'd7 : init_rom = 8'h8D;   // charge pump
+        4'd8 : init_rom = 8'h14;   //   = enable
+        4'd9 : init_rom = 8'h20;   // memory addressing mode
+        4'd10: init_rom = 8'h00;   //   = horizontal, so it wraps for us
+        4'd11: init_rom = 8'hA1;   // segment remap
+        4'd12: init_rom = 8'hC8;   // COM scan direction remapped
         4'd13: init_rom = 8'hAF;   // display on
         default: init_rom = 8'hE3; // NOP
     endcase
 
-    localparam [10:0] INIT_N    = 11'd14;
-    localparam [10:0] WIN_FIRST = 11'd7;    // index of 0x21 in init_rom
-    localparam [10:0] WIN_LAST  = 11'd12;   // index of the last window byte
+    localparam [9:0]  INIT_N   = 10'd14;
+    localparam [9:0]  WIN_LAST = 10'd5;    // last byte of the window burst
 
     // ---- sequencer -------------------------------------------------------
     localparam T_RESLO = 3'd0, T_RESHI = 3'd1, T_FETCH = 3'd2,
                T_DATA  = 3'd3, T_DATAW = 3'd4, T_GAP0  = 3'd5, T_GAP = 3'd6;
 
     reg [2:0]  t_st;
-    reg [5:0]  ms_cnt;
+    reg [4:0]  ms_cnt;
     reg        init_done;
     reg        pix_rdy;
 
@@ -129,15 +140,16 @@ module oled_ctrl #(
     assign pix_page   = pkt_idx[9:7];
     assign display_on = init_done;
 
-    wire [10:0] pkt_last = (phase == P_INIT) ? INIT_N - 11'd1 :
-                           (phase == P_FCMD) ? WIN_LAST : 11'd1023;
+    wire [9:0]  pkt_last = (phase == P_INIT) ? INIT_N - 10'd1 :
+                           (phase == P_FCMD) ? WIN_LAST : 10'd1023;
+
 
     always @(posedge clk)
         if (!rst_n) begin
             t_st       <= T_RESLO;
             phase      <= P_INIT;
-            pkt_idx    <= 11'd0;
-            ms_cnt     <= RES_MS[5:0];
+            pkt_idx    <= 10'd0;
+            ms_cnt     <= RES_MS[4:0];
             oled_res_n <= 1'b0;
             oled_cs_n  <= 1'b1;
             init_done  <= 1'b0;
@@ -159,22 +171,22 @@ module oled_ctrl #(
                 init_done  <= 1'b0;
                 phase      <= P_INIT;
                 if (ms_pulse) begin
-                    if (ms_cnt == 6'd0) begin
-                        ms_cnt <= RES_MS[5:0];
+                    if (ms_cnt == 5'd0) begin
+                        ms_cnt <= RES_MS[4:0];
                         t_st   <= T_RESHI;
                     end else
-                        ms_cnt <= ms_cnt - 6'd1;
+                        ms_cnt <= ms_cnt - 5'd1;
                 end
             end
             T_RESHI: begin
                 oled_res_n <= 1'b1;
                 if (ms_pulse) begin
-                    if (ms_cnt == 6'd0) begin
-                        pkt_idx   <= 11'd0;
+                    if (ms_cnt == 5'd0) begin
+                        pkt_idx   <= 10'd0;
                         oled_cs_n <= 1'b0;        // select for the whole burst
                         t_st      <= T_FETCH;
                     end else
-                        ms_cnt <= ms_cnt - 6'd1;
+                        ms_cnt <= ms_cnt - 5'd1;
                 end
             end
             //--------------------------------------------------------------
@@ -195,7 +207,7 @@ module oled_ctrl #(
             end
             T_DATAW: if (spi_done) begin
                 if (pkt_idx != pkt_last) begin
-                    pkt_idx <= pkt_idx + 11'd1;
+                    pkt_idx <= pkt_idx + 10'd1;
                     t_st    <= T_FETCH;
                 end else begin
                     // end of the burst: raise CS# so the panel resynchronises
@@ -204,20 +216,20 @@ module oled_ctrl #(
                     P_INIT : begin
                         init_done <= 1'b1;
                         phase     <= P_FCMD;
-                        pkt_idx   <= WIN_FIRST;
+                        pkt_idx   <= 10'd0;
                         oled_cs_n <= 1'b0;
                         t_st      <= T_FETCH;
                     end
                     P_FCMD : begin
                         phase     <= P_FDATA;
-                        pkt_idx   <= 11'd0;
+                        pkt_idx   <= 10'd0;
                         oled_cs_n <= 1'b0;
                         t_st      <= T_FETCH;
                     end
                     default: begin
                         frame_done <= 1'b1;       // let the game advance a step
                         phase      <= P_FCMD;
-                        pkt_idx    <= WIN_FIRST;
+                        pkt_idx    <= 10'd0;
                         t_st       <= T_GAP0;
                     end
                     endcase

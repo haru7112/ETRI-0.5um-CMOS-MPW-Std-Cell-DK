@@ -43,7 +43,7 @@ module pixel_gen #(
     input  wire [6:0]  x,
     input  wire [2:0]  page,
     output reg         valid,             // 1 clock pulse, dout is good
-    output reg  [7:0]  dout,
+    output wire [7:0]  dout,
 
     // ---- game state ------------------------------------------------------
     input  wire        st_title,
@@ -151,14 +151,20 @@ module pixel_gen #(
     //------------------------------------------------------------------
     wire seg_here = scan_valid && !st_title && !in_score && tgt_here;
 
+    // The accumulator IS the output.  It used to be copied into a dout
+    // register when the scan finished, which is eight flops and their mux to
+    // buy a byte that is already stable: once busy drops, nothing writes acc
+    // until the next req, and the next req cannot come until oled_ctrl has
+    // handed the byte to the SPI shifter, which latches it on write.  So dout
+    // is a wire and valid alone says when to look at it.
     reg [7:0] acc;
+    assign dout = acc;
 
     always @(posedge clk)
         if (!rst_n) begin
             acc      <= 8'h00;
             busy     <= 1'b0;
             valid    <= 1'b0;
-            dout     <= 8'h00;
             scan_req <= 1'b0;
         end else begin
             valid    <= 1'b0;
@@ -171,7 +177,6 @@ module pixel_gen #(
                 if (seg_here)
                     acc <= acc | cell_mask;
                 if (scan_done) begin
-                    dout  <= acc;
                     valid <= 1'b1;
                     busy  <= 1'b0;
                 end

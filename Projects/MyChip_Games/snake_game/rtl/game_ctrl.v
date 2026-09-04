@@ -60,6 +60,7 @@ module game_ctrl #(
     output wire [10:0] load_pos,
     output wire [1:0]  step_dir,
     input  wire [10:0] step_pos,
+    input  wire        move_busy,
     output reg         scan_req,
     output reg         cmp_food,
     output wire [10:0] cmp_pos,
@@ -100,7 +101,11 @@ module game_ctrl #(
     reg  [MS_W-1:0]  ms_cnt;
     reg              tick_pend;
     reg              ok_pend;
-    reg  [LEN_W-1:0] build_cnt;
+    // build_cnt only ever counts INIT_LEN-1 down to zero, so it is sized from
+    // INIT_LEN and not from MAXLEN - at LEN_W it was six flops to hold a two,
+    // plus the decrementer and the compare that go with them.
+    localparam integer BLD_W = (INIT_LEN <= 2) ? 1 : $clog2(INIT_LEN);
+    reg  [BLD_W-1:0] build_cnt;
     reg  [2:0]       food_try;
     reg  [POS_W-1:0] food_r;
 
@@ -223,7 +228,7 @@ module game_ctrl #(
             dir           <= 2'b00;
             food_r        <= {POS_W{1'b0}};
             food_en       <= 1'b0;
-            build_cnt     <= {LEN_W{1'b0}};
+            build_cnt     <= {BLD_W{1'b0}};
             food_try      <= 3'd0;
         end else begin
             body_load <= 1'b0;
@@ -246,12 +251,20 @@ module game_ctrl #(
                 body_load <= 1'b1;             // head <= load_pos, len <= 1
                 dir       <= 2'b00;
                 food_en   <= 1'b0;
-                build_cnt <= INIT_LEN[LEN_W-1:0] - 1'b1;
+                build_cnt <= INIT_LEN[BLD_W-1:0] - 1'b1;
                 st        <= S_BUILD;
             end
             //--------------------------------------------------------------
+            // The body queue turns for ever and takes a move only at one
+            // notch of that turn, so the moves that build the starting snake
+            // have to be spaced out.  move_busy is high from the request until
+            // the queue takes it, and body_move covers the one clock before
+            // move_busy has risen.  MAXLEN clocks per move against a 208ms
+            // step: nothing sees this.
             S_BUILD: begin              // walk right to reach the initial length
-                if (build_cnt == {LEN_W{1'b0}}) begin
+                if (move_busy || body_move) begin
+                    // wait
+                end else if (build_cnt == {BLD_W{1'b0}}) begin
                     food_try <= 3'd0;
                     st       <= S_FOOD;
                 end else begin

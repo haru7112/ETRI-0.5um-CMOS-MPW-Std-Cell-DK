@@ -31,6 +31,7 @@ module tb_pixel;
     reg  [2:0]       page = 0;
 
     wire             p_scan_req, scan_valid, scan_done, cmp_hit, scan_busy;
+    wire             move_busy;
     wire [POS_W-1:0] scan_pos, head, step_pos;
     wire [LEN_W-1:0] len;
     wire             valid;
@@ -39,7 +40,7 @@ module tb_pixel;
     snake_body #(.POS_W(POS_W), .GX_W(GX_W), .MAXLEN(MAXLEN), .LEN_W(LEN_W)) u_body (
         .clk(clk), .rst_n(rst_n),
         .load(load), .load_pos(load_pos), .move(move), .grow(grow),
-        .step_dir(step_dir), .step_pos(step_pos),
+        .step_dir(step_dir), .step_pos(step_pos), .move_busy(move_busy),
         .scan_req(p_scan_req), .cmp_food(1'b0), .cmp_pos({POS_W{1'b0}}),
         .cmp_skip_tail(1'b0),
         .scan_busy(scan_busy), .scan_pos(scan_pos), .scan_valid(scan_valid),
@@ -66,6 +67,10 @@ module tb_pixel;
             move <= 1'b1;  grow <= 1'b1;
             @(posedge clk);
             move <= 1'b0;  grow <= 1'b0;
+            @(posedge clk);
+            // the queue takes a move at one notch of its rotation, so the
+            // request can sit for up to MAXLEN clocks before it lands
+            while (move_busy) @(posedge clk);
             @(posedge clk);
         end
     endtask
