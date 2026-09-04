@@ -65,8 +65,8 @@
 //  Direction encoding (shared with game_ctrl):
 //      00 RIGHT (x+1)  01 DOWN (y+1)  10 LEFT (x-1)  11 UP (y-1)
 //  bit0 picks the axis, bit1 the sign, and walking backwards just flips the
-//  sign - so ONE incrementer pair serves both the scan walk and the "where
-//  does the head go next" question.  step_pos carries that answer out to
+//  sign - so a direction is one of four CONSTANT deltas on the packed {y,x}
+//  position, and a step is a single add.  step_pos carries the answer out to
 //  game_ctrl, which therefore needs no position arithmetic and no position
 //  registers of its own: on this process a spare 9 bit register plus the mux
 //  tree that feeds it from nine FSM states costs more than the adder does.
@@ -187,17 +187,39 @@ module snake_body #(
     //  otherwise       : one step FORWARDS from head along the heading, which
     //                    is the latched one once a move is waiting - the caller
     //                    is free to change its mind about direction in between
-    reg  [POS_W-1:0] walk;
-    wire [1:0]       hd = mv_pend ? mv_dir : step_dir;
-    wire [1:0]       wd = scan_busy ? dq_out : hd;
-    wire [POS_W-1:0] wp = scan_busy ? walk   : head;
-    wire             up = scan_busy ? wd[1]  : ~wd[1];   // backwards flips the sign
-    wire [GX_W-1:0]  wx = wp[GX_W-1:0];
-    wire [GY_W-1:0]  wy = wp[POS_W-1:GX_W];
-    wire [GX_W-1:0]  bx = wd[0] ? wx : (up ? wx + 1'b1 : wx - 1'b1);
-    wire [GY_W-1:0]  by = wd[0] ? (up ? wy + 1'b1 : wy - 1'b1) : wy;
+    //  A step is an ADD ON THE PACKED POSITION, not two adders on x and y with
+    //  a mux picking which one moves.  {y,x} is one number, so
+    //
+    //      RIGHT  +1        DOWN  +GRID_W
+    //      LEFT   -1        UP    -GRID_W
+    //
+    //  and the four deltas are constants.  Carrying out of x into y would be
+    //  wrong, but it cannot happen: x only ever leaves [1, GRID_W-2] onto a
+    //  wall column, which ends the game on the same step.
+    localparam [POS_W-1:0] D_RIGHT =  1;
+    localparam [POS_W-1:0] D_LEFT  = -1;
+    localparam [POS_W-1:0] D_DOWN  =  (1 << GX_W);
+    localparam [POS_W-1:0] D_UP    = -(1 << GX_W);
 
-    assign step_pos = {by, bx};      // meaningful while no scan is running
+    reg  [POS_W-1:0] walk;
+
+    //  The heading is the latched one once a move is waiting, so the caller is
+    //  free to change its mind about direction in between.
+    wire [1:0]       hd = mv_pend ? mv_dir : step_dir;
+
+    //  Two adders, not one shared between the walk and the head step.  The
+    //  shared one had to be time multiplexed, which meant step_pos followed
+    //  the walker once a scan started, which meant the cell being tested had
+    //  to be sampled into a 9 bit cmp_tgt register first.  Nine flops and the
+    //  mux tree that loaded them cost more than the second adder does, and
+    //  step_pos is now simply always valid.
+    wire [POS_W-1:0] fdel = hd[0]     ? (hd[1]     ? D_UP    : D_DOWN)
+                                      : (hd[1]     ? D_LEFT  : D_RIGHT);
+    wire [POS_W-1:0] bdel = dq_out[0] ? (dq_out[1] ? D_DOWN  : D_UP)
+                                      : (dq_out[1] ? D_RIGHT : D_LEFT);
+    wire [POS_W-1:0] back = walk + bdel;      // one segment further from the head
+
+    assign step_pos = head + fdel;   // where the head goes next, always valid
     assign scan_pos = walk;
 
     // ---- scan sequencer --------------------------------------------------
@@ -207,11 +229,12 @@ module snake_body #(
     wire [LEN_W-1:0] seg_idx = phase;      // the segment index IS the phase
     assign scan_valid = scan_busy && (seg_idx < len);
 
-    // the collision test needs the cell the head is about to enter, which is
-    // step_pos - but step_pos follows the walker once a scan starts, so it is
-    // sampled into cmp_tgt when the scan is launched
-    reg  [POS_W-1:0] cmp_tgt;
-    wire cmp_now = scan_valid && (scan_pos == cmp_tgt) &&
+    // The cell under test is either the food candidate or the cell the head is
+    // about to enter.  Both are stable for the whole scan - game_ctrl sets
+    // cmp_food and cmp_pos before it asks, and head and the heading cannot
+    // change while a scan runs - so neither needs sampling.
+    wire [POS_W-1:0] cmp_sel = cmp_food ? cmp_pos : step_pos;
+    wire cmp_now = scan_valid && (scan_pos == cmp_sel) &&
                    !(cmp_skip_tail && (seg_idx == (len - 1'b1)));
 
     always @(posedge clk)
@@ -220,17 +243,15 @@ module snake_body #(
             scan_done <= 1'b0;
             cmp_hit   <= 1'b0;
             walk      <= {POS_W{1'b0}};
-            cmp_tgt   <= {POS_W{1'b0}};
         end else begin
             scan_done <= 1'b0;
             if (sc_go) begin
                 scan_busy <= 1'b1;
                 cmp_hit   <= 1'b0;
                 walk      <= head;          // segment 0 is the head itself
-                cmp_tgt   <= cmp_food ? cmp_pos : step_pos;
             end else if (scan_busy) begin
                 cmp_hit <= cmp_hit | cmp_now;
-                walk    <= step_pos;        // the walker output, stepping back
+                walk    <= back;            // one more step down the body
                 if (at_scan) begin
                     scan_busy <= 1'b0;
                     scan_done <= 1'b1;

@@ -78,7 +78,11 @@ module snake_top #(
     // at 25MHz is:
     //
     //      bit 14 ->  1.31ms      bit 21 ->  84ms
-    //      bit 18 -> 21.0ms       bit 24 -> 671ms
+    //      bit 18 -> 21.0ms       bit 22 -> 168ms
+    //
+    // The counter is only as wide as the highest tap anyone uses.  It was two
+    // bits wider to give the heartbeat a 1.3s period; 0.67s looks the same and
+    // the two bits, with their two stages of carry, do not.
     //
     // The taps follow CLK_HZ, so a test bench can run the core on a slower
     // clock and every ratio in the design stays where it is.  TICK_MS tells
@@ -86,7 +90,7 @@ module snake_top #(
     //------------------------------------------------------------------
     localparam integer TAP_MS   = $clog2(CLK_HZ / 1000) - 1;   // ~1ms
     localparam integer TAP_STEP = TAP_MS + 4;                  // ~16x that
-    localparam integer TMR_W    = TAP_MS + 11;
+    localparam integer TMR_W    = TAP_MS + 9;
     localparam integer TICK_MS  = ((1 << (TAP_STEP + 1)) + (CLK_HZ/2000))
                                   / (CLK_HZ / 1000);
 
@@ -232,6 +236,6 @@ module snake_top #(
         .display_on(display_on));
 
     // slow heartbeat once the panel answered, fast blink while it does not
-    assign led_alive = display_on ? tmr[TAP_MS+10] : tmr[TAP_MS+7];
+    assign led_alive = display_on ? tmr[TAP_MS+8] : tmr[TAP_MS+5];
 
 endmodule
