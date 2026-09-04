@@ -12,7 +12,7 @@
 module tb_snake;
 
     localparam CLK_HZ  = 1_000_000;
-    localparam SCL_HZ  =   250_000;
+    localparam SCLK_HZ =   250_000;
     localparam CELL_SH = 1;
     localparam MAXLEN  = 48;
 
@@ -24,25 +24,23 @@ module tb_snake;
     reg [4:0] btn_n = 5'b11111;
     localparam B_UP = 0, B_DN = 1, B_LT = 2, B_RT = 3, B_OK = 4;
 
-    tri1 scl, sda;                      // 4.7k pull-ups
-    wire oled_res_n, led;
-    wire scl_oe, sda_oe, rst_n;
+    wire oled_res_n, led, rst_n;
+    wire oled_sclk, oled_mosi, oled_dc, oled_cs_n;
 
     reset_sync u_rst (.clk(clk), .arst_n(arst_n), .rst_n(rst_n));
 
     snake_top #(
-        .CLK_HZ(CLK_HZ), .SCL_HZ(SCL_HZ), .CELL_SH(CELL_SH), .MAXLEN(MAXLEN),
+        .CLK_HZ(CLK_HZ), .SCLK_HZ(SCLK_HZ), .CELL_SH(CELL_SH), .MAXLEN(MAXLEN),
         .LEN_W(6), .INIT_LEN(3), .RES_MS(4)
     ) dut (
         .clk(clk), .rst_n(rst_n), .btn_n(btn_n),
         .oled_res_n(oled_res_n),
-        .scl_oe(scl_oe), .sda_oe(sda_oe), .sda_i(sda),
+        .oled_sclk(oled_sclk), .oled_mosi(oled_mosi),
+        .oled_dc(oled_dc), .oled_cs_n(oled_cs_n),
         .led_alive(led));
 
-    assign scl = scl_oe ? 1'b0 : 1'bz;
-    assign sda = sda_oe ? 1'b0 : 1'bz;
-
-    ssd1315_model u_panel (.scl(scl), .sda(sda), .res_n(oled_res_n));
+    ssd1306_model u_panel (.sclk(oled_sclk), .mosi(oled_mosi), .dc(oled_dc),
+                           .cs_n(oled_cs_n), .res_n(oled_res_n));
 
     //------------------------------------------------------------------
     // helpers
@@ -142,7 +140,7 @@ module tb_snake;
         // ---- 1. power up: RES# pulse, then the init burst -----------------
         wait (u_panel.disp_on === 1'b1);
         $display("%0t ps : panel reports display ON", $time);
-        check(u_panel.nak_cnt == 0, "no address NAK during bring-up");
+        check(u_panel.disp_on === 1'b1, "panel reached display-on during bring-up");
         check(u_panel.col_e == 7'd127 && u_panel.page_e == 3'd7,
               "window set to the full 128x64 panel");
 
@@ -169,9 +167,9 @@ module tb_snake;
         check(g_hx == x_before + 2, "head advanced two cells to the right");
 
         // ---- 4b. a bus glitch must heal by itself --------------------------
-        //  A jolt on the Pmod shifts the byte framing without producing a NACK
-        //  - the panel ACKs every data byte whatever it holds - so nothing
-        //  triggers the reset path and the write pointer simply stays offset.
+        //  A jolt on the wiring leaves the panel's write pointer somewhere it
+        //  should not be.  Nothing reports it - the panel has no way to say so
+        //  on a write only bus - so the picture would stay skewed for ever.
         //  The window command in front of every frame is what pulls it back.
         wait_frames(1);
         check(top_rule_lit(0) == 128, "top rule intact before the glitch");

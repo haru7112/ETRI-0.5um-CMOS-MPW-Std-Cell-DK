@@ -6,10 +6,11 @@ twpin_JS_RIGHT                  nonfixed
 twpin_JS_OK                     nonfixed
 restrict side T
 
-padgroup OLED_I2C permute
-twpin_SCL_OE                    nonfixed
-twpin_SDA_OE                    nonfixed
-twpin_SDA_I                     nonfixed
+padgroup OLED_SPI permute
+twpin_OLED_SCLK                 nonfixed
+twpin_OLED_MOSI                 nonfixed
+twpin_OLED_DC                   nonfixed
+twpin_OLED_CS_N                 nonfixed
 twpin_OLED_RES_N                nonfixed
 restrict side R
 

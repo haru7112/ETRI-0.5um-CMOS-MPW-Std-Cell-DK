@@ -14,7 +14,7 @@ set sta_tool = opensta
 # snake_chip is split over several files, so the source list has to be given
 # explicitly - qflow reads only the top file otherwise.  Names are relative to
 # ./source, and the order does not matter.  Must be one line.
-set source_file_list = "snake_chip.v snake_top.v snake_body.v game_ctrl.v pixel_gen.v font_rom.v oled_ctrl.v i2c_master.v debounce.v lfsr11.v reset_sync.v"
+set source_file_list = "snake_chip.v snake_top.v snake_body.v game_ctrl.v pixel_gen.v font_rom.v oled_ctrl.v spi_master.v debounce.v lfsr11.v reset_sync.v"
 
 # The design has no include directives at all: screen geometry is derived once
 # in snake_top and handed down as parameters, so no include path is needed.

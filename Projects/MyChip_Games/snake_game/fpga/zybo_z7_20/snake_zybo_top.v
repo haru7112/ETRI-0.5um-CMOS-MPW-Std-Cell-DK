@@ -15,8 +15,17 @@
 //                    +---------------------------------------+
 //
 //      SW3  : reset (slide up = reset)
-//      BTN0 : extra OK/start button, works without the joystick fitted
-//      LD0  : heartbeat, fast blink until the panel answers on I2C
+//      BTN0 : OK / start.  The 5-way switch's centre contact does not fit -
+//             SPI needs five panel pins and the joystick four directions,
+//             which is nine, and Pmod JE has eight.  On silicon all ten pins
+//             exist; this is a bench limitation only.
+//      LD0  : heartbeat, fast blink until the panel has been initialised
+//
+//      The module's CS# is strapped to GND.  The sequencer holds CS# low for a
+//      whole burst and only raises it between frames, so tying it low costs
+//      the between-frame resynchronisation and nothing else - and the window
+//      command is re-sent in front of every frame anyway, which is what the
+//      picture actually heals from.
 //
 //      The game step is fixed at STEP_MS milliseconds (parameter above) -
 //      it no longer speeds up as the snake grows.
@@ -35,15 +44,15 @@ module snake_zybo_top #(
     input  wire btn0,            // spare OK button, active high
     output wire led0,
 
-    inout  wire oled_sda,        // JE1
-    inout  wire oled_scl,        // JE2
+    output wire oled_mosi,       // JE1
+    output wire oled_sclk,       // JE2
     output wire oled_res_n,      // JE3
+    output wire oled_dc,         // JE4
 
-    input  wire js_up,           // JE4   \
-    input  wire js_down,         // JE7    |  5-way switch, closes to GND,
-    input  wire js_left,         // JE8    |  internal pull-ups enabled in the XDC
-    input  wire js_right,        // JE9    |
-    input  wire js_ok            // JE10  /
+    input  wire js_up,           // JE7   \
+    input  wire js_down,         // JE8    |  4 directions, closes to GND,
+    input  wire js_left,         // JE9    |  internal pull-ups enabled in the XDC
+    input  wire js_right         // JE10  /
 );
     //------------------------------------------------------------------
     // 125MHz -> 25MHz.  A plain divide by five on a BUFG: the core is
@@ -72,12 +81,12 @@ module snake_zybo_top #(
     //------------------------------------------------------------------
     // core
     //------------------------------------------------------------------
-    wire scl_oe, sda_oe;
-    wire ok_n = js_ok & ~btn0;               // either input starts the game
+    wire ok_n = ~btn0;                       // BTN0 starts the game - see the
+                                             // pin note in the header
 
     snake_top #(
         .CLK_HZ  (25_000_000),
-        .SCL_HZ  (400_000),
+        .SCLK_HZ (6_250_000),
         .CELL_SH (2),          // 4x4 pixel cells -> 32 x 16 play grid
         .MAXLEN  (32),
         .LEN_W   (6),
@@ -89,15 +98,11 @@ module snake_zybo_top #(
         .rst_n      (rst_n),
         .btn_n      ({ok_n, js_right, js_left, js_down, js_up}),
         .oled_res_n (oled_res_n),
-        .scl_oe     (scl_oe),
-        .sda_oe     (sda_oe),
-        .sda_i      (oled_sda),
+        .oled_sclk  (oled_sclk),
+        .oled_mosi  (oled_mosi),
+        .oled_dc    (oled_dc),
+        .oled_cs_n  (),            // strapped to GND on the module, see header
         .led_alive  (led0)
     );
-
-    // open drain: drive low or let the bus pull-up win, exactly like the
-    // PADINOUT cells will do on silicon
-    assign oled_scl = scl_oe ? 1'b0 : 1'bz;
-    assign oled_sda = sda_oe ? 1'b0 : 1'bz;
 
 endmodule

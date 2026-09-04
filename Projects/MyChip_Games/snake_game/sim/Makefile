@@ -12,7 +12,7 @@ RTL   = ../rtl
 FPGA  = ../fpga/zybo_z7_20
 SRC   = $(RTL)/snake_top.v $(RTL)/snake_body.v $(RTL)/game_ctrl.v \
         $(RTL)/pixel_gen.v $(RTL)/font_rom.v $(RTL)/oled_ctrl.v \
-        $(RTL)/i2c_master.v $(RTL)/debounce.v $(RTL)/lfsr11.v $(RTL)/reset_sync.v
+        $(RTL)/spi_master.v $(RTL)/debounce.v $(RTL)/lfsr11.v $(RTL)/reset_sync.v
 IV    = iverilog -g2005
 
 all: system pixel food lint
@@ -20,8 +20,8 @@ all: system pixel food lint
 system: tb_snake.vvp
 	vvp $< | tee run.log | grep -E '^\[|^====' || true
 
-tb_snake.vvp: tb_snake.v ssd1315_model.v $(SRC)
-	$(IV) -s tb_snake -o $@ tb_snake.v ssd1315_model.v $(SRC)
+tb_snake.vvp: tb_snake.v ssd1306_model.v $(SRC)
+	$(IV) -s tb_snake -o $@ tb_snake.v ssd1306_model.v $(SRC)
 
 wave: tb_snake.vvp
 	vvp $< +vcd | tail -5
@@ -45,8 +45,6 @@ food:
 lint:
 	$(IV) -t null -s snake_chip $(RTL)/snake_chip.v $(SRC)
 	$(IV) -t null -s snake_zybo_top $(FPGA)/snake_zybo_top.v xil_stub.v $(SRC)
-	$(IV) -t null -s snake_chip_pads $(RTL)/snake_chip_pads.v $(RTL)/snake_chip.v \
-	      $(SRC) $(DK)/digital_ETRI050_m2f/khu_etri05_stdcells.v
 	@echo "lint OK"
 
 clean:

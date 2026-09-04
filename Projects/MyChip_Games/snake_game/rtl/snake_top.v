@@ -8,15 +8,15 @@
 //      - head, length, direction, score, food  (~50 flops)
 //      - the display sequencer and I2C engine  (~60 flops)
 //
-//  The open drain bus is presented as separate *_oe / *_i signals so that the
-//  ASIC top can wire them straight onto PADINOUT cells and the FPGA top onto
-//  an IOBUF, without a tri-state net crossing the synthesised core.
+//  The panel is on 4-wire SPI (SSD1306), so every display pin is a plain
+//  output - no open drain, no tri-state net crossing the synthesised core,
+//  and no pull-up resistors on the board.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
 module snake_top #(
     parameter CLK_HZ   = 25_000_000,
-    parameter SCL_HZ   = 400_000,
+    parameter SCLK_HZ  = 6_250_000,
     parameter CELL_SH  = 1,          // 1 = 2x2px cells -> 64x32 grid
     parameter MAXLEN   = 48,         // longest snake the register can hold
     parameter LEN_W    = 6,          // must cover MAXLEN
@@ -29,9 +29,10 @@ module snake_top #(
 
     input  wire [4:0] btn_n,         // [0]UP [1]DOWN [2]LEFT [3]RIGHT [4]OK, active low
     output wire       oled_res_n,
-    output wire       scl_oe,        // 1 = pull the line low
-    output wire       sda_oe,
-    input  wire       sda_i,
+    output wire       oled_sclk,     // 4-wire SPI to the SSD1306
+    output wire       oled_mosi,
+    output wire       oled_dc,       // 0 = command, 1 = display data
+    output wire       oled_cs_n,
     output wire       led_alive
 );
     //------------------------------------------------------------------
@@ -197,11 +198,12 @@ module snake_top #(
 
     wire display_on;
 
-    oled_ctrl #(.I2C_ADDR(7'h3C), .RES_MS(RES_MS),
-                .CLK_HZ(CLK_HZ), .SCL_HZ(SCL_HZ)) u_oled (
+    oled_ctrl #(.RES_MS(RES_MS),
+                .CLK_HZ(CLK_HZ), .SCLK_HZ(SCLK_HZ)) u_oled (
         .clk(clk), .rst_n(rst_n), .ms_pulse(ms_pulse),
         .oled_res_n(oled_res_n),
-        .scl_oe(scl_oe), .sda_oe(sda_oe), .sda_i(sda_i),
+        .oled_sclk(oled_sclk), .oled_mosi(oled_mosi),
+        .oled_dc(oled_dc), .oled_cs_n(oled_cs_n),
         .pix_req(pix_req), .pix_x(pix_x), .pix_page(pix_page),
         .pix_valid(pix_valid), .pix_data(pix_data),
         .frame_done(frame_done), .game_busy(game_busy),
