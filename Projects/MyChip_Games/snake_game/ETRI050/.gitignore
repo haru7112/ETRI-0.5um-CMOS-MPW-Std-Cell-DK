@@ -12,3 +12,4 @@ layout/*.pin
 layout/*.par
 layout/*.blk
 layout/*.mag
+preflight/

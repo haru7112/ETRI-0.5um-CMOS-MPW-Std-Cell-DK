@@ -26,6 +26,7 @@ all :
 	@echo '    make config_m2f      # install the 2 metal std-cell views'
 	@echo '    make synthesize'
 	@echo '    make check_pins      # cross check snake_chip.cel2 before placing'
+	@echo '    make preflight       # parse the .cel with graywolf own checker'
 	@echo '    make place'
 	@echo '    make sta'
 	@echo '    make route'
@@ -63,6 +64,26 @@ check_pins :
 	python3 check_cel2.py
 
 # -----------------------------------------------------
+# Pre-flight the placement input.
+#
+# graywolf pipes its parser errors into log/place.log and shows the terminal
+# nothing but "exit status 255", so a malformed .cel costs a full place run to
+# find.  This runs the same two steps qflow does - vlog2Cel, then graywolf own
+# syntax checker - on the netlist that is sitting in ./synthesis, in a second.
+#
+# Run it after make synthesize and before make place.
+QFLOW_TECH = /usr/local/share/qflow/tech/etri050
+GW_SYNTAX  = /usr/local/lib/graywolf/bin/syntax
+
+preflight : ./synthesis/$(TOP_MODULE).rtlnopwr.v $(TOP_MODULE).cel2
+	python3 check_cel2.py
+	@rm -rf ./preflight && mkdir -p ./preflight
+	vlog2Cel -l $(QFLOW_TECH)/etri050_stdcells.lef -u 100 -o ./preflight/$(TOP_MODULE).cel ./synthesis/$(TOP_MODULE).rtlnopwr.v
+	@cat $(TOP_MODULE).cel2 >> ./preflight/$(TOP_MODULE).cel
+	@echo "cells: `grep -c '^cell ' ./preflight/$(TOP_MODULE).cel`  pads: `grep -c '^pad ' ./preflight/$(TOP_MODULE).cel`"
+	@cd ./preflight && $(GW_SYNTAX) $(TOP_MODULE) 2>&1 | grep -vE 'objects so far|^$$' | tail -6
+
+# -----------------------------------------------------
 sta : ./log/sta.log
 
 ./log/sta.log : ./synthesis/$(TOP_MODULE).rtlnopwr.v ./log/place.log project_vars.sh
@@ -92,7 +113,7 @@ size : ./layout/$(TOP_MODULE).mag ./log/magic_db.log
 	~/ETRI050_DesignKit/scripts/size_core.sh $(TOP_MODULE)
 
 clean :
-	rm -f ./log/* ./synthesis/*
+	rm -rf ./log/* ./synthesis/* ./preflight
 	rm -f ./source
 	touch project_vars.sh
 
@@ -111,4 +132,4 @@ config_m2f :
 	cd $(CELL_LIB) && $(MAKE) clean && $(MAKE)
 	@echo 'Std-Cell configured with $(CELL_SRC2)'
 
-.PHONY: all synthesize place sta route migrate lvs size check_pins clean config_m1f config_m2f
+.PHONY: all synthesize place sta route migrate lvs size check_pins preflight clean config_m1f config_m2f
