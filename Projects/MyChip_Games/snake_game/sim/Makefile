@@ -42,12 +42,18 @@ food:
 	   vvp tbf$$c.vvp | grep -E '^\[|^===='; \
 	done
 
+# -Wall is what catches a port left off an instantiation.  A floating input is
+# invisible in RTL simulation - it reads as z, and z through a mux or a compare
+# still produces a number - but yosys leaves the net undriven, so the gates get
+# an X where the RTL got an answer.  That is exactly how the score display was
+# lost when score_bcd moved out of game_ctrl, so the warning is an error here.
 lint:
-	$(IV) -t null -s snake_chip $(RTL)/snake_chip.v $(SRC)
-	$(IV) -t null -s snake_zybo_top $(FPGA)/snake_zybo_top.v xil_stub.v $(SRC)
+	@$(IV) -Wall -t null -s snake_chip $(RTL)/snake_chip.v $(SRC) 2>&1 | tee lint.log
+	@$(IV) -Wall -t null -s snake_zybo_top $(FPGA)/snake_zybo_top.v xil_stub.v $(SRC) 2>&1 | tee -a lint.log
+	@if grep -q 'warning:' lint.log; then echo "==== LINT FAILED ===="; exit 1; fi
 	@echo "lint OK"
 
 clean:
-	rm -f *.vvp *.vcd run.log dbg*.v* t.ys tmp.ys
+	rm -f *.vvp *.vcd run.log lint.log dbg*.v* t.ys tmp.ys
 
 .PHONY: all system wave pixel food lint clean

@@ -212,7 +212,7 @@ module snake_top #(
         .clk(clk), .rst_n(rst_n),
         .req(pix_req), .x(pix_x), .page(pix_page),
         .valid(pix_valid), .dout(pix_data),
-        .st_title(st_title), .st_over(st_over),
+        .st_title(st_title), .st_over(st_over), .score_bcd(score_bcd),
         .blink(blink), .food_en(food_en),
         .scan_req(p_scan_req), .scan_pos_i(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .food_pos_i(food_pos));

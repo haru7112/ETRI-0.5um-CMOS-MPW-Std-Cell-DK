@@ -98,6 +98,48 @@ module tb_snake;
     wire [5:0]  g_hx    = g_head[5:0];
     wire [4:0]  g_hy    = g_head[10:6];
 
+    //------------------------------------------------------------------
+    // What the PANEL shows for the score, as opposed to what the internal
+    // wire says.  The two came apart once: score_bcd moved from game_ctrl up
+    // into snake_top and was then left off the pixel_gen instantiation, so
+    // every check on dut.score_bcd still passed while the digits on the glass
+    // were driven by a floating input.  Counting the lit pixels in the score
+    // box closes that hole - the expected count comes from a second font_rom
+    // fed the same digits, so this tests the path, not the glyphs.
+    //------------------------------------------------------------------
+    reg  [3:0] fq_d = 4'd0;
+    reg  [2:0] fq_c = 3'd0;
+    wire [7:0] fq_b;
+    font_rom u_fq (.digit(fq_d), .col(fq_c), .bits(fq_b));
+
+    integer gp_sum;
+    task glyph_pop(input [3:0] d);
+        integer c;
+        begin
+            gp_sum = 0;
+            fq_d   = d;
+            for (c = 0; c < 8; c = c + 1) begin
+                fq_c = c[2:0];
+                #1;
+                gp_sum = gp_sum + fq_b[0] + fq_b[1] + fq_b[2] + fq_b[3] +
+                                  fq_b[4] + fq_b[5] + fq_b[6] + fq_b[7];
+            end
+        end
+    endtask
+
+    task check_score_px(input [7:0] bcd, input [8*24:1] what);
+        integer want, got;
+        begin
+            glyph_pop(bcd[7:4]);  want = gp_sum;
+            glyph_pop(bcd[3:0]);  want = want + gp_sum;
+            got = u_panel.box_pixels(3'd3, 7'd0, 7'd15);
+            if (got != want)
+                $display("[FAIL] score box has %0d lit pixels, expected %0d for %02h",
+                         got, want, bcd);
+            check(got == want, what);
+        end
+    endtask
+
     integer steps = 0;
     integer last_st = -1;
     always @(posedge clk) begin
@@ -204,6 +246,7 @@ module tb_snake;
         check(g_len == 4, "snake grew after eating");
         check(g_score == 8'h01, "score counted the meal");
         wait_frames(1);
+        check_score_px(8'h01, "panel draws the score 01");
         dump_body;
         u_panel.dump("AFTER EATING");
 
@@ -222,6 +265,7 @@ module tb_snake;
         check(g_len == 3, "OK restarts the game");
         check(g_score == 8'h00, "score cleared on restart");
         wait_frames(1);
+        check_score_px(8'h00, "panel draws the score 00 after a restart");
         u_panel.dump("RESTARTED");
 
         // ---- 10. grow, then bite its own body ------------------------------

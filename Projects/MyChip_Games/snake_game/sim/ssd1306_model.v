@@ -115,6 +115,27 @@ module ssd1306_model (
         end
     endtask
 
+    // Lit pixels inside one page, between two columns.  The score digits are
+    // the only thing drawn in page SCORE_P left of the divider, so counting
+    // that box is a direct read of what the panel is showing - which is the
+    // check that would have caught score_bcd being left off the pixel_gen
+    // instantiation, where the internal wire was right and the picture was not.
+    function [31:0] box_pixels;
+        input [2:0]  p;
+        input [6:0]  x0;
+        input [6:0]  x1;
+        integer x, s;
+        begin
+            s = 0;
+            for (x = x0; x <= x1; x = x + 1)
+                s = s + gddram[{p, x[6:0]}][0] + gddram[{p, x[6:0]}][1] +
+                        gddram[{p, x[6:0]}][2] + gddram[{p, x[6:0]}][3] +
+                        gddram[{p, x[6:0]}][4] + gddram[{p, x[6:0]}][5] +
+                        gddram[{p, x[6:0]}][6] + gddram[{p, x[6:0]}][7];
+            box_pixels = s;
+        end
+    endfunction
+
     function [31:0] lit_pixels;      // set pixels, cheap sanity metric
         input dummy;
         integer x, s;
