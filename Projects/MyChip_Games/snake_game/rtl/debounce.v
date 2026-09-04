@@ -1,10 +1,15 @@
 //----------------------------------------------------------------------------
 // debounce.v
-//  Two stage metastability sync + 2 sample agreement filter clocked by a 1ms
-//  strobe.  A level therefore has to be stable for ~2ms before it is accepted,
-//  which is well beyond the bounce time of a tactile 5-way switch, and it is
-//  one flop per input cheaper than a 3 sample majority.
+//  Two stage metastability sync + 2 sample agreement filter, clocked by the
+//  millisecond strobe.  A level has to be stable across two samples before it
+//  is accepted, well beyond the bounce time of a tactile 5-way switch.
 //  Inputs are active low (switch closes to GND, external pull-up).
+//
+//  Only the previous sample is kept, not two of them: comparing the incoming
+//  sample against the stored one is the same filter as comparing two stored
+//  ones, one register cheaper.  The press pulse is likewise formed from the
+//  transition that is about to be taken rather than from a delayed copy of
+//  level, which saves another.  Five registers of width N, not seven.
 //----------------------------------------------------------------------------
 `timescale 1ns/1ps
 
@@ -19,9 +24,10 @@ module debounce #(
     output reg  [N-1:0] press             // 1 clock wide pulse on 0->1 of level
 );
     reg [N-1:0] s0, s1;
-    reg [N-1:0] h0, h1;
-    reg [N-1:0] level_d;
-    integer i;
+    reg [N-1:0] prev;                     // the previous accepted sample
+
+    wire [N-1:0] now   = ~s1;             // active low pin -> active high sample
+    wire [N-1:0] agree = ~(now ^ prev);   // this sample matches the last one
 
     always @(posedge clk)
         if (!rst_n) begin
@@ -32,29 +38,16 @@ module debounce #(
 
     always @(posedge clk)
         if (!rst_n) begin
-            h0 <= {N{1'b0}};  h1 <= {N{1'b0}};
-        end else if (ms_pulse) begin
-            h0 <= ~s1;                    // active low pin -> active high sample
-            h1 <= h0;
-        end
-
-    always @(posedge clk)
-        if (!rst_n) begin
+            prev  <= {N{1'b0}};
             level <= {N{1'b0}};
+            press <= {N{1'b0}};
         end else begin
-            for (i = 0; i < N; i = i + 1) begin
-                if      ( h0[i] &  h1[i]) level[i] <= 1'b1;
-                else if (~h0[i] & ~h1[i]) level[i] <= 1'b0;
+            press <= {N{1'b0}};
+            if (ms_pulse) begin
+                prev  <= now;
+                level <= (agree & now) | (~agree & level);
+                press <= agree & now & ~level;
             end
-        end
-
-    always @(posedge clk)
-        if (!rst_n) begin
-            level_d <= {N{1'b0}};
-            press   <= {N{1'b0}};
-        end else begin
-            level_d <= level;
-            press   <= level & ~level_d;
         end
 
 endmodule

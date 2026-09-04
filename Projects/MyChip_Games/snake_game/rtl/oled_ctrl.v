@@ -70,50 +70,51 @@ module oled_ctrl #(
         .sclk(oled_sclk), .mosi(oled_mosi));
 
     // ---- SSD1306 power-up command list -----------------------------------
+    //
+    // RES# is driven low and released above, so every register is at its reset
+    // default when this list runs, and most of what a typical init sequence
+    // sends is that default written back.  Only the four settings the default
+    // gets wrong are here:
+    //
+    //   8D 14  charge pump on   - default is off, and nothing lights without it
+    //   20 00  horizontal mode  - default is page mode, which does not wrap
+    //   A1     segment remap    - default A0, mirrors the picture
+    //   C8     COM scan up      - default C0, flips the picture
+    //
+    // Dropped as already correct after reset: D5 80 (clock divide), A8 3F
+    // (multiplex), D3 00 (offset), 40 (start line), DA 12 (COM pins, which is
+    // the 128x64 default), 81 7F (contrast), A4 (resume from RAM), A6 (not
+    // inverted), 2E (scrolling off).  D9 F1 and DB 40 tune pre-charge and
+    // VCOMH; the defaults 22 and 20 drive this panel perfectly well.
+    //
+    // 32 bytes of ROM become 14, and the case that decodes them shrinks with
+    // it.
     reg [7:0] init_rom;
     assign init_rom_q = init_rom;
 
-    always @* case (pkt_idx[5:0])
-        6'd0 : init_rom = 8'hAE;   // display off
-        6'd1 : init_rom = 8'hD5;   // display clock divide
-        6'd2 : init_rom = 8'h80;
-        6'd3 : init_rom = 8'hA8;   // multiplex ratio
-        6'd4 : init_rom = 8'h3F;   //   = 64 rows
-        6'd5 : init_rom = 8'hD3;   // display offset
-        6'd6 : init_rom = 8'h00;
-        6'd7 : init_rom = 8'h40;   // start line 0
-        6'd8 : init_rom = 8'h8D;   // charge pump
-        6'd9 : init_rom = 8'h14;   //   = enable
-        6'd10: init_rom = 8'h20;   // memory addressing mode
-        6'd11: init_rom = 8'h00;   //   = horizontal
-        6'd12: init_rom = 8'hA1;   // segment remap
-        6'd13: init_rom = 8'hC8;   // COM scan direction remapped
-        6'd14: init_rom = 8'hDA;   // COM pin configuration
-        6'd15: init_rom = 8'h12;   //   = alternative
-        6'd16: init_rom = 8'h81;   // contrast
-        6'd17: init_rom = 8'h7F;
-        6'd18: init_rom = 8'hD9;   // pre-charge period
-        6'd19: init_rom = 8'hF1;
-        6'd20: init_rom = 8'hDB;   // VCOMH deselect level
-        6'd21: init_rom = 8'h40;
-        6'd22: init_rom = 8'hA4;   // resume from RAM
-        6'd23: init_rom = 8'hA6;   // normal (not inverted)
-        6'd24: init_rom = 8'h2E;   // scrolling off
+    always @* case (pkt_idx[3:0])
+        4'd0 : init_rom = 8'hAE;   // display off while we set up
+        4'd1 : init_rom = 8'h8D;   // charge pump
+        4'd2 : init_rom = 8'h14;   //   = enable
+        4'd3 : init_rom = 8'h20;   // memory addressing mode
+        4'd4 : init_rom = 8'h00;   //   = horizontal, so it wraps for us
+        4'd5 : init_rom = 8'hA1;   // segment remap
+        4'd6 : init_rom = 8'hC8;   // COM scan direction remapped
         // The addressing window.  These six bytes are ALSO re-sent in front of
         // every frame - see the P_FCMD phase - so the same ROM serves both.
-        6'd25: init_rom = 8'h21;   // column address
-        6'd26: init_rom = 8'h00;
-        6'd27: init_rom = 8'h7F;
-        6'd28: init_rom = 8'h22;   // page address
-        6'd29: init_rom = 8'h00;
-        6'd30: init_rom = 8'h07;
-        6'd31: init_rom = 8'hAF;   // display on
+        4'd7 : init_rom = 8'h21;   // column address
+        4'd8 : init_rom = 8'h00;
+        4'd9 : init_rom = 8'h7F;
+        4'd10: init_rom = 8'h22;   // page address
+        4'd11: init_rom = 8'h00;
+        4'd12: init_rom = 8'h07;
+        4'd13: init_rom = 8'hAF;   // display on
         default: init_rom = 8'hE3; // NOP
     endcase
 
-    localparam [10:0] INIT_N    = 11'd32;
-    localparam [10:0] WIN_FIRST = 11'd25;   // index of 0x21 in init_rom
-    localparam [10:0] WIN_LAST  = 11'd30;   // index of the last window byte
+    localparam [10:0] INIT_N    = 11'd14;
+    localparam [10:0] WIN_FIRST = 11'd7;    // index of 0x21 in init_rom
+    localparam [10:0] WIN_LAST  = 11'd12;   // index of the last window byte
 
     // ---- sequencer -------------------------------------------------------
     localparam T_RESLO = 3'd0, T_RESHI = 3'd1, T_FETCH = 3'd2,
