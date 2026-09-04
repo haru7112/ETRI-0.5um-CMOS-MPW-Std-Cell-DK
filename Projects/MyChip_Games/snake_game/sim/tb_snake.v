@@ -94,7 +94,7 @@ module tb_snake;
     wire [3:0]  g_st    = dut.u_game.st;
     wire [5:0]  g_len   = dut.u_body.len;
     wire [10:0] g_head  = dut.u_body.head;
-    wire [7:0]  g_score = dut.u_game.score_bcd;
+    wire [7:0]  g_score = dut.score_bcd;
     wire [5:0]  g_hx    = g_head[5:0];
     wire [4:0]  g_hy    = g_head[10:6];
 

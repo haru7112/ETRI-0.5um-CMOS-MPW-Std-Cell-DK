@@ -51,7 +51,7 @@ module tb_food;
         .load_pos(), .step_dir(), .step_pos(11'd0),
         .scan_req(), .cmp_food(), .cmp_pos(), .cmp_skip_tail(),
         .scan_done(1'b0), .cmp_hit(1'b0), .len(6'd3),
-        .st_title(), .st_over(), .score_bcd(), .food_pos(), .food_en(),
+        .st_title(), .st_over(), .food_pos(), .food_en(),
         .rnd(rnd));
 
     integer i, errors, run, worst, accepted;

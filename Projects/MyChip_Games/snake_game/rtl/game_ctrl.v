@@ -68,7 +68,6 @@ module game_ctrl #(
     // rendering state
     output wire        st_title,
     output wire        st_over,
-    output reg  [7:0]  score_bcd,       // 2 BCD digits, {tens, units}
     output wire [10:0] food_pos,
     output reg         food_en,
 
@@ -220,7 +219,6 @@ module game_ctrl #(
             cmp_food      <= 1'b0;
             cmp_skip_tail <= 1'b0;
             dir           <= 2'b00;
-            score_bcd     <= 8'h00;
             food_r        <= {POS_W{1'b0}};
             food_en       <= 1'b0;
             build_cnt     <= {LEN_W{1'b0}};
@@ -245,7 +243,6 @@ module game_ctrl #(
                 busy      <= 1'b1;
                 body_load <= 1'b1;             // head <= load_pos, len <= 1
                 dir       <= 2'b00;
-                score_bcd <= 8'h00;
                 food_en   <= 1'b0;
                 build_cnt <= INIT_LEN[LEN_W-1:0] - 1'b1;
                 st        <= S_BUILD;
@@ -319,13 +316,6 @@ module game_ctrl #(
                             body_grow <= 1'b1;
                             food_try  <= 3'd0;
                             st        <= S_FOOD;
-                            if (score_bcd[3:0] != 4'd9)
-                                score_bcd[3:0] <= score_bcd[3:0] + 4'd1;
-                            else begin
-                                score_bcd[3:0] <= 4'd0;
-                                if (score_bcd[7:4] != 4'd9)
-                                    score_bcd[7:4] <= score_bcd[7:4] + 4'd1;
-                            end
                         end else begin
                             st <= S_IDLE;
                         end

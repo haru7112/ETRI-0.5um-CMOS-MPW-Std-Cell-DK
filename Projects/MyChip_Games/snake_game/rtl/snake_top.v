@@ -156,8 +156,19 @@ module snake_top #(
     // game rules
     //------------------------------------------------------------------
     wire        st_title, st_over, game_busy, frame_done, food_en;
-    wire [7:0]  score_bcd;
     wire [10:0] food_pos;
+
+    // The score is not counted; it is read off the snake.  Every meal grows
+    // the body by one, so meals eaten is len - INIT_LEN and game_ctrl needs no
+    // counter of its own - which was an 8 bit BCD register with a carry
+    // between its digits, 0.038mm2 of game_ctrl.  Converting the binary length
+    // to two digits for the font costs a pair of comparisons instead.
+    wire [LEN_W-1:0] score = len - INIT_LEN[LEN_W-1:0];
+    wire [3:0] sc_tens = (score >= 20) ? 4'd2 : (score >= 10) ? 4'd1 : 4'd0;
+    wire [LEN_W-1:0] sc_sub = (sc_tens == 4'd2) ? 6'd20 :
+                              (sc_tens == 4'd1) ? 6'd10 : 6'd0;
+    wire [LEN_W-1:0] sc_rem  = score - sc_sub;
+    wire [7:0] score_bcd = {sc_tens, sc_rem[3:0]};
 
     game_ctrl #(.GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
                 .FLD_X0(FLD_X0), .FLD_X1(FLD_X1),
@@ -173,7 +184,7 @@ module snake_top #(
         .cmp_pos(cmp_pos), .cmp_skip_tail(cmp_skip_tail),
         .scan_done(scan_done), .cmp_hit(cmp_hit),
         .len(len),
-        .st_title(st_title), .st_over(st_over), .score_bcd(score_bcd),
+        .st_title(st_title), .st_over(st_over),
         .food_pos(food_pos), .food_en(food_en),
         .rnd(rnd));
 
@@ -191,7 +202,7 @@ module snake_top #(
         .clk(clk), .rst_n(rst_n),
         .req(pix_req), .x(pix_x), .page(pix_page),
         .valid(pix_valid), .dout(pix_data),
-        .st_title(st_title), .st_over(st_over), .score_bcd(score_bcd),
+        .st_title(st_title), .st_over(st_over),
         .blink(blink), .food_en(food_en),
         .scan_req(p_scan_req), .scan_pos_i(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .food_pos_i(food_pos));
