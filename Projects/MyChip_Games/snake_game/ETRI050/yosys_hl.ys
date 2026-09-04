@@ -1,0 +1,21 @@
+# High-level synthesis for the SNAKE chip.
+#
+# project_vars.sh points qflow at this file with yosys_script, so these lines
+# replace the single "synth -top snake_chip" that qflow writes by default.
+# Everything around them - reading the liberty file, reading the sources,
+# dfflibmap, abc, iopadmap, the final clean - is still qflow's.
+#
+# The only real change is -flatten before mapping.  The design hands screen
+# geometry down as parameters and passes a lot of one bit handshakes between
+# blocks, and none of that can be folded across a module boundary.  Flattening
+# first lets the constants reach into the sub-blocks: 284 flops instead of 288,
+# and about 8% off the combinational cells on its own.
+#
+# techmap after the first opt is not optional.  "synth -flatten" can leave a
+# word level $mux behind, which abc -liberty will not touch and which then
+# reaches the placer as an unmapped cell; techmap expands it.  Without this
+# line the netlist has exactly one such cell and the flow breaks late.
+synth -top snake_chip -flatten
+opt -full
+techmap
+opt -full

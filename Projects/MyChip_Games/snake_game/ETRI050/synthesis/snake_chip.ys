@@ -1,5 +1,9 @@
-# qflow's own synthesis script for the etri050 node, run directly because the
-# qflow driver script is not installed in this environment.
+# The script qflow 1.4.100 writes for this project, reproduced so it can be run
+# directly when the qflow driver is not installed.  It is NOT hand tuned: the
+# two places that differ from the stock qflow output are exactly what
+# ../project_vars.sh sets through the yosys_script and abc_script hooks, and
+# the rest is qflow's.  Keep the three in step - here, project_vars.sh, and
+# ../../syn/area.py.
 read_verilog ../../rtl/snake_chip.v
 read_verilog ../../rtl/snake_top.v
 read_verilog ../../rtl/snake_body.v
@@ -7,16 +11,27 @@ read_verilog ../../rtl/game_ctrl.v
 read_verilog ../../rtl/pixel_gen.v
 read_verilog ../../rtl/font_rom.v
 read_verilog ../../rtl/oled_ctrl.v
-read_verilog ../../rtl/i2c_master.v
+read_verilog ../../rtl/spi_master.v
 read_verilog ../../rtl/debounce.v
 read_verilog ../../rtl/lfsr11.v
 read_verilog ../../rtl/reset_sync.v
 
 hierarchy -top snake_chip -check
-synth -top snake_chip
+
+# ---- yosys_script (../yosys_hl.ys) ----------------------------------------
+synth -top snake_chip -flatten
+opt -full
+techmap
+opt -full
+# ---------------------------------------------------------------------------
+
 dfflibmap -liberty /home/user/ETRI-0.5um-CMOS-MPW-Std-Cell-DK/digital_ETRI050_m2f/khu_etri05_stdcells.lib
 opt
-abc -liberty /home/user/ETRI-0.5um-CMOS-MPW-Std-Cell-DK/digital_ETRI050_m2f/khu_etri05_stdcells.lib -script +strash;scorr;ifraig;retime,{D};strash;dch,-f;map,-M,1,{D}
+
+# ---- abc_script -----------------------------------------------------------
+abc -liberty /home/user/ETRI-0.5um-CMOS-MPW-Std-Cell-DK/digital_ETRI050_m2f/khu_etri05_stdcells.lib -script +strash;dch,-f;map,-a;mfs;amap
+# ---------------------------------------------------------------------------
+
 flatten
 setundef -zero
 clean -purge
