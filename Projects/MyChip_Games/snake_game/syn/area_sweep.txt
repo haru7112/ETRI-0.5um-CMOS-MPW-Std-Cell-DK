@@ -1,15 +1,17 @@
 calibration against the pong_pt1 tape-out in this design kit
+  (stock qflow recipe - that is what pong_pt1 was built with)
   qflow script here :  1061 cells  0.6066 mm2
   real tape-out     :  1017 cells  0.5997 mm2
   error             : +4.3% cells  +1.2% area
 
+project recipe, as set in ETRI050/project_vars.sh
 28-pin package budget: core 1.036 mm2 x 82.3% = 0.853 mm2 of cells
 
 CELL_SH     grid MAXLEN  cells    FF  cell mm2  core mm2  vs budget
-      1    64x32     48   2671   371     1.601     1.945      1.88x
-      1    64x32     32   2536   339     1.502     1.825      1.76x
-      2    32x16     32   2434   331     1.445     1.756      1.69x
-      2    32x16     24   2301   312     1.363     1.656      1.60x
-      2    32x16     16   2255   296     1.325     1.610      1.55x
-      3     16x8     24   2149   304     1.282     1.558      1.50x
-      3     16x8     16   2109   288     1.246     1.514      1.46x
+      1    64x32     48   1559   301     0.992     1.206      1.16x
+      1    64x32     32   1526   268     0.947     1.151      1.11x
+      2    32x16     32   1467   262     0.914     1.111      1.07x
+      2    32x16     24   1425   245     0.879     1.068      1.03x
+      2    32x16     16   1396   228     0.852     1.035      1.00x
+      3     16x8     24   1326   236     0.824     1.001      0.97x
+      3     16x8     16   1297   219     0.796     0.967      0.93x

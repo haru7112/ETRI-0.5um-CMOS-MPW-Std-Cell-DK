@@ -51,9 +51,11 @@ lint:
 	@$(IV) -Wall -t null -s snake_chip $(RTL)/snake_chip.v $(SRC) 2>&1 | tee lint.log
 	@$(IV) -Wall -t null -s snake_zybo_top $(FPGA)/snake_zybo_top.v xil_stub.v $(SRC) 2>&1 | tee -a lint.log
 	@if grep -q 'warning:' lint.log; then echo "==== LINT FAILED ===="; exit 1; fi
+	@python3 $(FPGA)/check_xdc.py > xdc.log || (cat xdc.log; exit 1)
+	@tail -2 xdc.log
 	@echo "lint OK"
 
 clean:
-	rm -f *.vvp *.vcd run.log lint.log dbg*.v* t.ys tmp.ys
+	rm -f *.vvp *.vcd run.log lint.log xdc.log dbg*.v* t.ys tmp.ys
 
 .PHONY: all system wave pixel food lint clean

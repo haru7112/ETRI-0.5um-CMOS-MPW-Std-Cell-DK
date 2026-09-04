@@ -5,9 +5,11 @@
 #     vivado -mode batch -source build.tcl
 #
 # Writes build/snake_zybo.bit plus utilisation and timing reports.
-# Tested against the file set as it is; snake_chip.v and snake_chip_pads.v are
-# deliberately NOT read - they are the ASIC views and snake_chip_pads
-# instantiates ETRI050 pad cells that mean nothing to Vivado.
+# snake_chip.v is deliberately NOT read - it is the ASIC view, and it wraps
+# snake_top in ETRI050 pad cells that mean nothing to Vivado.
+#
+# This list must match sim/Makefile's SRC.  It does not update itself, and a
+# file that has been renamed shows up as a Vivado error several minutes in.
 #-----------------------------------------------------------------------------
 set part   xc7z020clg400-1
 set here   [file normalize [file dirname [info script]]]
@@ -22,7 +24,7 @@ read_verilog [list \
     [file join $rtl pixel_gen.v]   \
     [file join $rtl font_rom.v]    \
     [file join $rtl oled_ctrl.v]   \
-    [file join $rtl i2c_master.v]  \
+    [file join $rtl spi_master.v]  \
     [file join $rtl debounce.v]    \
     [file join $rtl lfsr11.v]      \
     [file join $rtl reset_sync.v]  \

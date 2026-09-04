@@ -6,7 +6,11 @@ Pre-flight check for the Zybo Z7-20 build, runnable without Vivado.
      constrained port exists in the Verilog - a typo either way is a synthesis
      error that costs a full Vivado run to discover;
   2. every package pin is a real Zybo Z7 Rev.B pin and is the one Digilent's
-     master XDC gives for the board signal we think we are using.
+     master XDC gives for the board signal we think we are using;
+  3. build.tcl reads exactly the RTL files sim/Makefile simulates.  That list
+     does not update itself: it still said i2c_master.v after the panel moved
+     to SPI, which Vivado would only have reported several minutes into a
+     run.
 
 The pin table below is transcribed from Digilent/digilent-xdc
 Zybo-Z7-Master.xdc.  Note the trap it avoids: JB/JC/JD are differential Pmods
@@ -73,10 +77,29 @@ def main():
             used[pin] = p
             print(f'  {p:12s} {pin:5s}  {ZYBO[pin]}')
 
+    bad += check_srcs()
+
     print()
     print('==== XDC CHECK PASSED ====' if bad == 0 else
           f'==== XDC CHECK FAILED, {bad} problem(s) ====')
     return 1 if bad else 0
+
+
+def check_srcs():
+    """build.tcl must read the same RTL that sim/Makefile simulates."""
+    mk = open(os.path.join(HERE, '..', '..', 'sim', 'Makefile')).read()
+    m  = re.search(r'^SRC\s*=\s*((?:.*\\\n)*.*)$', mk, re.M)
+    sim = set(re.findall(r'/(\w+)\.v', m.group(1)))
+    tcl = set(re.findall(r'\$rtl (\w+)\.v', open(os.path.join(HERE, 'build.tcl')).read()))
+    bad = 0
+    print()
+    for f in sorted(sim - tcl):
+        print(f'[FAIL] {f}.v is simulated but build.tcl does not read it'); bad += 1
+    for f in sorted(tcl - sim):
+        print(f'[FAIL] build.tcl reads {f}.v, which sim/Makefile does not'); bad += 1
+    if not bad:
+        print(f'  build.tcl reads the same {len(sim)} RTL files as sim/Makefile')
+    return bad
 
 if __name__ == '__main__':
     sys.exit(main())

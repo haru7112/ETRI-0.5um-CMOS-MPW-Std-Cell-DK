@@ -50,7 +50,7 @@ module debounce #(
         end
 
     genvar g;
-    generate for (g = 0; g < N; g = g + 1) begin : bit
+    generate for (g = 0; g < N; g = g + 1) begin : sw
         if (FILT[g]) begin : filtered
             reg  prev;                    // the previous accepted sample
             reg  lvl, prs;

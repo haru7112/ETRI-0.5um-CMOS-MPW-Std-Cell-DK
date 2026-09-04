@@ -2,3 +2,4 @@
 *.vcd
 run.log
 lint.log
+xdc.log
