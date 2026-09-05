@@ -1,0 +1,46 @@
+# gate.ys
+#  Synthesise snake_chip exactly the way the qflow run does, so the emulator
+#  is driven by the same netlist that gets placed and routed.
+#
+#  The two lines below the "project recipe" markers are what
+#  ETRI050/project_vars.sh sets through yosys_script and abc_script.  If you
+#  change them there, change them here, or the emulator stops being a test of
+#  the thing you are taping out.
+read_verilog ../../rtl/snake_chip.v
+read_verilog ../../rtl/snake_top.v
+read_verilog ../../rtl/snake_body.v
+read_verilog ../../rtl/game_ctrl.v
+read_verilog ../../rtl/pixel_gen.v
+read_verilog ../../rtl/font_rom.v
+read_verilog ../../rtl/oled_ctrl.v
+read_verilog ../../rtl/spi_master.v
+read_verilog ../../rtl/debounce.v
+read_verilog ../../rtl/lfsr11.v
+read_verilog ../../rtl/reset_sync.v
+
+hierarchy -top snake_chip -check
+
+# ---- project recipe: yosys_script ----------------------------------------
+synth -top snake_chip -flatten
+opt -full
+techmap
+opt -full
+# --------------------------------------------------------------------------
+
+dfflibmap -liberty LIBERTY_PATH
+opt
+
+# ---- project recipe: abc_script ------------------------------------------
+abc -liberty LIBERTY_PATH -script +strash;dch,-f;map,-a;mfs;amap
+# --------------------------------------------------------------------------
+
+flatten
+setundef -zero
+clean -purge
+iopadmap -outpad BUFX2 A:Y -bits
+opt
+clean
+rename -enumerate
+
+stat -liberty LIBERTY_PATH
+write_verilog -noattr snake_chip_gate.v
