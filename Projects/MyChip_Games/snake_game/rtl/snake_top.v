@@ -184,6 +184,12 @@ module snake_top #(
     wire [LEN_W-1:0] sc_rem  = score - sc_sub;
     wire [7:0] score_bcd = {sc_tens, sc_rem[3:0]};
 
+    // The body register holds MAXLEN segments, so the length - and with it the
+    // score - stops there.  len can never exceed MAXLEN (snake_body guards the
+    // increment), so this is the "you filled it" flag and pixel_gen blinks the
+    // digits on it.
+    wire score_full = (len == MAXLEN[LEN_W-1:0]);
+
     game_ctrl #(.GX_W(GX_W), .GY_W(GY_W), .POS_W(POS_W),
                 .FLD_X0(FLD_X0), .FLD_X1(FLD_X1),
                 .FLD_Y0(FLD_Y0), .FLD_Y1(FLD_Y1),
@@ -218,6 +224,7 @@ module snake_top #(
         .req(pix_req), .x(pix_x), .page(pix_page),
         .valid(pix_valid), .dout(pix_data),
         .st_title(st_title), .st_over(st_over), .score_bcd(score_bcd),
+        .score_full(score_full),
         .blink(blink), .food_en(food_en),
         .scan_req(p_scan_req), .scan_pos_i(scan_pos), .scan_valid(scan_valid),
         .scan_done(scan_done), .food_pos_i(food_pos));

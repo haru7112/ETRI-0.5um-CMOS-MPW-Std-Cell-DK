@@ -18,6 +18,7 @@ module tb_pixel;
     localparam GRID_H = (1 << GY_W);
     localparam CPP    = (8 >> CELL_SH);
     localparam SCORE_W= (16 >> CELL_SH);
+    localparam SCORE_P= 3;
     localparam NSEG   = 5;
 
     reg clk = 0, rst_n = 0;
@@ -29,6 +30,9 @@ module tb_pixel;
     reg              req = 0;
     reg  [6:0]       x = 0;
     reg  [2:0]       page = 0;
+    reg  [7:0]       score_bcd  = 8'h00;
+    reg              score_full = 1'b0;
+    reg              blink      = 1'b0;
 
     wire             p_scan_req, scan_valid, scan_done, cmp_hit, scan_busy;
     wire             move_busy;
@@ -51,8 +55,9 @@ module tb_pixel;
                 .MAXLEN(MAXLEN)) u_pix (
         .clk(clk), .rst_n(rst_n),
         .req(req), .x(x), .page(page), .valid(valid), .dout(dout),
-        .st_title(1'b0), .st_over(1'b0), .score_bcd(8'h00),
-        .blink(1'b0), .food_en(1'b0),
+        .st_title(1'b0), .st_over(1'b0), .score_bcd(score_bcd),
+        .score_full(score_full),
+        .blink(blink), .food_en(1'b0),
         .scan_req(p_scan_req), .scan_pos_i({{(11-POS_W){1'b0}}, scan_pos}),
         .scan_valid(scan_valid), .scan_done(scan_done), .food_pos_i(11'd0));
 
@@ -106,6 +111,18 @@ module tb_pixel;
             cell_lit = ok[0];
         end
     endfunction
+
+    // the sixteen bytes of the score page, one grab of the frame each
+    reg [127:0] sc_norm, sc_on, sc_off;
+    integer     sn;
+
+    task grab_score(output [127:0] col);
+        begin
+            grab_frame;
+            for (sn = 0; sn < 16; sn = sn + 1)
+                col[8*sn +: 8] = img[(SCORE_P << 7) + sn];
+        end
+    endtask
 
     reg [POS_W-1:0] want [0:NSEG-1];
     reg [GX_W-1:0]  bx, wx;
@@ -161,6 +178,29 @@ module tb_pixel;
                 $display("[FAIL] wall broken at row %0d", k);
                 errors = errors + 1;
             end
+
+        //--------------------------------------------------------------
+        // Score blink.  The body register is full at MAXLEN, so the score
+        // stops climbing; the digits blink there rather than looking stuck.
+        // Three grabs: normal, the lit half of the blink, the dark half.
+        //--------------------------------------------------------------
+        score_bcd  = 8'h29;
+        score_full = 1'b0;  blink = 1'b0;  grab_score(sc_norm);
+        score_full = 1'b1;  blink = 1'b1;  grab_score(sc_on);
+        score_full = 1'b1;  blink = 1'b0;  grab_score(sc_off);
+
+        if (sc_norm == 128'd0) begin
+            $display("[FAIL] score digits blank while the score still climbs");
+            errors = errors + 1;
+        end
+        if (sc_on != sc_norm) begin
+            $display("[FAIL] score altered on the lit half of the blink");
+            errors = errors + 1;
+        end
+        if (sc_off != 128'd0) begin
+            $display("[FAIL] score still drawn on the dark half of the blink");
+            errors = errors + 1;
+        end
 
         if (errors == 0) $display("==== PIXEL TB PASSED (CELL_SH=%0d) ====", CELL_SH);
         else             $display("==== PIXEL TB FAILED (CELL_SH=%0d, %0d) ====", CELL_SH, errors);

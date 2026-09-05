@@ -49,6 +49,7 @@ module pixel_gen #(
     input  wire        st_title,
     input  wire        st_over,
     input  wire [7:0]  score_bcd,         // 2 BCD digits, {tens, units}
+    input  wire        score_full,        // body is at MAXLEN: blink the digits
     input  wire        blink,             // ~4Hz
     input  wire        food_en,
 
@@ -141,7 +142,16 @@ module pixel_gen #(
     wire food_show = food_en && tgt_here && (!FOOD_SOLID || blink);
     wire [7:0] food_byte = food_show ? food_mask : 8'h00;
 
-    wire [7:0] score_byte = (page == SCORE_P[2:0]) ? font_bits : 8'h00;
+    // The score cannot go past MAXLEN - INIT_LEN because the body register is
+    // full there, so the two digits blink at the top instead of sitting still
+    // and reading like a counter that has jammed.  It reuses the border blink,
+    // which snake_top samples once per frame, so the tens and the units are
+    // never caught in opposite phases - the score column is sixteen separate
+    // byte requests and a free running blink would tear across them.
+    wire score_on = ~score_full | blink;
+
+    wire [7:0] score_byte = ((page == SCORE_P[2:0]) && score_on) ? font_bits
+                                                                : 8'h00;
 
     wire [7:0] static_byte = in_score ? (wall_byte | score_byte)
                                       : (wall_byte | food_byte);
